@@ -19,6 +19,8 @@ import 'package:family_hub/features/chores/templates/domain/chore_template.dart'
 import 'package:family_hub/features/chores/templates/domain/recurrence/recurrence.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 
 /// Deterministic ids: `id_1`, `id_2`, …
 class SeqIds {
@@ -201,6 +203,82 @@ DutyGroup aDutyGroup({
   active: active,
   sortOrder: sortOrder,
 );
+
+/// A stored occurrence: daily "wash the dishes", assigned to `cara`, 09:00
+/// Dhaka (03:00 UTC) on 2026-10-24. Tests override only what they are about.
+ChoreOccurrence anOccurrence({
+  String id = 'tpl_1_20261024',
+  String templateId = 'tpl_1',
+  int templateRev = 1,
+  String? slotKey,
+  DateKey? dateKey,
+  DateTime? dueAt,
+  int? dueMinutes = 540,
+  String nameBn = 'বাসন ধোয়া',
+  String? nameEn = 'Wash the dishes',
+  String? groupId = 'kitchen',
+  String instructions = '',
+  List<TemplateSubtask>? subtasks,
+  Difficulty difficulty = Difficulty.normal,
+  int? estimatedMinutes,
+  VerificationMode verification = VerificationMode.off,
+  OccurrenceStatus status = OccurrenceStatus.scheduled,
+  String? plannedAssigneeId = 'cara',
+  String? assigneeId = 'cara',
+  String? coverForId,
+  AssignmentSource assignmentSource = AssignmentSource.manual,
+  bool needsCover = false,
+  Map<String, SubtaskDone>? subtaskDone,
+  DateTime? completedAt,
+  String? completedBy,
+  DateTime? verifiedAt,
+  String? verifiedBy,
+  int reopenCount = 0,
+  CompletionException? exception,
+  SkipReason? skipReason,
+  bool needsAttention = false,
+  DateTime? lastCommentAt,
+  DateTime? deletedAt,
+  String? deletedBy,
+}) {
+  final day = dateKey ?? DateKey(2026, 10, 24);
+  return ChoreOccurrence(
+    id: id,
+    templateId: templateId,
+    templateRev: templateRev,
+    slotKey: slotKey,
+    dateKey: day,
+    monthKey: day.monthKey,
+    dueAt: dueAt ?? DateTime.utc(day.year, day.month, day.day, 3),
+    dueMinutes: dueMinutes,
+    nameBn: nameBn,
+    nameEn: nameEn,
+    groupId: groupId,
+    instructions: instructions,
+    subtasks: subtasks ?? const <TemplateSubtask>[],
+    difficulty: difficulty,
+    estimatedMinutes: estimatedMinutes,
+    verification: verification,
+    status: status,
+    plannedAssigneeId: plannedAssigneeId,
+    assigneeId: assigneeId,
+    coverForId: coverForId,
+    assignmentSource: assignmentSource,
+    needsCover: needsCover,
+    subtaskDone: subtaskDone ?? const <String, SubtaskDone>{},
+    completedAt: completedAt,
+    completedBy: completedBy,
+    verifiedAt: verifiedAt,
+    verifiedBy: verifiedBy,
+    reopenCount: reopenCount,
+    exception: exception,
+    skipReason: skipReason,
+    needsAttention: needsAttention,
+    lastCommentAt: lastCommentAt,
+    deletedAt: deletedAt,
+    deletedBy: deletedBy,
+  );
+}
 
 /// In-memory [ChoreSettingsRepository] for use-case tests.
 class FakeChoreSettingsRepository implements ChoreSettingsRepository {
