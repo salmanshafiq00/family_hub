@@ -1,10 +1,15 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:family_hub/core/audit/audit_event.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
+import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
+import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/generation_plan.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 
@@ -56,7 +61,8 @@ class InMemoryChoresBackend implements TemplateRepository {
   }
 
   List<TemplateRecord> _records(String familyId) => <TemplateRecord>[
-    for (final template in _sorted(familyId)) TemplateRecord(template: template),
+    for (final template in _sorted(familyId))
+      TemplateRecord(template: template),
   ];
 
   @override
@@ -70,7 +76,10 @@ class InMemoryChoresBackend implements TemplateRepository {
   }
 
   @override
-  Future<Result<TemplateRecord?>> get(String familyId, String templateId) async {
+  Future<Result<TemplateRecord?>> get(
+    String familyId,
+    String templateId,
+  ) async {
     final failure = nextReadFailure;
     if (failure != null) {
       nextReadFailure = null;
@@ -200,6 +209,269 @@ class InMemoryDutyGroupBackend implements DutyGroupRepository {
     (groups[familyId] ??= <String, DutyGroup>{})[group.id] = group;
     events.add(event);
     notify(familyId);
+    return const Success<void>(null);
+  }
+}
+
+/// In-memory `choreOccurrences` + `settings/choreGeneration` (road map P3-12).
+///
+/// It applies the whole [OccurrenceWritePlan] the use cases build, so a test
+/// can exercise generation, regeneration and replanning without Firestore.
+/// [beforeStage] lets a test inject another device's writes between the id read
+/// and the batch, which is exactly the race the use cases retry once.
+class InMemoryOccurrenceBackend
+    implements OccurrenceRepository, GenerationMarkerRepository {
+  /// `familyId -> occurrenceId -> occurrence`.
+  final Map<String, Map<String, ChoreOccurrence>> occurrences = {};
+
+  /// `familyId -> through` (the generation marker).
+  final Map<String, DateKey> markers = {};
+
+  /// Every plan that reached [stage] / [stageIntegrity].
+  final List<OccurrenceWritePlan> plans = <OccurrenceWritePlan>[];
+
+  /// Every audit entry carried by those plans.
+  final List<NewAudit> audits = <NewAudit>[];
+
+  /// Runs before a batch is applied (a test may write a competing document or
+  /// set [nextStageFailure] to simulate the server).
+  void Function(String familyId, OccurrenceWritePlan plan)? beforeStage;
+
+  /// Set to make the next batch fail (the failure is then cleared).
+  AppFailure? nextStageFailure;
+
+  /// Set to make the next marker write fail.
+  AppFailure? nextMarkerFailure;
+
+  /// When true, the next [idsInRange] pretends the range is empty (a device
+  /// that read before the other one wrote).
+  bool hideExistingIdsOnce = false;
+
+  int stageAttempts = 0;
+  int conflicts = 0;
+  int writes = 0;
+  int integrityWrites = 0;
+  int markerWrites = 0;
+
+  final Map<String, StreamController<void>> _changes = {};
+
+  StreamController<void> _controller(String familyId) =>
+      _changes.putIfAbsent(familyId, () => StreamController<void>.broadcast());
+
+  Map<String, ChoreOccurrence> _docs(String familyId) =>
+      occurrences.putIfAbsent(familyId, () => <String, ChoreOccurrence>{});
+
+  void notify(String familyId) => _controller(familyId).add(null);
+
+  List<ChoreOccurrence> _inRange(String familyId, DateKey from, DateKey to) {
+    final docs = <ChoreOccurrence>[
+      for (final occurrence in _docs(familyId).values)
+        if (!occurrence.dateKey.isBefore(from) &&
+            !occurrence.dateKey.isAfter(to))
+          occurrence,
+    ];
+    docs.sort((a, b) {
+      final byDate = a.dateKey.compareTo(b.dateKey);
+      return byDate != 0
+          ? byDate
+          : (a.slotKey ?? '').compareTo(b.slotKey ?? '');
+    });
+    return docs;
+  }
+
+  @override
+  Stream<List<ChoreOccurrence>> watchRange(
+    String familyId, {
+    required DateKey from,
+    required DateKey to,
+  }) async* {
+    yield _inRange(familyId, from, to);
+    await for (final _ in _controller(familyId).stream) {
+      yield _inRange(familyId, from, to);
+    }
+  }
+
+  @override
+  Stream<ChoreOccurrence?> watchOne(
+    String familyId,
+    String occurrenceId,
+  ) async* {
+    ChoreOccurrence? live() {
+      final found = _docs(familyId)[occurrenceId];
+      return found == null || found.isDeleted ? null : found;
+    }
+
+    yield live();
+    await for (final _ in _controller(familyId).stream) {
+      yield live();
+    }
+  }
+
+  @override
+  Future<Result<ChoreOccurrence?>> get(
+    String familyId,
+    String occurrenceId,
+  ) async {
+    final found = _docs(familyId)[occurrenceId];
+    return Success<ChoreOccurrence?>(
+      found == null || found.isDeleted ? null : found,
+    );
+  }
+
+  @override
+  Future<Result<List<String>>> idsInRange(
+    String familyId, {
+    required DateKey from,
+    required DateKey to,
+  }) async {
+    if (hideExistingIdsOnce) {
+      hideExistingIdsOnce = false;
+      return const Success<List<String>>(<String>[]);
+    }
+    return Success<List<String>>(<String>[
+      for (final occurrence in _inRange(familyId, from, to)) occurrence.id,
+    ]);
+  }
+
+  @override
+  Future<Result<List<ChoreOccurrence>>> listRange(
+    String familyId, {
+    required DateKey from,
+    required DateKey to,
+  }) async => Success<List<ChoreOccurrence>>(_inRange(familyId, from, to));
+
+  @override
+  Future<Result<List<ChoreOccurrence>>> listByTemplate(
+    String familyId,
+    String templateId, {
+    required DateKey from,
+  }) async {
+    final docs = <ChoreOccurrence>[
+      for (final occurrence in _docs(familyId).values)
+        if (occurrence.templateId == templateId &&
+            !occurrence.dateKey.isBefore(from))
+          occurrence,
+    ];
+    docs.sort((a, b) => a.dateKey.compareTo(b.dateKey));
+    return Success<List<ChoreOccurrence>>(docs);
+  }
+
+  @override
+  Future<Result<void>> stage(String familyId, OccurrenceWritePlan plan) =>
+      _apply(familyId, plan, integrity: false);
+
+  @override
+  Future<Result<void>> stageIntegrity(
+    String familyId,
+    OccurrenceWritePlan plan,
+  ) => _apply(familyId, plan, integrity: true);
+
+  Future<Result<void>> _apply(
+    String familyId,
+    OccurrenceWritePlan plan, {
+    required bool integrity,
+  }) async {
+    stageAttempts++;
+    beforeStage?.call(familyId, plan);
+    final failure = nextStageFailure;
+    if (failure != null) {
+      nextStageFailure = null;
+      return Failure<void>(failure);
+    }
+
+    final docs = _docs(familyId);
+    for (final draft in plan.creates) {
+      if (docs.containsKey(draft.id)) {
+        conflicts++;
+        return const Failure<void>(Conflict(code: 'already_exists'));
+      }
+    }
+    for (final draft in plan.creates) {
+      docs[draft.id] = draft.toOccurrence();
+    }
+    for (final draft in plan.restores) {
+      docs[draft.id] = draft.toOccurrence();
+    }
+    for (final replan in plan.replans) {
+      final current = docs[replan.occurrenceId];
+      if (current != null) {
+        docs[replan.occurrenceId] = _replan(current, replan);
+      }
+    }
+    for (final patch in plan.patches) {
+      final current = docs[patch.occurrenceId];
+      if (current != null) {
+        docs[patch.occurrenceId] = _patch(current, patch);
+      }
+    }
+
+    plans.add(plan);
+    audits.addAll(plan.audits);
+    if (integrity) {
+      integrityWrites++;
+    } else {
+      writes++;
+    }
+    notify(familyId);
+    return const Success<void>(null);
+  }
+
+  ChoreOccurrence _replan(ChoreOccurrence current, OccurrenceReplan replan) {
+    final draft = replan.draft.occurrence;
+    var next = current.copyWith(
+      templateRev: draft.templateRev,
+      dueAt: draft.dueAt,
+      dueMinutes: draft.dueMinutes,
+      nameBn: draft.nameBn,
+      nameEn: draft.nameEn,
+      groupId: draft.groupId,
+      instructions: draft.instructions,
+      subtasks: draft.subtasks,
+      difficulty: draft.difficulty,
+      estimatedMinutes: draft.estimatedMinutes,
+      verification: draft.verification,
+    );
+    if (replan.recomputeAssignment) {
+      next = next.copyWith(
+        plannedAssigneeId: draft.plannedAssigneeId,
+        assigneeId: draft.assigneeId,
+        assignmentSource: draft.assignmentSource,
+        needsCover: draft.needsCover,
+      );
+    }
+    return next;
+  }
+
+  ChoreOccurrence _patch(ChoreOccurrence current, OccurrencePatch patch) {
+    var deletedAt = current.deletedAt;
+    var deletedBy = current.deletedBy;
+    for (final entry in patch.fields.entries) {
+      if (entry.key == 'deletedAt') {
+        deletedAt = entry.value as DateTime?;
+      } else if (entry.key == 'deletedBy') {
+        deletedBy = entry.value as String?;
+      } else {
+        throw UnsupportedError('patch field ${entry.key}');
+      }
+    }
+    if (patch.removedFields.contains('deletedAt')) deletedAt = null;
+    if (patch.removedFields.contains('deletedBy')) deletedBy = null;
+    return current.copyWith(deletedAt: deletedAt, deletedBy: deletedBy);
+  }
+
+  @override
+  Future<Result<DateKey?>> readThrough(String familyId) async =>
+      Success<DateKey?>(markers[familyId]);
+
+  @override
+  Future<Result<void>> writeThrough(String familyId, DateKey through) async {
+    final failure = nextMarkerFailure;
+    if (failure != null) {
+      nextMarkerFailure = null;
+      return Failure<void>(failure);
+    }
+    markers[familyId] = through;
+    markerWrites++;
     return const Success<void>(null);
   }
 }

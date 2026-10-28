@@ -2,6 +2,7 @@ import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_index.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_draft.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 
@@ -98,16 +99,15 @@ final class ChoreItem {
 
   /// A projected occurrence: the generator's draft, not yet written.
   ///
-  /// P3-12 builds the draft; it has the same snapshot and planned owner as a
-  /// stored occurrence (status `scheduled`, no ticks), so the conversion is
-  /// shared with [ChoreItem.fromOccurrence] and no forward dependency is
-  /// needed in this step.
+  /// The draft has the same snapshot and planned owner as a stored occurrence
+  /// (status `scheduled`, no ticks), so the conversion is shared with
+  /// [ChoreItem.fromOccurrence] and the two views can never disagree (C-9).
   factory ChoreItem.fromDraft(
-    ChoreOccurrence draft, {
+    OccurrenceDraft draft, {
     AvailabilityIndex availability = AvailabilityIndex.empty,
     bool hasPendingSwap = false,
   }) => ChoreItem._from(
-    draft,
+    draft.toOccurrence(),
     isProjected: true,
     availability: availability,
     hasPendingSwap: hasPendingSwap,

@@ -8,10 +8,11 @@ import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_p
 /// Reads are by DATE RANGE, never "all occurrences": the calendar keeps ONE
 /// listener per visible month (D-P3-8) and filters "mine / family" in memory.
 ///
-/// Writes go through [stage], which applies a whole [OccurrenceWritePlan]
-/// (dotted-key patches + lifecycle events + inbox rows + audit entries) in one
-/// batch. A use case never writes an occurrence field directly, so the
-/// "patch only the keys you need" rule cannot be broken by accident.
+/// Writes go through [stage] / [stageIntegrity], which apply a whole
+/// [OccurrenceWritePlan] (creates + dotted-key patches + lifecycle events +
+/// inbox rows + audit entries) in one batch. A use case never writes an
+/// occurrence field directly, so the "patch only the keys you need" rule cannot
+/// be broken by accident.
 abstract interface class OccurrenceRepository {
   /// Live occurrences whose `dateKey` is in `[from, to]`, bounded by the
   /// month/page limit. Soft-deleted documents are returned and filtered by the
@@ -28,7 +29,45 @@ abstract interface class OccurrenceRepository {
   /// One-shot read (materializing a projected item, repairing a status).
   Future<Result<ChoreOccurrence?>> get(String familyId, String occurrenceId);
 
-  /// Applies [plan] in one batch. Everyday actions queue offline; generation
-  /// (P3-12) is the integrity write and probes the server first.
+  /// Existing ids in `[from, to]`, INCLUDING soft-deleted tombstones.
+  ///
+  /// Generation needs the ids only: a `set` on an existing id would be an
+  /// UPDATE for the rules (and be rejected), so a tombstone must block a create
+  /// exactly like a live document does.
+  Future<Result<List<String>>> idsInRange(
+    String familyId, {
+    required DateKey from,
+    required DateKey to,
+  });
+
+  /// Full documents in `[from, to]`, INCLUDING soft-deleted ones.
+  ///
+  /// Regenerate needs the tombstone so it can restore a document that matches
+  /// the recurrence again after a template is resumed.
+  Future<Result<List<ChoreOccurrence>>> listRange(
+    String familyId, {
+    required DateKey from,
+    required DateKey to,
+  });
+
+  /// Full documents of one template from [from] onwards, bounded by the page
+  /// limit (the `templateId + dateKey` index). Used by the replan.
+  Future<Result<List<ChoreOccurrence>>> listByTemplate(
+    String familyId,
+    String templateId, {
+    required DateKey from,
+  });
+
+  /// Applies [plan] in one batch. Everyday actions queue offline.
   Future<Result<void>> stage(String familyId, OccurrenceWritePlan plan);
+
+  /// Applies [plan] with a SERVER PROBE (integrity write, road map 3.4).
+  ///
+  /// Generation, regeneration and replan use this: two devices writing the same
+  /// deterministic ids offline would otherwise diverge. A create whose id
+  /// already exists fails with `Conflict`.
+  Future<Result<void>> stageIntegrity(
+    String familyId,
+    OccurrenceWritePlan plan,
+  );
 }

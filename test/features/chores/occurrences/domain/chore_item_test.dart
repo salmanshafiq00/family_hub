@@ -129,10 +129,9 @@ void main() {
 
   test('a draft is projected, read-only and never awaiting verification', () {
     final item = ChoreItem.fromDraft(
-      anOccurrence(
+      anOccurrenceDraft(
         subtasks: subtasks,
         verification: VerificationMode.required,
-        status: OccurrenceStatus.scheduled,
       ),
     );
 
@@ -150,7 +149,7 @@ void main() {
     );
     expect(
       ChoreItem.fromOccurrence(occurrence),
-      isNot(ChoreItem.fromDraft(occurrence)),
+      isNot(ChoreItem.fromDraft(anOccurrenceDraft(subtasks: subtasks))),
     );
   });
 

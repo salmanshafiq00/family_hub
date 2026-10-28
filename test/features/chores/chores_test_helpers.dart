@@ -3,6 +3,7 @@ import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
+import 'package:family_hub/core/utils/family_date_keys.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
@@ -20,6 +21,7 @@ import 'package:family_hub/features/chores/templates/domain/recurrence/recurrenc
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_draft.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 
 /// Deterministic ids: `id_1`, `id_2`, …
@@ -50,6 +52,7 @@ class ChoresFixture {
   final SeqIds ids;
   final FakeChoreSettingsRepository settings = FakeChoreSettingsRepository();
   final InMemoryChoresBackend chores = InMemoryChoresBackend();
+  final InMemoryOccurrenceBackend occurrences = InMemoryOccurrenceBackend();
 
   void _seedFamily() {
     backend.families[familyId] = const Family(
@@ -81,6 +84,9 @@ class ChoresFixture {
 
   /// The family port the use cases ask for permissions through.
   FamilyRepository get families => backend;
+
+  /// The family zone for the generator and the due times.
+  FamilyDateKeys get dateKeys => FamilyDateKeys(clock: clock);
 
   /// The seeded roster as the rotation resolver sees it (Alice, Bob, Cara,
   /// Dave and the pending Erin).
@@ -279,6 +285,67 @@ ChoreOccurrence anOccurrence({
     deletedBy: deletedBy,
   );
 }
+
+/// A member with a stable shape, for the disabled/absent cases.
+Member aMember({
+  String uid = 'cara',
+  MemberRole role = MemberRole.member,
+  MembershipStatus status = MembershipStatus.active,
+  String fullName = 'Person cara',
+  String relationship = 'other',
+}) => Member(
+  uid: uid,
+  role: role,
+  status: status,
+  fullName: fullName,
+  relationship: relationship,
+);
+
+/// A projected occurrence (a generator draft) with the same defaults as
+/// [anOccurrence], so a test can compare the projected and stored views.
+OccurrenceDraft anOccurrenceDraft({
+  String id = 'tpl_1_20261024',
+  String templateId = 'tpl_1',
+  int templateRev = 1,
+  String? slotKey,
+  DateKey? dateKey,
+  DateTime? dueAt,
+  int? dueMinutes = 540,
+  String nameBn = 'বাসন ধোয়া',
+  String? nameEn = 'Wash the dishes',
+  String? groupId = 'kitchen',
+  String instructions = '',
+  List<TemplateSubtask>? subtasks,
+  Difficulty difficulty = Difficulty.normal,
+  int? estimatedMinutes,
+  VerificationMode verification = VerificationMode.off,
+  String? plannedAssigneeId = 'cara',
+  String? assigneeId = 'cara',
+  AssignmentSource assignmentSource = AssignmentSource.manual,
+  bool needsCover = false,
+}) => OccurrenceDraft(
+  anOccurrence(
+    id: id,
+    templateId: templateId,
+    templateRev: templateRev,
+    slotKey: slotKey,
+    dateKey: dateKey,
+    dueAt: dueAt,
+    dueMinutes: dueMinutes,
+    nameBn: nameBn,
+    nameEn: nameEn,
+    groupId: groupId,
+    instructions: instructions,
+    subtasks: subtasks,
+    difficulty: difficulty,
+    estimatedMinutes: estimatedMinutes,
+    verification: verification,
+    plannedAssigneeId: plannedAssigneeId,
+    assigneeId: assigneeId,
+    assignmentSource: assignmentSource,
+    needsCover: needsCover,
+  ),
+);
 
 /// In-memory [ChoreSettingsRepository] for use-case tests.
 class FakeChoreSettingsRepository implements ChoreSettingsRepository {

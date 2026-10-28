@@ -1,3 +1,6 @@
+import 'package:family_hub/core/audit/audit_ref_type.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_draft.dart';
+
 /// The lifecycle event types (`choreOccurrences/{id}/events`).
 ///
 /// Subtask ticks and the initial rotation assignment write NO event: the
@@ -128,18 +131,54 @@ final class NewAudit {
   const NewAudit({
     required this.type,
     required this.refId,
+    this.refType = AuditRefType.occurrence,
     this.params = const <String, String>{},
   });
 
   /// A key of `AuditEventType` (for example `chores.occurrence_completed`).
   final String type;
 
-  /// The occurrence id.
+  /// The occurrence id, or the family/template id for a bulk event.
   final String refId;
+
+  /// A key of `AuditRefType`; `occurrence` for the everyday actions.
+  final String refType;
   final Map<String, String> params;
 
   @override
-  String toString() => 'NewAudit($type, $refId)';
+  String toString() => 'NewAudit($type, $refType/$refId)';
+}
+
+/// A snapshot refresh of one existing occurrence (P3-12 replan).
+///
+/// The repository writes the draft's snapshot fields and `templateRev`; the
+/// planned owner is replaced ONLY when [recomputeAssignment] is true, because a
+/// manual assignment, a cover, a swap or a reassign is a human decision that a
+/// template edit must never undo (D-P3-23).
+final class OccurrenceReplan {
+  const OccurrenceReplan({
+    required this.occurrenceId,
+    required this.draft,
+    this.recomputeAssignment = true,
+  });
+
+  final String occurrenceId;
+  final OccurrenceDraft draft;
+  final bool recomputeAssignment;
+
+  @override
+  bool operator ==(Object other) =>
+      other is OccurrenceReplan &&
+      other.occurrenceId == occurrenceId &&
+      other.draft == draft &&
+      other.recomputeAssignment == recomputeAssignment;
+
+  @override
+  int get hashCode => Object.hash(occurrenceId, draft, recomputeAssignment);
+
+  @override
+  String toString() =>
+      'OccurrenceReplan($occurrenceId, assignment: $recomputeAssignment)';
 }
 
 /// Everything ONE action writes, in ONE batch (road map 3.4).
@@ -151,6 +190,9 @@ final class OccurrenceWritePlan {
   const OccurrenceWritePlan({
     required this.actorId,
     required this.at,
+    this.creates = const <OccurrenceDraft>[],
+    this.restores = const <OccurrenceDraft>[],
+    this.replans = const <OccurrenceReplan>[],
     this.patches = const <OccurrencePatch>[],
     this.events = const <NewEvent>[],
     this.inbox = const <NewInboxItem>[],
@@ -163,17 +205,33 @@ final class OccurrenceWritePlan {
   /// The client clock instant of the action.
   final DateTime at;
 
+  /// New documents (generation, materializing a projected item).
+  final List<OccurrenceDraft> creates;
+
+  /// Soft-deleted documents that match again (a resumed template).
+  final List<OccurrenceDraft> restores;
+
+  /// Snapshot refreshes of existing documents (template edit).
+  final List<OccurrenceReplan> replans;
+
   final List<OccurrencePatch> patches;
   final List<NewEvent> events;
   final List<NewInboxItem> inbox;
   final List<NewAudit> audits;
 
   bool get isEmpty =>
-      patches.isEmpty && events.isEmpty && inbox.isEmpty && audits.isEmpty;
+      creates.isEmpty &&
+      restores.isEmpty &&
+      replans.isEmpty &&
+      patches.isEmpty &&
+      events.isEmpty &&
+      inbox.isEmpty &&
+      audits.isEmpty;
 
   @override
   String toString() =>
-      'OccurrenceWritePlan(${patches.length} patches, '
-      '${events.length} events, ${inbox.length} inbox, '
-      '${audits.length} audits)';
+      'OccurrenceWritePlan(${creates.length} creates, '
+      '${restores.length} restores, ${replans.length} replans, '
+      '${patches.length} patches, ${events.length} events, '
+      '${inbox.length} inbox, ${audits.length} audits)';
 }

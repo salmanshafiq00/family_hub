@@ -59,6 +59,27 @@ Future<PermissionSettings> _loadSettings(
   return loaded.valueOrNull ?? PermissionSettings.defaults;
 }
 
+/// Loads the acting member and denies anyone who is not ACTIVE.
+///
+/// Used by the flows every active member may run but a pending, rejected,
+/// disabled or removed member may not (`EnsureOccurrences`, D-P3-7). It does
+/// not consult the permission matrix: there is no permission to check.
+Future<Result<Member>> requireActiveMember(
+  FamilyRepository repository, {
+  required String familyId,
+  required String actorUid,
+}) async {
+  final result = await repository.getMember(familyId, actorUid);
+  final failure = result.failureOrNull;
+  if (failure != null) return Failure<Member>(failure);
+
+  final actor = result.valueOrNull;
+  if (actor == null || !actor.isActive) {
+    return const Failure<Member>(PermissionDenied());
+  }
+  return Success<Member>(actor);
+}
+
 /// True when applying [updated] to [members] leaves no active admin.
 ///
 /// Firestore rules cannot enumerate a subcollection, so the last-admin guard
