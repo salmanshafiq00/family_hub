@@ -34,10 +34,11 @@ import 'package:family_hub/features/bazar/items_categories/domain/item.dart';
 import 'package:family_hub/features/bazar/items_categories/domain/item_usage_bump.dart';
 import 'package:family_hub/features/bazar/settings/data/bazar_settings_mappers.dart';
 import 'package:family_hub/features/bazar/settings/domain/bazar_settings.dart';
+import 'package:family_hub/features/chores/duty_groups/data/duty_group_mappers.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/templates/data/chore_template_mappers.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/recurrence/recurrence.dart';
-import 'package:family_hub/features/chores/templates/domain/template_enums.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/features/family/data/family_mappers.dart';
 import 'package:family_hub/features/family/data/relationship_mappers.dart';
@@ -129,6 +130,7 @@ List<Map<String, dynamic>> _fixtures() => <Map<String, dynamic>>[
   _contributionRecorded(),
   _contributionPlan(),
   _choreTemplate(),
+  _dutyGroup(),
 ];
 
 Map<String, dynamic> _fixture(
@@ -964,6 +966,48 @@ Map<String, dynamic> _choreTemplate() {
       'set',
       FirestorePaths.choreTemplateDoc(_familyId, template.id),
       ChoreTemplateMappers.toMap(template, _meta(_admin)),
+    ),
+    ..._eventWrites(event),
+  ]);
+}
+
+/// P3-10: the REAL `DutyGroupMappers.toMap` payload plus its audit entry.
+/// `contract.test.mjs` pushes it through `dutyGroupOk()`; the version-count and
+/// roster-size boundaries live in `duty_groups.test.mjs`.
+Map<String, dynamic> _dutyGroup() {
+  final group = DutyGroup(
+    id: 'group_fixKitchen',
+    nameBn: 'দৈনিক রান্নাঘর ডিউটি',
+    nameEn: 'Daily kitchen duty',
+    colorIndex: 3,
+    rotation: Rotation(
+      versions: <RotationVersion>[
+        RotationVersion(
+          from: DateKey(2026, 9, 1),
+          members: const <String>[_admin, _member, 'fixCara'],
+          anchorDate: DateKey(2026, 10, 3),
+          anchorIndex: 0,
+          cycleUnit: CycleUnit.week,
+          weekStartDay: DateTime.saturday,
+        ),
+      ],
+    ),
+    sortOrder: 1,
+  );
+  final event = AuditEvent(
+    id: 'ev31',
+    type: AuditEventType.choresDutyGroupCreated,
+    actorId: _admin,
+    refType: AuditRefType.dutyGroup,
+    refId: group.id,
+    at: _at,
+    params: const <String, String>{'name': 'দৈনিক রান্নাঘর ডিউটি'},
+  );
+  return _fixture('duty_group', _admin, <Map<String, dynamic>>[
+    _write(
+      'set',
+      FirestorePaths.dutyGroupDoc(_familyId, group.id),
+      DutyGroupMappers.toMap(group, _meta(_admin)),
     ),
     ..._eventWrites(event),
   ]);

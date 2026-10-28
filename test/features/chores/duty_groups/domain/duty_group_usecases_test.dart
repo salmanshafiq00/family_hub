@@ -2,11 +2,12 @@ import 'package:family_hub/core/audit/audit_event_type.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
-import 'package:family_hub/features/chores/duty_groups/domain/rotation.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation_engine.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/usecases/change_rotation.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/usecases/create_duty_group.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/usecases/update_duty_group.dart';
+import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
+import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../chores_test_helpers.dart';
@@ -30,6 +31,7 @@ void main() {
     );
     update = UpdateDutyGroup(
       groups: groups,
+      templates: fixture.chores,
       families: fixture.families,
       clock: fixture.clock,
       newId: fixture.ids.call,
@@ -191,6 +193,79 @@ void main() {
       );
       expect(result.failureOrNull, const Network());
     });
+
+    test('deactivating a group a template still uses warns first', () async {
+      final group = await seed();
+      fixture.chores.templates[familyId] = <String, ChoreTemplate>{
+        'tpl_1': _aChore('tpl_1', group.id),
+      };
+      final writesBefore = fixture.chores.dutyGroups.writes;
+
+      final result = await update(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: group.id,
+        nameBn: group.nameBn,
+        active: false,
+      );
+
+      expect(result.failureOrNull, const Conflict(code: 'last_group_in_use'));
+      expect(fixture.chores.dutyGroups.writes, writesBefore);
+    });
+
+    test('the warning can be confirmed and then deactivates', () async {
+      final group = await seed();
+      fixture.chores.templates[familyId] = <String, ChoreTemplate>{
+        'tpl_1': _aChore('tpl_1', group.id),
+      };
+      final writesBefore = fixture.chores.dutyGroups.writes;
+
+      final result = await update(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: group.id,
+        nameBn: group.nameBn,
+        active: false,
+        confirmDeactivate: true,
+      );
+
+      expect(result.valueOrNull!.active, isFalse);
+      expect(fixture.chores.dutyGroups.writes, writesBefore + 1);
+    });
+
+    test('an archived template does not block deactivation', () async {
+      final group = await seed();
+      fixture.chores.templates[familyId] = <String, ChoreTemplate>{
+        'tpl_1': _aChore('tpl_1', group.id, archived: true),
+      };
+
+      final result = await update(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: group.id,
+        nameBn: group.nameBn,
+        active: false,
+      );
+
+      expect(result.valueOrNull!.active, isFalse);
+    });
+
+    test('a template of another group does not block deactivation', () async {
+      final group = await seed();
+      fixture.chores.templates[familyId] = <String, ChoreTemplate>{
+        'tpl_1': _aChore('tpl_1', 'group_other'),
+      };
+
+      final result = await update(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: group.id,
+        nameBn: group.nameBn,
+        active: false,
+      );
+
+      expect(result.valueOrNull!.active, isFalse);
+    });
   });
 
   group('ChangeRotation', () {
@@ -345,3 +420,17 @@ void main() {
     expect(listed.valueOrNull!.map((group) => group.sortOrder), <int>[0, 1]);
   });
 }
+
+/// A template whose rotation points at [groupId].
+ChoreTemplate _aChore(String id, String groupId, {bool archived = false}) =>
+    ChoreTemplate(
+      id: id,
+      draft: aTemplate(
+        assignee: AssigneeSpec(
+          strategy: AssigneeStrategy.rotation,
+          dutyGroupId: groupId,
+        ),
+      ),
+      active: !archived,
+      archivedAt: archived ? DateTime.utc(2026, 10, 1) : null,
+    );

@@ -291,8 +291,32 @@ export const choreTemplateDoc = (uid, extra = {}) =>
     ...extra,
   });
 
-/** `BudgetMappers.toMap` shape; money is integer paisa (P2-17). */
-export const budgetDoc = (uid, extra = {}) =>
+/** `DutyGroupMappers.toMap` shape (P3-10). */
+export const dutyGroupDoc = (uid, extra = {}) =>
+  baseDoc(uid, {
+    nameBn: 'দৈনিক রান্নাঘর ডিউটি',
+    nameEn: 'Daily kitchen duty',
+    colorIndex: 1,
+    rotation: {
+      versions: [
+        {
+          from: '2026-09-01',
+          members: ['alice', 'cara', 'dave'],
+          anchorDate: '2026-10-03',
+          anchorIndex: 0,
+          cycleUnit: 'week',
+          weekStartDay: 6,
+        },
+      ],
+    },
+    active: true,
+    sortOrder: 0,
+    deletedAt: null,
+    deletedBy: null,
+    ...extra,
+  });
+
+/** `BudgetMappers.toMap` shape; money is integer paisa (P2-17). */export const budgetDoc = (uid, extra = {}) =>
   baseDoc(uid, {
     monthKey: '2026-10',
     totalEstimatePaisa: 864000,

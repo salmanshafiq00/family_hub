@@ -1,0 +1,96 @@
+{
+  "scenario": "duty_group",
+  "actor": "fixAdmin",
+  "writes": [
+    {
+      "op": "set",
+      "path": "families/fixFam/dutyGroups/group_fixKitchen",
+      "data": {
+        "nameBn": "দৈনিক রান্নাঘর ডিউটি",
+        "nameEn": "Daily kitchen duty",
+        "colorIndex": 3,
+        "rotation": {
+          "versions": [
+            {
+              "from": "2026-09-01",
+              "members": [
+                "fixAdmin",
+                "fixMember",
+                "fixCara"
+              ],
+              "anchorDate": "2026-10-03",
+              "anchorIndex": 0,
+              "cycleUnit": "week",
+              "weekStartDay": 6
+            }
+          ]
+        },
+        "active": true,
+        "sortOrder": 1,
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/activity/ev31",
+      "data": {
+        "type": "chores.duty_group_created",
+        "actorId": "fixAdmin",
+        "summary": "",
+        "refType": "dutyGroup",
+        "refId": "group_fixKitchen",
+        "params": {
+          "name": "দৈনিক রান্নাঘর ডিউটি"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/auditLogs/ev31",
+      "data": {
+        "type": "chores.duty_group_created",
+        "actorId": "fixAdmin",
+        "summary": "",
+        "refType": "dutyGroup",
+        "refId": "group_fixKitchen",
+        "params": {
+          "name": "দৈনিক রান্নাঘর ডিউটি"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1
+      }
+    }
+  ]
+}

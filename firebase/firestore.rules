@@ -365,6 +365,50 @@ service cloud.firestore {
         && d.get('builtIn', false) is bool
         && optStr(d, 'seedKey', 64);
     }
+    // P3-10: dutyGroups/{id}.  The exact fields DutyGroupMappers.toMap writes.
+    // Rules cannot loop, so only the first and last rotation version are checked
+    // here; RotationValidator is the authority for every version in between.
+    function dutyGroupKeys() {
+      return ['nameBn', 'nameEn', 'colorIndex', 'rotation', 'active',
+              'sortOrder', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
+              'schemaVersion', 'deletedAt', 'deletedBy'];
+    }
+    function rotationVersionOk(v) {
+      return v is map
+        && v.get('from', '') is string
+        && v.from.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && v.get('members', []) is list
+        && v.members.size() >= 2 && v.members.size() <= 12
+        && v.members[0] is string && v.members[0].size() > 0
+        && v.members[v.members.size() - 1] is string
+        && v.members[v.members.size() - 1].size() > 0
+        && v.get('anchorDate', '') is string
+        && v.anchorDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && v.get('anchorIndex', -1) is int
+        && v.anchorIndex >= 0 && v.anchorIndex < v.members.size()
+        && v.get('cycleUnit', '') in ['day', 'week', 'month', 'occurrence']
+        && v.get('weekStartDay', 0) is int
+        && v.weekStartDay >= 1 && v.weekStartDay <= 7;
+    }
+    function rotationOk(r) {
+      return r is map
+        && r.keys().hasOnly(['versions'])
+        && r.get('versions', []) is list
+        && r.versions.size() >= 1 && r.versions.size() <= 20
+        && rotationVersionOk(r.versions[0])
+        && rotationVersionOk(r.versions[r.versions.size() - 1]);
+    }
+    function dutyGroupOk(d) {
+      return d.keys().hasOnly(dutyGroupKeys())
+        && str(d.get('nameBn', ''), 1, 80)
+        && optStr(d, 'nameEn', 80)
+        && (!('colorIndex' in d.keys()) || d.colorIndex == null
+            || (d.colorIndex is int
+                && d.colorIndex >= 0 && d.colorIndex <= 11))
+        && rotationOk(d.get('rotation', {}))
+        && d.get('active', true) is bool
+        && d.get('sortOrder', 0) is int;
+    }
     // Phase 2 catalog (P2-05): the exact fields `CatalogMappers` writes.
     function categoryKeys() {
       return ['nameBn', 'nameEn', 'colorIndex', 'emoji', 'imageData',
@@ -1759,6 +1803,22 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // ── dutyGroups/{id} — groups are never deleted (P3-10) ──────────────
+      // Manager or admin write.  Switching a group off is ALLOWED even while
+      // templates point at it: the use case warns, it does not forbid.
+      match /dutyGroups/{groupId} {
+        allow read: if canReadFamilyData(f);
+        allow create: if verified()
+          && isManager(f)
+          && createsAsSelf()
+          && dutyGroupOk(request.resource.data);
+        allow update: if verified()
+          && isManager(f)
+          && writesAsSelf()
+          && dutyGroupOk(request.resource.data);
+        allow delete: if false;
+      }
+
       // ── budgets/{yyyy-MM} — finance managers write, members read (P2-17) ─
       // A budget is a plan, so it is not tied to the month lock.  A moderator
       // needs `moderatorManagesFinance` (financeManager).  No hard delete.
@@ -1834,8 +1894,8 @@ service cloud.firestore {
     // under-grant.  Each of those steps must still add its own read/write and
     // field-validation rules here.
     //   contributions, contributionPlans,
-    //   fundTransactions, memberAdvances, settlements, choreTemplates,
-    //   dutyGroups, choreOccurrences, memberAvailability, swapRequests,
+    //   fundTransactions, memberAdvances, settlements,
+    //   choreOccurrences, memberAvailability, swapRequests,
     //   notificationInbox, memberStats
     // ══════════════════════════════════════════════════════════════════════
     match /families/{f}/{collection}/{doc} {

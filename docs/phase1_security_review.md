@@ -51,6 +51,18 @@ ledger rows and settlements in a closed month. Tests planned in
 Collections: `expenses` (with nested `revisions`), `bazarTrips`,
 `fundTransactions`, `memberAdvances`, `settlements`, `monthClosings`.
 
+## Phase 3 additions (P3-08, P3-10)
+
+`choreTemplates` and `dutyGroups` have closed key sets
+(`templateKeys`/`templateOk`, `dutyGroupKeys`/`dutyGroupOk`), manager-or-admin
+writes, any active member reads, and `allow delete: if false`. A template's
+`revision` must increase by exactly one and its `seedKey`/`builtIn` are
+immutable; a duty group's `rotation` is capped at 20 versions, with the first
+and last version shape-checked (rules cannot loop, so `RotationValidator` is the
+authority for every version in between). Tests:
+`firebase/rules_test/chore_templates.test.mjs` and
+`firebase/rules_test/duty_groups.test.mjs`.
+
 ## Findings
 
 | Id | Severity | Finding | Recommended fix |

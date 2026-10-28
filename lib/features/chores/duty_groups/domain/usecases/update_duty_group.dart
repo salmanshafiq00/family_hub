@@ -9,6 +9,7 @@ import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group_validator.dart';
+import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 import 'package:family_hub/features/family/domain/family_repository.dart';
 import 'package:family_hub/features/family/domain/permission_access.dart';
 
@@ -17,15 +18,22 @@ import 'package:family_hub/features/family/domain/permission_access.dart';
 ///
 /// The rotation changes only through [ChangeRotation], so this use case can
 /// never move somebody's turn by accident. An EVERYDAY write (no server probe).
+///
+/// Switching a group off is ALLOWED while templates still use it (P3-10): the
+/// family may be replacing it. The first call then returns
+/// `Conflict('last_group_in_use')` as a WARNING and writes nothing; the screen
+/// asks the manager and retries with [confirmDeactivate] once they agree.
 class UpdateDutyGroup {
   const UpdateDutyGroup({
     required this._groups,
+    required this._templates,
     required this._families,
     required this._clock,
     required this._newId,
   });
 
   final DutyGroupRepository _groups;
+  final TemplateRepository _templates;
   final FamilyRepository _families;
   final Clock _clock;
   final IdGenerator _newId;
@@ -40,6 +48,7 @@ class UpdateDutyGroup {
     int? colorIndex,
     bool? active,
     int? sortOrder,
+    bool confirmDeactivate = false,
   }) async {
     final permitted = await requirePermission(
       _families,
@@ -69,6 +78,20 @@ class UpdateDutyGroup {
     );
     final invalid = DutyGroupValidator.validate(updated);
     if (invalid != null) return Failure<DutyGroup>(invalid);
+
+    if (!confirmDeactivate && current.active && !updated.active) {
+      final listed = await _templates.list(familyId);
+      final readFailure = listed.failureOrNull;
+      if (readFailure != null) return Failure<DutyGroup>(readFailure);
+      final inUse = (listed.valueOrNull ?? const <TemplateRecord>[]).any(
+        (record) =>
+            !record.template.isArchived &&
+            record.template.draft.assignee.dutyGroupId == updated.id,
+      );
+      if (inUse) {
+        return const Failure<DutyGroup>(Conflict(code: 'last_group_in_use'));
+      }
+    }
 
     final written = await _groups.save(
       familyId,

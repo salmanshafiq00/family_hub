@@ -14,8 +14,6 @@ void main() {
   // Collections whose rules arrive in Phase 2/3 (CLAUDE.md: the step that adds
   // a collection extends the rules in the same commit and removes it here).
   const pending = <String>{
-    FirestorePaths.choreTemplatesSubcollection,
-    FirestorePaths.dutyGroupsSubcollection,
     FirestorePaths.choreOccurrencesSubcollection,
     FirestorePaths.memberAvailabilitySubcollection,
     FirestorePaths.swapRequestsSubcollection,
@@ -54,6 +52,8 @@ void main() {
       FirestorePaths.monthClosingsSubcollection,
       FirestorePaths.contributionsSubcollection,
       FirestorePaths.contributionPlansSubcollection,
+      FirestorePaths.choreTemplatesSubcollection,
+      FirestorePaths.dutyGroupsSubcollection,
     ];
     for (final name in implemented) {
       expect(matched, contains(name), reason: 'rules lack match /$name/');

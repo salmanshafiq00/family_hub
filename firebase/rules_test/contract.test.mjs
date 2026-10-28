@@ -219,6 +219,9 @@ const seeders = {
   chore_template: async (db) => {
     await seedFamilyWithAdmin(db);
   },
+  duty_group: async (db) => {
+    await seedFamilyWithAdmin(db);
+  },
 };
 
 const seedFamilyWithAdmin = async (db) => {

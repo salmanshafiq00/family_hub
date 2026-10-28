@@ -1,5 +1,6 @@
 import 'package:family_hub/core/firebase/base_mapper.dart';
 import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/templates/data/rotation_mappers.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/recurrence/recurrence.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
@@ -181,38 +182,9 @@ abstract final class ChoreTemplateMappers {
       fixedMemberId: _nullableString(map['fixedMemberId'], 64),
       dutyGroupId: _nullableString(map['dutyGroupId'], 24),
       rotation: strategy == AssigneeStrategy.rotation
-          ? _rotation(map['rotation'])
+          ? RotationMappers.fromMap(map['rotation'])
           : null,
     );
-  }
-
-  static Rotation? _rotation(Object? raw) {
-    if (raw is! Map) return null;
-    final versions = raw['versions'];
-    if (versions is! List) return null;
-    final parsed = <RotationVersion>[];
-    for (final item in versions) {
-      if (parsed.length == TemplateLimits.maxRotationVersions) break;
-      if (item is! Map) continue;
-      final from = _date(item['from']);
-      final anchor = _date(item['anchorDate']);
-      final members = item['members'];
-      if (from == null || anchor == null || members is! List) continue;
-      parsed.add(
-        RotationVersion(
-          from: from,
-          anchorDate: anchor,
-          members: <String>[
-            for (final member in members)
-              if (member is String && member.isNotEmpty) member,
-          ],
-          anchorIndex: _int(item['anchorIndex']),
-          cycleUnit: CycleUnit.fromId(item['cycleUnit']),
-          weekStartDay: _intIn(item['weekStartDay'], 1, 7) ?? 6,
-        ),
-      );
-    }
-    return parsed.isEmpty ? null : Rotation(versions: parsed);
   }
 
   static ReminderConfig _reminders(Object? raw) {
