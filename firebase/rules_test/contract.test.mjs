@@ -222,6 +222,15 @@ const seeders = {
   duty_group: async (db) => {
     await seedFamilyWithAdmin(db);
   },
+  // P3-13: the fixture's actor is a plain member who COMPLETED the chore, so
+  // the family needs that member (the seed's `MEMBER` is the planned owner).
+  chore_occurrence: async (db) => {
+    await seedFamilyWithAdmin(db);
+    await setDoc(
+      doc(db, `families/${FAMILY}/members/fixCara`),
+      memberDoc('fixCara', 'member', 'active'),
+    );
+  },
 };
 
 const seedFamilyWithAdmin = async (db) => {

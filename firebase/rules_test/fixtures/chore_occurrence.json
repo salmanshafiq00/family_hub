@@ -1,0 +1,142 @@
+{
+  "scenario": "chore_occurrence",
+  "actor": "fixCara",
+  "writes": [
+    {
+      "op": "set",
+      "path": "families/fixFam/choreOccurrences/tpl_fixDishes_20261018",
+      "data": {
+        "templateId": "tpl_fixDishes",
+        "templateRev": 3,
+        "slotKey": null,
+        "dateKey": "2026-10-18",
+        "monthKey": "2026-10",
+        "dueAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "dueMinutes": 540,
+        "nameBn": "থালা-বাসন ধোয়া",
+        "nameEn": "Wash the dishes",
+        "groupId": "kitchen",
+        "instructions": "# নিয়ম\n- **সাবধানে** ধোয়া",
+        "subtasks": [
+          {
+            "id": "rinse",
+            "title": "ধোয়া",
+            "required": true,
+            "hint": null
+          },
+          {
+            "id": "dry",
+            "title": "মুছা",
+            "required": false,
+            "hint": "গামছা ব্যবহার করুন"
+          }
+        ],
+        "difficulty": "hard",
+        "estimatedMinutes": 45,
+        "verification": "required",
+        "status": "completed",
+        "plannedAssigneeId": "fixMember",
+        "assigneeId": "fixCara",
+        "coverForId": "fixMember",
+        "assignmentSource": "cover",
+        "needsCover": false,
+        "subtaskDone": {
+          "rinse": {
+            "at": {
+              "__ts": "2026-10-18T10:00:00.000Z"
+            },
+            "by": "fixCara"
+          },
+          "dry": {
+            "at": {
+              "__ts": "2026-10-18T10:00:00.000Z"
+            },
+            "by": "fixCara"
+          }
+        },
+        "completedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "completedBy": "fixCara",
+        "verifiedAt": null,
+        "verifiedBy": null,
+        "reopenCount": 0,
+        "exception": null,
+        "skipReason": null,
+        "needsAttention": true,
+        "lastCommentAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixCara",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixCara",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/activity/ev40",
+      "data": {
+        "type": "chores.occurrence_completed",
+        "actorId": "fixCara",
+        "summary": "",
+        "refType": "occurrence",
+        "refId": "tpl_fixDishes_20261018",
+        "params": {
+          "name": "থালা-বাসন ধোয়া",
+          "date": "2026-10-18",
+          "member": "fixCara"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixCara",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixCara",
+        "schemaVersion": 1
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/auditLogs/ev40",
+      "data": {
+        "type": "chores.occurrence_completed",
+        "actorId": "fixCara",
+        "summary": "",
+        "refType": "occurrence",
+        "refId": "tpl_fixDishes_20261018",
+        "params": {
+          "name": "থালা-বাসন ধোয়া",
+          "date": "2026-10-18",
+          "member": "fixCara"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixCara",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixCara",
+        "schemaVersion": 1
+      }
+    }
+  ]
+}

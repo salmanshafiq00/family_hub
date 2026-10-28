@@ -409,6 +409,200 @@ service cloud.firestore {
         && d.get('active', true) is bool
         && d.get('sortOrder', 0) is int;
     }
+    // ── P3-13: choreOccurrences/{id} and its events/{id} ─────────────────────
+    // The exact fields OccurrenceMappers.toMap writes.  Subtask ticks live in
+    // the MAP `subtaskDone` so two phones can tick different boxes without
+    // overwriting each other (D-P3-9); the map is bounded by its size.
+    function occurrenceKeys() {
+      return ['templateId', 'templateRev', 'slotKey', 'dateKey', 'monthKey',
+              'dueAt', 'dueMinutes', 'nameBn', 'nameEn', 'groupId',
+              'instructions', 'subtasks', 'difficulty', 'estimatedMinutes',
+              'verification', 'status', 'plannedAssigneeId', 'assigneeId',
+              'coverForId', 'assignmentSource', 'needsCover', 'subtaskDone',
+              'completedAt', 'completedBy', 'verifiedAt', 'verifiedBy',
+              'reopenCount', 'exception', 'skipReason', 'needsAttention',
+              'lastCommentAt', 'createdAt', 'createdBy', 'updatedAt',
+              'updatedBy', 'schemaVersion', 'deletedAt', 'deletedBy'];
+    }
+    // The deterministic id (CLAUDE.md rule 4, ADR 0009): README pattern only.
+    function occurrenceIdOk(id) {
+      return id is string
+        && id.matches('^[A-Za-z0-9_]+_[0-9]{8}(_[a-z0-9]{1,12})?$');
+    }
+    function occurrenceDateKey(id) {
+      let match = id.match('^[A-Za-z0-9_]+_([0-9]{8})(_[a-z0-9]{1,12})?$');
+      return match[0][1];
+    }
+    function nullableTimestamp(d, k) {
+      return !(k in d.keys()) || d[k] == null || d[k] is timestamp;
+    }
+    function nullableId(d, k) {
+      return !(k in d.keys()) || d[k] == null || str(d[k], 1, 64);
+    }
+    function exceptionOk(e) {
+      return e is map
+        && e.keys().hasOnly(['note', 'by', 'at'])
+        && str(e.get('note', ''), 3, 300)
+        && str(e.get('by', ''), 1, 64)
+        && e.get('at', null) is timestamp;
+    }
+    // The shape of the whole document, whoever writes it.  Snapshot equality
+    // with the previous version is checked by the update rules below, because
+    // only they need it.
+    function occurrenceOk(id, d) {
+      return d.keys().hasOnly(occurrenceKeys())
+        && occurrenceIdOk(id)
+        && str(d.get('templateId', ''), 1, 64)
+        && d.get('dateKey', '') is string
+        && d.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && d.dateKey.replace('-', '').replace('-', '')
+             == occurrenceDateKey(id)
+        && monthKeyOk(d.get('monthKey', ''))
+        && d.monthKey == d.dateKey.substring(0, 7)
+        && d.get('dueAt', null) is timestamp
+        && d.get('templateRev', 0) is int && d.templateRev >= 1
+        && optStr(d, 'slotKey', 12)
+        && (!('dueMinutes' in d.keys())
+            || d.dueMinutes == null
+            || (d.dueMinutes is int && d.dueMinutes >= 0 && d.dueMinutes <= 1439))
+        && str(d.get('nameBn', ''), 1, 80)
+        && optStr(d, 'nameEn', 80)
+        && optStr(d, 'groupId', 24)
+        && str(d.get('instructions', ''), 0, 4000)
+        && d.get('subtasks', []) is list
+        && d.subtasks.size() <= 30
+        && (d.subtasks.size() == 0
+            || (subtaskOk(d.subtasks[0])
+                && subtaskOk(d.subtasks[d.subtasks.size() - 1])))
+        && d.get('difficulty', 'normal') in ['easy', 'normal', 'hard']
+        && (!('estimatedMinutes' in d.keys())
+            || d.estimatedMinutes == null
+            || (d.estimatedMinutes is int
+                && d.estimatedMinutes >= 1 && d.estimatedMinutes <= 600))
+        && d.get('verification', 'off') in ['off', 'required']
+        && d.get('status', '') in ['scheduled', 'in_progress', 'completed',
+                                   'verified', 'skipped']
+        && nullableId(d, 'plannedAssigneeId')
+        && nullableId(d, 'assigneeId')
+        && nullableId(d, 'coverForId')
+        && d.get('assignmentSource', '') in ['rotation', 'fixed', 'manual',
+                                             'cover', 'swap', 'reassign']
+        && d.get('needsCover', false) is bool
+        && d.get('subtaskDone', null) is map
+        && d.get('subtaskDone', {}).size() <= 30
+        && nullableTimestamp(d, 'completedAt')
+        && nullableId(d, 'completedBy')
+        && nullableTimestamp(d, 'verifiedAt')
+        && nullableId(d, 'verifiedBy')
+        && d.get('reopenCount', 0) is int && d.reopenCount >= 0
+        && d.reopenCount <= 100
+        && (!('exception' in d.keys())
+            || d.exception == null
+            || exceptionOk(d.exception))
+        && (!('skipReason' in d.keys())
+            || d.skipReason == null
+            || d.skipReason in ['absence', 'manager'])
+        && d.get('needsAttention', false) is bool
+        && nullableTimestamp(d, 'lastCommentAt');
+    }
+    // What a CREATE writes: straight from the generator, no history at all.
+    function occurrenceFresh(d) {
+      return d.get('status', '') == 'scheduled'
+        && d.get('subtaskDone', {}).size() == 0
+        && !('completedAt' in d.keys()) && !('completedBy' in d.keys())
+        && !('verifiedAt' in d.keys()) && !('verifiedBy' in d.keys())
+        && d.get('reopenCount', 0) == 0
+        && !('exception' in d.keys())
+        && !('skipReason' in d.keys())
+        && d.get('needsAttention', false) == false
+        && !('lastCommentAt' in d.keys())
+        && d.get('deletedAt', null) == null
+        && d.get('deletedBy', null) == null;
+    }
+    function occurrencePath(f, o) {
+      return /databases/$(database)/documents/families/$(f)/choreOccurrences/$(o);
+    }
+    function occurrenceEventPath(f, o, e) {
+      return /databases/$(database)/documents/families/$(f)/choreOccurrences/$(o)/events/$(e);
+    }
+    // The snapshot fields a template edit may refresh (P3-12 replan).
+    function occurrenceSnapshotUnchanged(after, before) {
+      return after.get('templateId', '') == before.get('templateId', '')
+        && after.get('slotKey', null) == before.get('slotKey', null)
+        && after.get('dateKey', '') == before.get('dateKey', '')
+        && after.get('monthKey', '') == before.get('monthKey', '')
+        && after.get('templateRev', 0) == before.get('templateRev', 0)
+        && after.get('nameBn', '') == before.get('nameBn', '')
+        && after.get('nameEn', null) == before.get('nameEn', null)
+        && after.get('groupId', null) == before.get('groupId', null)
+        && after.get('instructions', '') == before.get('instructions', '')
+        && after.get('subtasks', []) == before.get('subtasks', [])
+        && after.get('difficulty', 'normal') == before.get('difficulty', 'normal')
+        && after.get('estimatedMinutes', null)
+             == before.get('estimatedMinutes', null)
+        && after.get('verification', 'off') == before.get('verification', 'off')
+        && after.get('dueAt', null) == before.get('dueAt', null)
+        && after.get('dueMinutes', null) == before.get('dueMinutes', null)
+        && after.get('createdAt', null) == before.get('createdAt', null)
+        && after.get('createdBy', '') == before.get('createdBy', '');
+    }
+    // D-P3-14: a plain member only acts on somebody else's chore when the
+    // family switch allows it.  Absent document or key = false.
+    function membersMayCompleteForOthers(f) {
+      return isActiveMember(f)
+        && exists(permissionsPath(f))
+        && get(permissionsPath(f)).data
+             .get('membersCanCompleteForOthers', false) == true;
+    }
+    function mayTick(f, before) {
+      return isActiveMember(f)
+        && (isManager(f)
+            || before.get('assigneeId', null) == request.auth.uid
+            || membersMayCompleteForOthers(f));
+    }
+    // The event written in THIS batch must exist after the write, be written by
+    // the caller, match the occurrence and carry a reason (>= 3 characters).
+    function occurrenceEventAfter(f, o, e, type, minReason) {
+      return existsAfter(occurrenceEventPath(f, o, e))
+        && getAfter(occurrenceEventPath(f, o, e)).data.get('type', '') == type
+        && getAfter(occurrenceEventPath(f, o, e)).data.get('actorId', '')
+             == request.auth.uid
+        && str(getAfter(occurrenceEventPath(f, o, e)).data.get('reason', ''),
+              minReason, 300);
+    }
+    // The family's calendar day (Asia/Dhaka, UTC+6, no DST).
+    function todayKey(f) {
+      let local = request.time.toMillis() + 21600000;
+      let day = (local - (local % 86400000)) / 86400000;
+      let date = timestamp.date(timestamp.value(day * 86400, 's'));
+      return date.year.toString() + '-'
+        + (date.month < 10 ? '0' : '') + date.month.toString() + '-'
+        + (date.day < 10 ? '0' : '') + date.day.toString();
+    }
+    function occurrenceEventOk(d) {
+      return d.keys().hasOnly(['type', 'actorId', 'at', 'fromAssigneeId',
+                               'toAssigneeId', 'reason', 'prevCompletedAt',
+                               'requestId', 'createdAt', 'createdBy',
+                               'updatedAt', 'updatedBy', 'schemaVersion'])
+        && d.get('type', '') in ['covered', 'swapped', 'reassigned',
+                                 'completed', 'uncompleted', 'verified',
+                                 'reopened', 'exception', 'skipped',
+                                 'unskipped']
+        && d.get('actorId', '') is string && d.get('at', null) is timestamp
+        && optStr(d, 'reason', 300)
+        && nullableId(d, 'fromAssigneeId')
+        && nullableId(d, 'toAssigneeId')
+        && nullableId(d, 'requestId')
+        && nullableTimestamp(d, 'prevCompletedAt');
+    }
+    // Every occurrence update keeps the metadata and the soft-delete pair of a
+    // live document; only the transitions listed in the match block change it.
+    function occurrenceLive() {
+      return resource.data.get('deletedAt', null) == null;
+    }
+    function occurrenceChanged() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
     // Phase 2 catalog (P2-05): the exact fields `CatalogMappers` writes.
     function categoryKeys() {
       return ['nameBn', 'nameEn', 'colorIndex', 'emoji', 'imageData',
@@ -1819,6 +2013,250 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // ── choreOccurrences/{id} — the occurrence state machine (P3-13) ────
+      // Any active member may CREATE one (D-P3-7: a plain member must be able to
+      // complete today's chore even if no manager opened the app).  The rules
+      // check the shape, the deterministic id and `status == scheduled`; they
+      // cannot verify rotation correctness (no trusted server on Spark, ADR
+      // 0011).  ONE membership lookup on create keeps a 400-document generation
+      // batch inside the access-call budget (C-11).
+      match /choreOccurrences/{o} {
+        allow read: if canReadFamilyData(f);
+        allow create: if verified()
+          && canReadFamilyData(f)
+          && createsAsSelf()
+          && occurrenceOk(o, request.resource.data)
+          && occurrenceFresh(request.resource.data);
+
+        // 1. TICK a subtask (or record progress).  Only the touched
+        //    `subtaskDone.<id>` key changes, so two devices never overwrite each
+        //    other; every tick names its own actor (D-P3-9).
+        allow update: if verified()
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && mayTick(f, before)
+          && after.get('status', '') in ['scheduled', 'in_progress',
+                                         'completed']
+          && (after.get('reopenCount', 0) == before.get('reopenCount', 0))
+          && (after.get('verifiedAt', null) == before.get('verifiedAt', null))
+          && (after.get('skipReason', null) == before.get('skipReason', null))
+          && (after.get('completedBy', null) == request.auth.uid)
+          && after.diff(before).affectedKeys()
+               .hasOnly(['subtaskDone', 'status', 'completedAt', 'completedBy',
+                         'updatedAt', 'updatedBy']);
+
+        // 2. COMPLETE / UNCOMPLETE the parent (the whole task).  Completing
+        //    records the REAL actor (D-P3-14) and needs either every required
+        //    subtask ticked or an exception.
+        allow update: if verified()
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && mayTick(f, before)
+          && before.get('status', '') in ['scheduled', 'in_progress',
+                                          'completed']
+          && (after.get('completedBy', null) == null
+              || after.get('completedBy', null) == request.auth.uid)
+          && (after.get('completedAt', null) == null
+              || after.completedAt is timestamp)
+          && after.get('verifiedAt', null) == before.get('verifiedAt', null)
+          && after.get('skipReason', null) == before.get('skipReason', null)
+          && after.get('reopenCount', 0) == before.get('reopenCount', 0)
+          && (
+            (after.get('status', '') == 'completed'
+              && after.get('completedAt', null) is timestamp
+              && after.get('completedBy', '') == request.auth.uid)
+            || (after.get('status', '') in ['scheduled', 'in_progress']
+              && (after.get('completedAt', null) == null))
+          )
+          && after.diff(before).affectedKeys()
+               .hasOnly(['subtaskDone', 'status', 'completedAt', 'completedBy',
+                         'updatedAt', 'updatedBy']);
+
+        // 3. VERIFY: never the person who completed it, only a task that
+        //    requires it (snapshot) while the family switch is on, and only
+        //    with the `verified` event in the same batch.
+        allow update: if verified()
+          && isActiveMember(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') == 'completed'
+          && before.get('completedBy', '') != request.auth.uid
+          && before.get('verification', 'off') == 'required'
+          && (exists(permissionsPath(f))
+              && get(permissionsPath(f)).data
+                   .get('choreVerificationEnabled', false) == true)
+          && after.get('status', '') == 'verified'
+          && after.get('verifiedAt', null) is timestamp
+          && after.get('verifiedBy', '') == request.auth.uid
+          && after.diff(before).affectedKeys()
+               .hasOnly(['status', 'verifiedAt', 'verifiedBy',
+                         'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o, 'verified_' + string(before.reopenCount),
+                                  'verified', 0);
+
+        // 4. REOPEN: a completed task by anyone who may comment on it, a
+        //    VERIFIED one by a manager only (verified_requires_manager).  The
+        //    reason and the cleared completion survive on the `reopened` event.
+        allow update: if verified()
+          && isActiveMember(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && (
+            (before.get('status', '') == 'completed')
+            || (before.get('status', '') == 'verified' && isManager(f))
+          )
+          && after.get('status', '') == 'in_progress'
+          && after.get('reopenCount', 0) == before.get('reopenCount', 0) + 1
+          && after.get('completedAt', null) == null
+          && after.get('completedBy', null) == null
+          && after.get('verifiedAt', null) == null
+          && after.get('verifiedBy', null) == null
+          && after.diff(before).affectedKeys()
+               .hasOnly(['status', 'reopenCount', 'completedAt', 'completedBy',
+                         'verifiedAt', 'verifiedBy', 'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o, 'reopened_' + string(before.reopenCount),
+                                  'reopened', 3)
+          && getAfter(occurrenceEventPath(f, o,
+               'reopened_' + string(before.reopenCount))).data
+               .get('prevCompletedAt', null) == before.get('completedAt', null);
+
+        // 5. EXCEPTION (manager): finish without the required steps.
+        allow update: if verified()
+          && isManager(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && (!('exception' in before.keys()) || before.exception == null)
+          && after.get('exception', null) is map
+          && after.get('exception', {}).get('by', '') == request.auth.uid
+          && after.get('status', '') == before.get('status', '')
+          && after.diff(before).affectedKeys()
+               .hasOnly(['exception', 'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o, 'exception_' + string(before.reopenCount),
+                                  'exception', 3);
+
+        // 6. SKIP / UNSKIP (manager).
+        allow update: if verified()
+          && isManager(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') in ['scheduled', 'in_progress']
+          && after.get('status', '') == 'skipped'
+          && after.get('skipReason', null) in ['absence', 'manager']
+          && after.diff(before).affectedKeys()
+               .hasOnly(['status', 'skipReason', 'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o, 'skipped_' + string(before.reopenCount),
+                                  'skipped', 3);
+        allow update: if verified()
+          && isManager(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') == 'skipped'
+          && after.get('status', '') == 'scheduled'
+          && after.get('skipReason', null) == null
+          && after.diff(before).affectedKeys()
+               .hasOnly(['status', 'skipReason', 'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o, 'unskipped_' + string(before.reopenCount),
+                                  'unskipped', 0);
+
+        // 7. REASSIGN (manager) or a manual ASSIGN.  The assignee only moves
+        //    together with a `reassigned` event that carries the reason.
+        allow update: if verified()
+          && isManager(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') in ['scheduled', 'in_progress']
+          && after.get('status', '') == before.get('status', '')
+          && after.get('assigneeId', null) != before.get('assigneeId', null)
+          && after.get('assignmentSource', '') in ['manual', 'reassign']
+          && after.diff(before).affectedKeys()
+               .hasOnly(['assigneeId', 'plannedAssigneeId', 'assignmentSource',
+                         'needsCover', 'updatedAt', 'updatedBy'])
+          && occurrenceEventAfter(f, o,
+               'reassigned_' + string(after.get('assigneeId', '')),
+               'reassigned', 3);
+
+        // 8. SWAP / COVER: the assignee moves only with a `swapped`/`covered`
+        //    event that names the accepted request (P3-26 supplies its rules).
+        allow update: if verified()
+          && isActiveMember(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') in ['scheduled', 'in_progress']
+          && after.get('status', '') == before.get('status', '')
+          && after.get('assigneeId', null) != before.get('assigneeId', null)
+          && after.get('assignmentSource', '') in ['swap', 'cover']
+          && after.diff(before).affectedKeys()
+               .hasOnly(['assigneeId', 'coverForId', 'assignmentSource',
+                         'needsCover', 'updatedAt', 'updatedBy'])
+          && after.diff(before).affectedKeys().hasAny(['assigneeId'])
+          && (
+            (after.get('assignmentSource', '') == 'swap'
+              && occurrenceEventAfter(f, o,
+                   'swapped_' + string(after.assigneeId), 'swapped', 3))
+            || (after.get('assignmentSource', '') == 'cover'
+              && occurrenceEventAfter(f, o,
+                   'covered_' + string(after.assigneeId), 'covered', 3))
+          );
+
+        // 9. ATTENTION flag and the comment marker (P3-25).
+        allow update: if verified()
+          && isActiveMember(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && after.diff(before).affectedKeys()
+               .hasOnly(['needsAttention', 'lastCommentAt',
+                         'updatedAt', 'updatedBy'])
+          && (after.get('needsAttention', false) == false
+              ? mayTick(f, before)
+              : true);
+
+        // 10. REPLAN (manager): only an unstarted document, only its snapshot.
+        allow update: if verified()
+          && isManager(f)
+          && before.get('deletedAt', null) == null
+          && occurrenceOk(o, after)
+          && before.get('status', '') == 'scheduled'
+          && before.get('subtaskDone', {}).size() == 0
+          && before.get('completedAt', null) == null
+          && before.get('reopenCount', 0) == 0
+          && after.diff(before).affectedKeys()
+               .hasOnly(['templateRev', 'nameBn', 'nameEn', 'groupId',
+                         'instructions', 'subtasks', 'difficulty',
+                         'estimatedMinutes', 'verification', 'dueAt',
+                         'dueMinutes', 'plannedAssigneeId', 'assigneeId',
+                         'assignmentSource', 'needsCover',
+                         'updatedAt', 'updatedBy']);
+
+        // 11. SOFT DELETE: a manager, only an unstarted FUTURE document.
+        allow update: if verified()
+          && isManager(f)
+          && occurrenceOk(o, after)
+          && before.get('deletedAt', null) == null
+          && after.get('deletedAt', null) is timestamp
+          && after.get('deletedBy', '') == request.auth.uid
+          && (after.get('dateKey', '') > todayKey(f))
+          && after.diff(before).affectedKeys()
+               .hasOnly(['deletedAt', 'deletedBy', 'updatedAt', 'updatedBy']);
+
+        allow delete: if false;
+
+        // Append-only lifecycle history: create-only, by its own actor, the
+        // closed type list, and a reason where one is required.  A later
+        // correction is a NEW event, never an edit (P3-11).
+        match /events/{e} {
+          allow read: if isActiveMember(f);
+          allow create: if verified()
+            && isActiveMember(f)
+            && createsAsSelf()
+            && occurrenceEventOk(request.resource.data)
+            && request.resource.data.actorId == request.auth.uid
+            && (!(request.resource.data.type in ['reopened', 'exception',
+                                                 'skipped', 'reassigned'])
+                || str(request.resource.data.get('reason', ''), 3, 300));
+          allow update, delete: if false;
+        }
+      }
+
       // ── budgets/{yyyy-MM} — finance managers write, members read (P2-17) ─
       // A budget is a plan, so it is not tied to the month lock.  A moderator
       // needs `moderatorManagesFinance` (financeManager).  No hard delete.
@@ -1893,10 +2331,8 @@ service cloud.firestore {
     // rule is in place first so that a forgotten collection can only ever
     // under-grant.  Each of those steps must still add its own read/write and
     // field-validation rules here.
-    //   contributions, contributionPlans,
-    //   fundTransactions, memberAdvances, settlements,
-    //   choreOccurrences, memberAvailability, swapRequests,
-    //   notificationInbox, memberStats
+    //   memberAvailability, swapRequests, notificationInbox, memberStats
+    // (choreOccurrences was carved out above in P3-13.)
     // ══════════════════════════════════════════════════════════════════════
     match /families/{f}/{collection}/{doc} {
       allow read, write: if false;

@@ -92,7 +92,7 @@ class EnsureOccurrences {
 
     final range = DateKeyRange(through.addDays(1), target);
     if (generating.isEmpty) {
-      return _advance(familyId, target);
+      return _advance(familyId, actorUid, target);
     }
 
     final loadedPolicy = await _settings.getAbsencePolicy(familyId);
@@ -152,7 +152,7 @@ class EnsureOccurrences {
       if (written.valueOrNull! > 0) chunks++;
     }
 
-    final advanced = await _advance(familyId, target);
+    final advanced = await _advance(familyId, actorUid, target);
     final advanceFailure = advanced.failureOrNull;
     if (advanceFailure != null) {
       return Failure<GenerationOutcome>(advanceFailure);
@@ -164,9 +164,14 @@ class EnsureOccurrences {
 
   Future<Result<GenerationOutcome>> _advance(
     String familyId,
+    String actorUid,
     DateKey target,
   ) async {
-    final written = await _markers.writeThrough(familyId, target);
+    final written = await _markers.writeThrough(
+      familyId,
+      target,
+      actorId: actorUid,
+    );
     final failure = written.failureOrNull;
     if (failure != null) return Failure<GenerationOutcome>(failure);
     return Success<GenerationOutcome>(GenerationOutcome(through: target));

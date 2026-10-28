@@ -20,6 +20,14 @@ enum OccurrenceEventType {
   const OccurrenceEventType(this.id);
 
   final String id;
+
+  /// Tolerant read: an unknown event written by a newer build is ignored.
+  static OccurrenceEventType? fromId(Object? id) {
+    for (final type in values) {
+      if (type.id == id) return type;
+    }
+    return null;
+  }
 }
 
 /// One dotted-key change to one occurrence.
@@ -78,6 +86,7 @@ final class OccurrencePatch {
 /// A lifecycle event to append in the same batch as its patch.
 final class NewEvent {
   const NewEvent({
+    required this.id,
     required this.occurrenceId,
     required this.type,
     this.fromAssigneeId,
@@ -87,6 +96,8 @@ final class NewEvent {
     this.requestId,
   });
 
+  /// Deterministic event id ([OccurrenceEventIds]), generated once per intent.
+  final String id;
   final String occurrenceId;
   final OccurrenceEventType type;
   final String? fromAssigneeId;

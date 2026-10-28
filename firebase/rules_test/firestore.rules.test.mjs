@@ -998,7 +998,9 @@ describe('financial and chore data', () => {
     await assertFails(getDoc(doc(db, `families/${FAM_A}/expenses/e1`)));
   });
 
-  it('denies an admin writing a chore occurrence (not opened until Step 22)', async () => {
+  it('denies an admin writing a malformed chore occurrence (P3-13 opened it)', async () => {
+    // The collection is open since P3-13, but only for the real document
+    // shape and the deterministic id; see chore_occurrences.test.mjs.
     const db = as(ALICE);
     await assertFails(
       setDoc(

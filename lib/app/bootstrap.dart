@@ -25,6 +25,8 @@ import 'package:family_hub/features/bazar/settings/data/firestore_bazar_settings
 import 'package:family_hub/features/bazar/settings/presentation/bazar_settings_providers.dart';
 import 'package:family_hub/features/chores/duty_groups/data/firestore_duty_group_repository.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
+import 'package:family_hub/features/chores/occurrences/data/firestore_occurrence_repository.dart';
+import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/templates/data/firestore_chore_template_repository.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/core/firebase/sync_status.dart';
@@ -114,6 +116,7 @@ Future<void> bootstrap(Flavor flavor) async {
       clock: clock,
     );
     final dutyGroups = FirestoreDutyGroupRepository(tx: tx, clock: clock);
+    final occurrences = FirestoreOccurrenceRepository(tx: tx, clock: clock);
 
     runApp(
       ProviderScope(
@@ -146,6 +149,9 @@ Future<void> bootstrap(Flavor flavor) async {
           contributionRepositoryProvider.overrideWithValue(contributions),
           templateRepositoryProvider.overrideWithValue(choreTemplates),
           dutyGroupRepositoryProvider.overrideWithValue(dutyGroups),
+          // One object serves both ports (occurrences + the generation marker).
+          occurrenceRepositoryProvider.overrideWithValue(occurrences),
+          generationMarkerRepositoryProvider.overrideWithValue(occurrences),
           themePreferenceSyncProvider.overrideWithValue(
             FirestoreThemePreferenceSync(),
           ),

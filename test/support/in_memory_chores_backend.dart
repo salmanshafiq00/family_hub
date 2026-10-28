@@ -8,7 +8,9 @@ import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/generation_plan.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
@@ -405,6 +407,23 @@ class InMemoryOccurrenceBackend
       }
     }
 
+    for (final event in plan.events) {
+      events.add(
+        OccurrenceEvent(
+          id: event.id,
+          occurrenceId: event.occurrenceId,
+          type: event.type,
+          actorId: plan.actorId,
+          at: plan.at,
+          fromAssigneeId: event.fromAssigneeId,
+          toAssigneeId: event.toAssigneeId,
+          reason: event.reason,
+          prevCompletedAt: event.prevCompletedAt,
+          requestId: event.requestId,
+        ),
+      );
+    }
+
     plans.add(plan);
     audits.addAll(plan.audits);
     if (integrity) {
@@ -460,11 +479,57 @@ class InMemoryOccurrenceBackend
   }
 
   @override
+  Stream<DateKey?> watchThrough(String familyId) async* {
+    yield markers[familyId];
+    await for (final _ in _controller(familyId).stream) {
+      yield markers[familyId];
+    }
+  }
+
+  @override
+  Stream<List<OccurrenceEvent>> watchEvents(
+    String familyId,
+    String occurrenceId,
+  ) async* {
+    yield eventsIn(occurrenceId);
+    await for (final _ in _controller(familyId).stream) {
+      yield eventsIn(occurrenceId);
+    }
+  }
+
+  @override
+  Stream<List<ChoreOccurrence>> watchVerifyQueue(String familyId) async* {
+    List<ChoreOccurrence> queue() => <ChoreOccurrence>[
+      for (final occurrence in _docs(familyId).values)
+        if (!occurrence.isDeleted &&
+            occurrence.status == OccurrenceStatus.completed)
+          occurrence,
+    ]..sort((a, b) => b.dateKey.compareTo(a.dateKey));
+
+    yield queue();
+    await for (final _ in _controller(familyId).stream) {
+      yield queue();
+    }
+  }
+
+  /// Every plan-applied event, for the timeline tests of later steps.
+  final List<OccurrenceEvent> events = <OccurrenceEvent>[];
+
+  List<OccurrenceEvent> eventsIn(String occurrenceId) => <OccurrenceEvent>[
+    for (final event in events)
+      if (event.occurrenceId == occurrenceId) event,
+  ];
+
+  @override
   Future<Result<DateKey?>> readThrough(String familyId) async =>
       Success<DateKey?>(markers[familyId]);
 
   @override
-  Future<Result<void>> writeThrough(String familyId, DateKey through) async {
+  Future<Result<void>> writeThrough(
+    String familyId,
+    DateKey through, {
+    required String actorId,
+  }) async {
     final failure = nextMarkerFailure;
     if (failure != null) {
       nextMarkerFailure = null;

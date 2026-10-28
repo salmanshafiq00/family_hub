@@ -63,6 +63,32 @@ authority for every version in between). Tests:
 `firebase/rules_test/chore_templates.test.mjs` and
 `firebase/rules_test/duty_groups.test.mjs`.
 
+## Phase 3 additions (P3-13)
+
+`choreOccurrences` is carved out of the deny-only block. Any active member may
+CREATE one (D-P3-7: a plain member must be able to complete today's chore even
+if no manager opened the app); the rules check the closed key set, the
+deterministic id (`{templateId}_{yyyyMMdd}[_{slot}]`, its date must equal
+`dateKey`), `status == scheduled` and a fresh document (no ticks, no
+completion, no skip, no exception). They cannot verify rotation correctness -
+no trusted server on the Spark plan, recorded as an accepted limit in ADR 0011.
+The create uses ONE membership lookup, so a 400-document generation batch stays
+inside the access-call budget (C-11, proven by the emulator test).
+
+Every update is its own transition with `affectedKeys().hasOnly(...)`: tick
+(only `subtaskDone.<id>` + status + completion), complete/uncomplete (the real
+actor, `completedBy == uid`), verify (never the completer, snapshot
+`verification == required`, the family switch, plus the `verified` event in the
+same batch via `getAfter`), reopen (a reason, `reopenCount + 1`, the cleared
+completion on the event), exception/skip/unskip/reassign (manager), swap/cover
+(with the `swapped`/`covered` event), the attention flag, replan (manager,
+unstarted only) and the soft delete (manager, future only). A plain member may
+act on somebody else's chore only while `settings/permissions` says
+`membersCanCompleteForOthers`. `choreOccurrences/{id}/events` is create-only by
+its own actor with a closed type list. Tests:
+`firebase/rules_test/chore_occurrences.test.mjs` (including the 400-create
+batch) and the contract fixture `chore_occurrence.json`.
+
 ## Findings
 
 | Id | Severity | Finding | Recommended fix |

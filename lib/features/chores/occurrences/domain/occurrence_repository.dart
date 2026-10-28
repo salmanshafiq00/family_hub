@@ -1,6 +1,7 @@
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
 
 /// Port for `choreOccurrences/{id}` (P3-11; implemented in P3-13).
@@ -25,6 +26,19 @@ abstract interface class OccurrenceRepository {
 
   /// One live document, or null when it does not exist (yet).
   Stream<ChoreOccurrence?> watchOne(String familyId, String occurrenceId);
+
+  /// The lifecycle events of one occurrence, oldest first.
+  Stream<List<OccurrenceEvent>> watchEvents(
+    String familyId,
+    String occurrenceId,
+  );
+
+  /// The manager's verification queue: completed occurrences, newest first.
+  ///
+  /// The query filters on `status` only; the caller drops rows whose snapshot
+  /// says `verification == off` (that keeps the query to the single
+  /// `status + dateKey DESC` index in road map 3.8).
+  Stream<List<ChoreOccurrence>> watchVerifyQueue(String familyId);
 
   /// One-shot read (materializing a projected item, repairing a status).
   Future<Result<ChoreOccurrence?>> get(String familyId, String occurrenceId);

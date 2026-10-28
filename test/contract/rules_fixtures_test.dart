@@ -35,6 +35,9 @@ import 'package:family_hub/features/bazar/items_categories/domain/item_usage_bum
 import 'package:family_hub/features/bazar/settings/data/bazar_settings_mappers.dart';
 import 'package:family_hub/features/bazar/settings/domain/bazar_settings.dart';
 import 'package:family_hub/features/chores/duty_groups/data/duty_group_mappers.dart';
+import 'package:family_hub/features/chores/occurrences/data/occurrence_mappers.dart';
+import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/templates/data/chore_template_mappers.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
@@ -131,6 +134,7 @@ List<Map<String, dynamic>> _fixtures() => <Map<String, dynamic>>[
   _contributionPlan(),
   _choreTemplate(),
   _dutyGroup(),
+  _choreOccurrence(),
 ];
 
 Map<String, dynamic> _fixture(
@@ -1011,6 +1015,87 @@ Map<String, dynamic> _dutyGroup() {
     ),
     ..._eventWrites(event),
   ]);
+}
+
+/// P3-13: the REAL `OccurrenceMappers.toMap` payload (two ticks, a cover
+/// owner, a verification requirement) plus its completion audit entry.
+/// `contract.test.mjs` pushes it through `occurrenceOk()`; the state-machine
+/// transitions live in `chore_occurrences.test.mjs`.
+Map<String, dynamic> _choreOccurrence() {
+  final occurrence = ChoreOccurrence(
+    id: 'tpl_fixDishes_20261018',
+    templateId: 'tpl_fixDishes',
+    templateRev: 3,
+    dateKey: _day,
+    monthKey: _day.monthKey,
+    dueAt: _at,
+    dueMinutes: 540,
+    nameBn: 'থালা-বাসন ধোয়া',
+    nameEn: 'Wash the dishes',
+    groupId: 'kitchen',
+    instructions: '# নিয়ম\n- **সাবধানে** ধোয়া',
+    subtasks: const <TemplateSubtask>[
+      TemplateSubtask(id: 'rinse', title: 'ধোয়া', required: true),
+      TemplateSubtask(id: 'dry', title: 'মুছা', hint: 'গামছা ব্যবহার করুন'),
+    ],
+    difficulty: Difficulty.hard,
+    estimatedMinutes: 45,
+    verification: VerificationMode.required,
+    status: OccurrenceStatus.completed,
+    plannedAssigneeId: _member,
+    assigneeId: 'fixCara',
+    coverForId: _member,
+    assignmentSource: AssignmentSource.cover,
+    subtaskDone: <String, SubtaskDone>{
+      'rinse': SubtaskDone(at: _at, by: 'fixCara'),
+      'dry': SubtaskDone(at: _at, by: 'fixCara'),
+    },
+    completedAt: _at,
+    completedBy: 'fixCara',
+    needsAttention: true,
+    lastCommentAt: _at,
+  );
+  final event = AuditEvent(
+    id: 'ev40',
+    type: AuditEventType.choresOccurrenceCompleted,
+    actorId: 'fixCara',
+    refType: AuditRefType.occurrence,
+    refId: occurrence.id,
+    at: _at,
+    params: const <String, String>{
+      'name': 'থালা-বাসন ধোয়া',
+      'date': '2026-10-18',
+      'member': 'fixCara',
+    },
+  );
+  return _fixture('chore_occurrence', 'fixCara', <Map<String, dynamic>>[
+    _write(
+      'set',
+      FirestorePaths.choreOccurrenceDoc(_familyId, occurrence.id),
+      // `SubtaskDone.toMap` keeps a raw DateTime, which the JSON encoder
+      // cannot serialize; the stored value is a Timestamp, so stamp it here
+      // exactly as the repository's `_wire` does.
+      _timestampsInGrid(OccurrenceMappers.toMap(occurrence, _meta('fixCara'))),
+    ),
+    ..._eventWrites(event),
+  ]);
+}
+
+/// The `subtaskDone` grid values as Firestore stores them (`Timestamp`, not
+/// `DateTime`); the repository's patch path does the same conversion.
+Map<String, dynamic> _timestampsInGrid(Map<String, dynamic> map) {
+  final grid = map['subtaskDone'];
+  if (grid is! Map) return map;
+  map['subtaskDone'] = <String, dynamic>{
+    for (final entry in grid.entries)
+      '${entry.key}': <String, dynamic>{
+        for (final field in (entry.value as Map).entries)
+          '${field.key}': field.value is DateTime
+              ? BaseMapper.dateTimeToTimestamp(field.value as DateTime)
+              : field.value,
+      },
+  };
+  return map;
 }
 
 Map<String, dynamic> _join() {

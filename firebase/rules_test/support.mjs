@@ -316,6 +316,69 @@ export const dutyGroupDoc = (uid, extra = {}) =>
     ...extra,
   });
 
+/**
+ * `OccurrenceMappers.toMap` shape (P3-13).
+ *
+ * Optional values (an exception, a skip reason, a verified pair) are ABSENT
+ * until the state machine sets them; the tests add exactly the one they need.
+ */
+export const occurrenceDoc = (uid, extra = {}) =>
+  baseDoc(uid, {
+    templateId: 'tpl_1',
+    templateRev: 1,
+    slotKey: null,
+    dateKey: '2026-10-24',
+    monthKey: '2026-10',
+    dueAt: nowTs(),
+    dueMinutes: 540,
+    nameBn: 'বাসন ধোয়া',
+    nameEn: 'Wash the dishes',
+    groupId: 'kitchen',
+    instructions: '',
+    subtasks: [
+      { id: 'step_1', title: 'প্লেট ধোয়া', required: true, hint: null },
+    ],
+    difficulty: 'normal',
+    estimatedMinutes: null,
+    verification: 'off',
+    status: 'scheduled',
+    plannedAssigneeId: CARA,
+    assigneeId: CARA,
+    coverForId: null,
+    assignmentSource: 'rotation',
+    needsCover: false,
+    subtaskDone: {},
+    reopenCount: 0,
+    needsAttention: false,
+    completedAt: null,
+    completedBy: null,
+    verifiedAt: null,
+    verifiedBy: null,
+    exception: null,
+    skipReason: null,
+    lastCommentAt: null,
+    ...extra,
+  });
+
+/**
+ * `OccurrenceEventMappers.toMap` shape (P3-13).
+ *
+ * `at` is the client instant the event happened; the read takes its time from
+ * the document's `createdAt` (the server time), so `at` is metadata of the
+ * occurrence's own history and is NOT part of this document.
+ */
+export const occurrenceEventDoc = (uid, extra = {}) =>
+  baseDoc(uid, {
+    type: 'completed',
+    actorId: uid,
+    fromAssigneeId: null,
+    toAssigneeId: null,
+    reason: null,
+    prevCompletedAt: null,
+    requestId: null,
+    ...extra,
+  });
+
 /** `BudgetMappers.toMap` shape; money is integer paisa (P2-17). */export const budgetDoc = (uid, extra = {}) =>
   baseDoc(uid, {
     monthKey: '2026-10',

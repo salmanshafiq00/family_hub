@@ -21,9 +21,16 @@ abstract interface class GenerationMarkerRepository {
   /// The stored `through` day, or null when the marker does not exist yet.
   Future<Result<DateKey?>> readThrough(String familyId);
 
+  /// The live marker (the app-open hook and the calendar show it).
+  Stream<DateKey?> watchThrough(String familyId);
+
   /// Advances the marker. The rules only accept a value that is greater and at
   /// most 120 days ahead of the stored one.
-  Future<Result<void>> writeThrough(String familyId, DateKey through);
+  Future<Result<void>> writeThrough(
+    String familyId,
+    DateKey through, {
+    required String actorId,
+  });
 }
 
 /// What one generation / regeneration / replan run did.
