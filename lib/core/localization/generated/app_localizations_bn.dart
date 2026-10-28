@@ -2902,4 +2902,227 @@ class AppLocalizationsBn extends AppLocalizations {
   String activityChoresCoverAssigned(String to, String name, String date) {
     return '$to $date-এ $name সামলাবেন';
   }
+
+  @override
+  String get occurrenceDetailTitle => 'কাজ';
+
+  @override
+  String occurrenceDueToday(String time) {
+    return 'আজ, $timeটার মধ্যে';
+  }
+
+  @override
+  String occurrenceDueDay(String time, String date) {
+    return '$date, $timeটার মধ্যে';
+  }
+
+  @override
+  String get occurrenceDueNoTime => 'দিনের শেষে';
+
+  @override
+  String get occurrenceUnassigned => 'এখনো কেউ দায়িত্বে নেই';
+
+  @override
+  String occurrenceCoveringFor(String name) {
+    return '$name-এর হয়ে করছেন';
+  }
+
+  @override
+  String get occurrenceStepsTitle => 'ধাপগুলো';
+
+  @override
+  String get occurrenceInstructionsTitle => 'কীভাবে করবেন';
+
+  @override
+  String occurrenceEstimated(String minutes) {
+    return 'প্রায় $minutes মিনিট';
+  }
+
+  @override
+  String get occurrenceDifficultyEasy => 'সহজ';
+
+  @override
+  String get occurrenceDifficultyNormal => 'সাধারণ';
+
+  @override
+  String get occurrenceDifficultyHard => 'কঠিন';
+
+  @override
+  String get occurrenceTimelineTitle => 'ইতিহাস';
+
+  @override
+  String occurrenceEventCompleted(String name) {
+    return '$name সম্পন্ন করেছেন';
+  }
+
+  @override
+  String occurrenceEventUncompleted(String name) {
+    return '$name সম্পন্নতা ফিরিয়ে নিয়েছেন';
+  }
+
+  @override
+  String occurrenceEventVerified(String name) {
+    return '$name যাচাই করেছেন';
+  }
+
+  @override
+  String occurrenceEventReopened(String name, String reason) {
+    return '$name আবার খুলেছেন: $reason';
+  }
+
+  @override
+  String occurrenceEventReassigned(String name, String to, String reason) {
+    return '$name $to-কে দিয়েছেন: $reason';
+  }
+
+  @override
+  String occurrenceEventSkipped(String name, String reason) {
+    return '$name বাদ দিয়েছেন: $reason';
+  }
+
+  @override
+  String occurrenceEventUnskipped(String name) {
+    return '$name আবার ফিরিয়ে দিয়েছেন';
+  }
+
+  @override
+  String occurrenceEventException(String name, String reason) {
+    return '$name নোট দিয়ে শেষ করেছেন: $reason';
+  }
+
+  @override
+  String occurrenceEventSwapped(String name, String to) {
+    return '$name $to-এর সাথে বদল করেছেন';
+  }
+
+  @override
+  String occurrenceEventCovered(String name, String to) {
+    return '$name $to-এর কাজ করেছেন';
+  }
+
+  @override
+  String get occurrenceActionComplete => 'সম্পন্ন করুন';
+
+  @override
+  String get occurrenceActionUndo => 'সম্পন্নতা ফিরিয়ে নিন';
+
+  @override
+  String get occurrenceActionVerify => 'যাচাই করুন';
+
+  @override
+  String get occurrenceActionReopen => 'আবার খুলুন';
+
+  @override
+  String get occurrenceActionReassign => 'অন্যকে দিন';
+
+  @override
+  String get occurrenceActionSkip => 'বাদ দিন';
+
+  @override
+  String get occurrenceActionUnskip => 'ফিরিয়ে দিন';
+
+  @override
+  String get occurrenceActionException => 'নোট দিয়ে শেষ করুন';
+
+  @override
+  String get occurrenceActionSwap => 'আমি এটা করতে পারব না';
+
+  @override
+  String get occurrenceReopenTitle => 'কেন আবার খুলবেন?';
+
+  @override
+  String get occurrenceReassignTitle => 'কে করবে?';
+
+  @override
+  String get occurrenceReassignReasonTitle => 'কেন অন্যকে দিচ্ছেন?';
+
+  @override
+  String get occurrenceSkipTitle => 'কেন বাদ দিচ্ছেন?';
+
+  @override
+  String get occurrenceExceptionTitle => 'কী করা যায়নি?';
+
+  @override
+  String get occurrenceUndone => 'সম্পন্নতা ফিরিয়ে নেওয়া হয়েছে';
+
+  @override
+  String get occurrenceStepReopened => 'হয়ে গেছে: কাজটি আবার খোলা আছে।';
+
+  @override
+  String get occurrencePlannedReadOnly =>
+      'এটি এখন শুধু পরিকল্পিত; প্রথম পরিবর্তনেই কাজটি যোগ হবে।';
+
+  @override
+  String get todayTitle => 'আজ';
+
+  @override
+  String get todayEmptyTitle => 'আজ কোনো কাজ নেই';
+
+  @override
+  String get todayEmptyMessage =>
+      'ফাঁকা সময়টা উপভোগ করুন, বা পরে করার জন্য কাজ যোগ করুন।';
+
+  @override
+  String get todaySectionOverdue => 'বিলম্বিত';
+
+  @override
+  String get todaySectionDone => 'আজ সম্পন্ন';
+
+  @override
+  String get todayScopeMine => 'আমার কাজ';
+
+  @override
+  String get todayScopeFamily => 'পুরো পরিবার';
+
+  @override
+  String todayProgress(String done, String total) {
+    return '$total-এর মধ্যে $done সম্পন্ন';
+  }
+
+  @override
+  String get todayUndo => 'ফিরিয়ে নিন';
+
+  @override
+  String get verifyTitle => 'যাচাইয়ের অপেক্ষায়';
+
+  @override
+  String get verifyEmptyTitle => 'যাচাই করার কিছু নেই';
+
+  @override
+  String get verifyEmptyMessage =>
+      'কেউ শেষ করে দিলে যে কাজগুলো যাচাই দরকার, সেগুলো এখানে দেখাবে।';
+
+  @override
+  String get verifyApprove => 'ঠিক আছে';
+
+  @override
+  String get verifyReopen => 'ফেরত দিন';
+
+  @override
+  String get choreDayPartEarlyMorning => 'ভোর';
+
+  @override
+  String get choreDayPartMorning => 'সকাল';
+
+  @override
+  String get choreDayPartNoon => 'দুপুর';
+
+  @override
+  String get choreDayPartAfternoon => 'বিকাল';
+
+  @override
+  String get choreDayPartEvening => 'সন্ধ্যা';
+
+  @override
+  String get choreDayPartNight => 'রাত';
+
+  @override
+  String choreDueTime(String time) {
+    return '$timeটার মধ্যে';
+  }
+
+  @override
+  String choreStepsCount(String done, String total) {
+    return '$done/$total';
+  }
 }

@@ -2692,5 +2692,261 @@
         "type": "String"
       }
     }
+  },
+  "occurrenceDetailTitle": "কাজ",
+  "@occurrenceDetailTitle": {},
+  "occurrenceDueToday": "আজ, {time}টার মধ্যে",
+  "@occurrenceDueToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDueDay": "{date}, {time}টার মধ্যে",
+  "@occurrenceDueDay": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDueNoTime": "দিনের শেষে",
+  "@occurrenceDueNoTime": {},
+  "occurrenceUnassigned": "এখনো কেউ দায়িত্বে নেই",
+  "@occurrenceUnassigned": {},
+  "occurrenceCoveringFor": "{name}-এর হয়ে করছেন",
+  "@occurrenceCoveringFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceStepsTitle": "ধাপগুলো",
+  "@occurrenceStepsTitle": {},
+  "occurrenceInstructionsTitle": "কীভাবে করবেন",
+  "@occurrenceInstructionsTitle": {},
+  "occurrenceEstimated": "প্রায় {minutes} মিনিট",
+  "@occurrenceEstimated": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDifficultyEasy": "সহজ",
+  "@occurrenceDifficultyEasy": {},
+  "occurrenceDifficultyNormal": "সাধারণ",
+  "@occurrenceDifficultyNormal": {},
+  "occurrenceDifficultyHard": "কঠিন",
+  "@occurrenceDifficultyHard": {},
+  "occurrenceTimelineTitle": "ইতিহাস",
+  "@occurrenceTimelineTitle": {},
+  "occurrenceEventCompleted": "{name} সম্পন্ন করেছেন",
+  "@occurrenceEventCompleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventUncompleted": "{name} সম্পন্নতা ফিরিয়ে নিয়েছেন",
+  "@occurrenceEventUncompleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventVerified": "{name} যাচাই করেছেন",
+  "@occurrenceEventVerified": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventReopened": "{name} আবার খুলেছেন: {reason}",
+  "@occurrenceEventReopened": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventReassigned": "{name} {to}-কে দিয়েছেন: {reason}",
+  "@occurrenceEventReassigned": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventSkipped": "{name} বাদ দিয়েছেন: {reason}",
+  "@occurrenceEventSkipped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventUnskipped": "{name} আবার ফিরিয়ে দিয়েছেন",
+  "@occurrenceEventUnskipped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventException": "{name} নোট দিয়ে শেষ করেছেন: {reason}",
+  "@occurrenceEventException": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventSwapped": "{name} {to}-এর সাথে বদল করেছেন",
+  "@occurrenceEventSwapped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventCovered": "{name} {to}-এর কাজ করেছেন",
+  "@occurrenceEventCovered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceActionComplete": "সম্পন্ন করুন",
+  "@occurrenceActionComplete": {},
+  "occurrenceActionUndo": "সম্পন্নতা ফিরিয়ে নিন",
+  "@occurrenceActionUndo": {},
+  "occurrenceActionVerify": "যাচাই করুন",
+  "@occurrenceActionVerify": {},
+  "occurrenceActionReopen": "আবার খুলুন",
+  "@occurrenceActionReopen": {},
+  "occurrenceActionReassign": "অন্যকে দিন",
+  "@occurrenceActionReassign": {},
+  "occurrenceActionSkip": "বাদ দিন",
+  "@occurrenceActionSkip": {},
+  "occurrenceActionUnskip": "ফিরিয়ে দিন",
+  "@occurrenceActionUnskip": {},
+  "occurrenceActionException": "নোট দিয়ে শেষ করুন",
+  "@occurrenceActionException": {},
+  "occurrenceActionSwap": "আমি এটা করতে পারব না",
+  "@occurrenceActionSwap": {},
+  "occurrenceReopenTitle": "কেন আবার খুলবেন?",
+  "@occurrenceReopenTitle": {},
+  "occurrenceReassignTitle": "কে করবে?",
+  "@occurrenceReassignTitle": {},
+  "occurrenceReassignReasonTitle": "কেন অন্যকে দিচ্ছেন?",
+  "@occurrenceReassignReasonTitle": {},
+  "occurrenceSkipTitle": "কেন বাদ দিচ্ছেন?",
+  "@occurrenceSkipTitle": {},
+  "occurrenceExceptionTitle": "কী করা যায়নি?",
+  "@occurrenceExceptionTitle": {},
+  "occurrenceUndone": "সম্পন্নতা ফিরিয়ে নেওয়া হয়েছে",
+  "@occurrenceUndone": {},
+  "occurrenceStepReopened": "হয়ে গেছে: কাজটি আবার খোলা আছে।",
+  "@occurrenceStepReopened": {},
+  "occurrencePlannedReadOnly": "এটি এখন শুধু পরিকল্পিত; প্রথম পরিবর্তনেই কাজটি যোগ হবে।",
+  "@occurrencePlannedReadOnly": {},
+  "todayTitle": "আজ",
+  "@todayTitle": {},
+  "todayEmptyTitle": "আজ কোনো কাজ নেই",
+  "@todayEmptyTitle": {},
+  "todayEmptyMessage": "ফাঁকা সময়টা উপভোগ করুন, বা পরে করার জন্য কাজ যোগ করুন।",
+  "@todayEmptyMessage": {},
+  "todaySectionOverdue": "বিলম্বিত",
+  "@todaySectionOverdue": {},
+  "todaySectionDone": "আজ সম্পন্ন",
+  "@todaySectionDone": {},
+  "todayScopeMine": "আমার কাজ",
+  "@todayScopeMine": {},
+  "todayScopeFamily": "পুরো পরিবার",
+  "@todayScopeFamily": {},
+  "todayProgress": "{total}-এর মধ্যে {done} সম্পন্ন",
+  "@todayProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "todayUndo": "ফিরিয়ে নিন",
+  "@todayUndo": {},
+  "verifyTitle": "যাচাইয়ের অপেক্ষায়",
+  "@verifyTitle": {},
+  "verifyEmptyTitle": "যাচাই করার কিছু নেই",
+  "@verifyEmptyTitle": {},
+  "verifyEmptyMessage": "কেউ শেষ করে দিলে যে কাজগুলো যাচাই দরকার, সেগুলো এখানে দেখাবে।",
+  "@verifyEmptyMessage": {},
+  "verifyApprove": "ঠিক আছে",
+  "@verifyApprove": {},
+  "verifyReopen": "ফেরত দিন",
+  "@verifyReopen": {},
+  "choreDayPartEarlyMorning": "ভোর",
+  "@choreDayPartEarlyMorning": {},
+  "choreDayPartMorning": "সকাল",
+  "@choreDayPartMorning": {},
+  "choreDayPartNoon": "দুপুর",
+  "@choreDayPartNoon": {},
+  "choreDayPartAfternoon": "বিকাল",
+  "@choreDayPartAfternoon": {},
+  "choreDayPartEvening": "সন্ধ্যা",
+  "@choreDayPartEvening": {},
+  "choreDayPartNight": "রাত",
+  "@choreDayPartNight": {},
+  "choreDueTime": "{time}টার মধ্যে",
+  "@choreDueTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "choreStepsCount": "{done}/{total}",
+  "@choreStepsCount": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
   }
 }

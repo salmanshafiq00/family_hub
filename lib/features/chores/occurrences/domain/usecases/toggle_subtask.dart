@@ -96,8 +96,8 @@ class ToggleSubtask {
     final before = effectiveStatus(context.occurrence);
     final updated = applyOccurrencePatch(context.occurrence, change);
     final after = effectiveStatus(updated);
-    final completed = before != ChoreStatus.completed &&
-        after == ChoreStatus.completed;
+    final completed =
+        before != ChoreStatus.completed && after == ChoreStatus.completed;
     final demoted =
         before == ChoreStatus.completed && after != ChoreStatus.completed;
 

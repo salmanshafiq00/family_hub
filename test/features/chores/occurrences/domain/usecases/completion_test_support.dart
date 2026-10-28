@@ -75,14 +75,13 @@ class CompletionUseCases {
     inbox: inbox,
   );
 
-  RecordCompletionException get recordException =>
-      RecordCompletionException(
-        occurrences: fixture.occurrences,
-        templates: fixture.chores,
-        families: fixture.families,
-        dateKeys: fixture.dateKeys,
-        clock: fixture.clock,
-      );
+  RecordCompletionException get recordException => RecordCompletionException(
+    occurrences: fixture.occurrences,
+    templates: fixture.chores,
+    families: fixture.families,
+    dateKeys: fixture.dateKeys,
+    clock: fixture.clock,
+  );
 
   SkipOccurrence get skip => SkipOccurrence(
     occurrences: fixture.occurrences,

@@ -62,7 +62,8 @@ class VerifyOccurrence {
     final context = loaded.valueOrNull!;
 
     final occurrence = context.occurrence;
-    if (context.actor.isCompleter && context.actor.uid == occurrence.completedBy) {
+    if (context.actor.isCompleter &&
+        context.actor.uid == occurrence.completedBy) {
       return const Failure<ChoreOccurrence>(
         Conflict(code: 'self_verification'),
       );

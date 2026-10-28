@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_hub/core/audit/audit_event.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/firebase/audit_writer.dart';
@@ -95,5 +95,3 @@ class FirestoreChoreTemplateRepository implements TemplateRepository {
       ?ChoreTemplateMappers.fromDoc(doc.id, doc.data()),
   ];
 }
-
-

@@ -112,8 +112,13 @@ abstract final class SubtaskSync {
       );
     }
 
-    final openRequired = occurrence.requiredSubtasks.where(
-      (subtask) => !occurrence.subtaskDone.containsKey(subtask.id),
+    // Only a step marked REQUIRED can block the parent box: an all-optional
+    // chore is completed by checking the parent, which ticks every step. (The
+    // derived status still treats "no required step" as "every step must be
+    // ticked", which this patch then satisfies.)
+    final openRequired = occurrence.subtasks.where(
+      (subtask) =>
+          subtask.required && !occurrence.subtaskDone.containsKey(subtask.id),
     );
     if (openRequired.isNotEmpty && occurrence.exception == null) {
       return const Failure<OccurrencePatch>(

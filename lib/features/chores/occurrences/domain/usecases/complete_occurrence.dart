@@ -5,6 +5,7 @@ import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_state_machine.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
@@ -12,6 +13,7 @@ import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_p
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_action.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_action_writer.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_patch_apply.dart';
+
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 import 'package:family_hub/features/family/domain/family_repository.dart';
 import 'package:family_hub/features/family/domain/permission_access.dart';
@@ -73,12 +75,20 @@ class CompleteOccurrence {
     final denied = permitted.failureOrNull;
     if (denied != null) return Failure<ChoreOccurrence>(denied);
 
+    // Completing a COMPLETED chore is not an error to shout about: the ticks may
+    // already have finished it (a parent box that fired twice, a retried tap),
+    // so the call is idempotent and simply answers the current document.
+    if (effectiveStatus(context.occurrence) == ChoreStatus.completed) {
+      return Success<ChoreOccurrence>(context.occurrence);
+    }
     final blocked = stateFailure(context, OccurrenceAction.checkParent);
     if (blocked != null) return Failure<ChoreOccurrence>(blocked);
 
     final occurrence = context.occurrence;
-    final openRequired = occurrence.requiredSubtasks.where(
-      (subtask) => !occurrence.subtaskDone.containsKey(subtask.id),
+    // Only a step marked REQUIRED can block a one-tap completion.
+    final openRequired = occurrence.subtasks.where(
+      (subtask) =>
+          subtask.required && !occurrence.subtaskDone.containsKey(subtask.id),
     );
     if (openRequired.isNotEmpty && occurrence.exception == null) {
       return const Failure<ChoreOccurrence>(
@@ -87,14 +97,24 @@ class CompleteOccurrence {
     }
 
     final at = _clock.nowUtc();
-    final patch = OccurrencePatch(
-      occurrenceId: occurrenceId,
-      fields: <String, Object?>{
-        'status': OccurrenceStatus.completed.id,
-        'completedAt': at,
-        'completedBy': actorUid,
-      },
-    );
+    final fields = <String, Object?>{
+      'status': OccurrenceStatus.completed.id,
+      'completedAt': at,
+      'completedBy': actorUid,
+    };
+    // A chore whose steps are all OPTIONAL is completed by checking the parent:
+    // the steps it lists are ticked by this same completion (D-P3-9: the derived
+    // status reads `completed` from the ticks, so the boxes stay truthful).
+    if (!occurrence.subtasks.any((subtask) => subtask.required)) {
+      for (final subtask in occurrence.subtasks) {
+        if (occurrence.subtaskDone.containsKey(subtask.id)) continue;
+        fields['subtaskDone.${subtask.id}'] = SubtaskDone(
+          at: at,
+          by: actorUid,
+        ).toMap();
+      }
+    }
+    final patch = OccurrencePatch(occurrenceId: occurrenceId, fields: fields);
     final forOther = !own;
 
     final staged = await OccurrenceActionWriter(_occurrences).stage(
@@ -110,8 +130,6 @@ class CompleteOccurrence {
     );
     final writeFailure = staged.failureOrNull;
     if (writeFailure != null) return Failure<ChoreOccurrence>(writeFailure);
-    return Success<ChoreOccurrence>(
-      applyOccurrencePatch(occurrence, patch),
-    );
+    return Success<ChoreOccurrence>(applyOccurrencePatch(occurrence, patch));
   }
 }

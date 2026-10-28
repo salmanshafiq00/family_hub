@@ -1,4 +1,4 @@
-﻿import 'package:family_hub/app/theme/app_tokens.dart';
+import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/chores_entries.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
@@ -98,5 +98,3 @@ class _EntryTile extends ConsumerWidget {
     );
   }
 }
-
-

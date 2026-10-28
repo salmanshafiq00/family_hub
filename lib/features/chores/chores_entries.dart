@@ -1,6 +1,8 @@
+import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
 import 'package:family_hub/core/permissions/permission.dart';
-import 'package:flutter/widgets.dart';
+import 'package:family_hub/features/chores/occurrences/presentation/today_providers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// One tile on the "Manage chores" hub.
@@ -44,7 +46,23 @@ class ChoresEntry {
 
 /// The Manage hub tiles, in display order.
 ///
-/// Empty on purpose: P3-01 only lays the seam.  Each step appends one entry
-/// (templates P3-16, settings P3-17, duty groups P3-18, ...); keep the order
-/// of the roadmap's route table (section 3.10).
-final List<ChoresEntry> choresEntries = <ChoresEntry>[];
+/// Each Phase 3 step appends its entry (templates P3-16, settings P3-17, duty
+/// groups P3-18, ...); keep the order of the road map's route table (3.10).
+final List<ChoresEntry> choresEntries = <ChoresEntry>[
+  ChoresEntry(
+    id: 'today',
+    icon: Icons.today_outlined,
+    title: (l10n) => l10n.todayTitle,
+    subtitle: (l10n) => l10n.todayScopeMine,
+    route: AppRoutes.choresToday,
+  ),
+  ChoresEntry(
+    id: 'verify',
+    icon: Icons.fact_check_outlined,
+    title: (l10n) => l10n.verifyTitle,
+    subtitle: (l10n) => l10n.verifyEmptyMessage,
+    route: AppRoutes.choresVerify,
+    requires: Permission.verifyChore,
+    badge: verifyQueueCountProvider,
+  ),
+];

@@ -97,9 +97,7 @@ class ReassignOccurrence {
 
     final occurrence = context.occurrence;
     if (occurrence.assigneeId == toMemberId) {
-      return const Failure<ChoreOccurrence>(
-        Conflict(code: 'already_assigned'),
-      );
+      return const Failure<ChoreOccurrence>(Conflict(code: 'already_assigned'));
     }
 
     final at = _clock.nowUtc();

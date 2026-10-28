@@ -77,7 +77,9 @@ SubtaskDone _tick(Object? value) {
   final map = value is Map ? value : const <Object?, Object?>{};
   final at = map['at'];
   return SubtaskDone(
-    at: at is DateTime ? at : DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+    at: at is DateTime
+        ? at
+        : DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     by: '${map['by'] ?? ''}',
   );
 }

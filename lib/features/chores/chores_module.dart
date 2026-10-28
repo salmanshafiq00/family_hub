@@ -2,6 +2,9 @@ import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
 import 'package:family_hub/features/chores/presentation/chores_home_screen.dart';
 import 'package:family_hub/features/chores/presentation/chores_manage_screen.dart';
+import 'package:family_hub/features/chores/presentation/occurrence_detail_screen.dart';
+import 'package:family_hub/features/chores/presentation/today_screen.dart';
+import 'package:family_hub/features/chores/presentation/verify_queue_screen.dart';
 import 'package:family_hub/modules/family_module.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +44,21 @@ class ChoresModule extends FamilyModule {
         GoRoute(
           path: 'manage',
           builder: (context, state) => const ChoresManageScreen(),
+        ),
+        GoRoute(
+          path: 'today',
+          builder: (context, state) => const TodayScreen(),
+        ),
+        GoRoute(
+          path: 'verify',
+          builder: (context, state) => const VerifyQueueScreen(),
+        ),
+        // Declared AFTER the fixed paths above so `today`/`verify` are never
+        // captured by the id pattern.
+        GoRoute(
+          path: 'occurrence/:id',
+          builder: (context, state) =>
+              OccurrenceDetailScreen(occurrenceId: state.pathParameters['id']!),
         ),
       ],
     ),

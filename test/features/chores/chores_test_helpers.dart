@@ -32,10 +32,9 @@ class SeqIds {
 }
 
 /// The chores test family of road map 3.11: admin `alice`, Household Manager
-/// `bob`, members `cara`, `dave` and `frank`, pending `erin`.  `frank` is the
-/// ordinary member a "may not act on somebody else's chore" test uses (alice is
-/// an admin and bob a Household Manager, so neither proves the plain-member
-/// rule).
+/// `bob`, members `cara` and `dave`, pending `erin`.  `dave` is the ordinary
+/// member a "may not act on somebody else's chore" test uses (alice is an admin
+/// and bob a Household Manager, so neither proves the plain-member rule).
 ///
 /// The in-memory [InMemoryBackend] is the family port (it already implements
 /// `FamilyRepository`); [FakeChoreSettingsRepository] is the settings port.
@@ -67,19 +66,11 @@ class ChoresFixture {
       'bob': _member('bob', MemberRole.moderator, MembershipStatus.active),
       'cara': _member('cara', MemberRole.member, MembershipStatus.active),
       'dave': _member('dave', MemberRole.member, MembershipStatus.active),
-      'frank': _member('frank', MemberRole.member, MembershipStatus.active),
       'erin': _member('erin', MemberRole.member, MembershipStatus.pending),
     };
     backend.adminIds[familyId] = <String>['alice'];
     backend.permissionSettings[familyId] = PermissionSettings.defaults;
-    for (final uid in <String>[
-      'alice',
-      'bob',
-      'cara',
-      'dave',
-      'frank',
-      'erin',
-    ]) {
+    for (final uid in <String>['alice', 'bob', 'cara', 'dave', 'erin']) {
       backend.userFamily[uid] = familyId;
     }
   }
@@ -100,7 +91,7 @@ class ChoresFixture {
   FamilyDateKeys get dateKeys => FamilyDateKeys(clock: clock);
 
   /// The seeded roster as the rotation resolver sees it (Alice, Bob, Cara,
-  /// Dave, Frank and the pending Erin).
+  /// Dave and the pending Erin).
   List<Member> get roster =>
       backend.members[familyId]?.values.toList() ?? const <Member>[];
 }

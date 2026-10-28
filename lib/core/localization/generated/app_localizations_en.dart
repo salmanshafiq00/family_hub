@@ -2921,4 +2921,227 @@ class AppLocalizationsEn extends AppLocalizations {
   String activityChoresCoverAssigned(String to, String name, String date) {
     return '$to will cover $name on $date';
   }
+
+  @override
+  String get occurrenceDetailTitle => 'Chore';
+
+  @override
+  String occurrenceDueToday(String time) {
+    return 'Today, by $time';
+  }
+
+  @override
+  String occurrenceDueDay(String time, String date) {
+    return '$date, by $time';
+  }
+
+  @override
+  String get occurrenceDueNoTime => 'By the end of the day';
+
+  @override
+  String get occurrenceUnassigned => 'Nobody assigned yet';
+
+  @override
+  String occurrenceCoveringFor(String name) {
+    return 'Covering for $name';
+  }
+
+  @override
+  String get occurrenceStepsTitle => 'Steps';
+
+  @override
+  String get occurrenceInstructionsTitle => 'How to do it';
+
+  @override
+  String occurrenceEstimated(String minutes) {
+    return 'About $minutes min';
+  }
+
+  @override
+  String get occurrenceDifficultyEasy => 'Easy';
+
+  @override
+  String get occurrenceDifficultyNormal => 'Normal';
+
+  @override
+  String get occurrenceDifficultyHard => 'Hard';
+
+  @override
+  String get occurrenceTimelineTitle => 'History';
+
+  @override
+  String occurrenceEventCompleted(String name) {
+    return 'Completed by $name';
+  }
+
+  @override
+  String occurrenceEventUncompleted(String name) {
+    return 'Completion undone by $name';
+  }
+
+  @override
+  String occurrenceEventVerified(String name) {
+    return 'Verified by $name';
+  }
+
+  @override
+  String occurrenceEventReopened(String name, String reason) {
+    return 'Reopened by $name: $reason';
+  }
+
+  @override
+  String occurrenceEventReassigned(String name, String to, String reason) {
+    return '$name moved it to $to: $reason';
+  }
+
+  @override
+  String occurrenceEventSkipped(String name, String reason) {
+    return 'Skipped by $name: $reason';
+  }
+
+  @override
+  String occurrenceEventUnskipped(String name) {
+    return 'Put back by $name';
+  }
+
+  @override
+  String occurrenceEventException(String name, String reason) {
+    return 'Exception by $name: $reason';
+  }
+
+  @override
+  String occurrenceEventSwapped(String name, String to) {
+    return '$name swapped with $to';
+  }
+
+  @override
+  String occurrenceEventCovered(String name, String to) {
+    return '$name covered for $to';
+  }
+
+  @override
+  String get occurrenceActionComplete => 'Mark done';
+
+  @override
+  String get occurrenceActionUndo => 'Undo completion';
+
+  @override
+  String get occurrenceActionVerify => 'Verify';
+
+  @override
+  String get occurrenceActionReopen => 'Reopen';
+
+  @override
+  String get occurrenceActionReassign => 'Reassign';
+
+  @override
+  String get occurrenceActionSkip => 'Skip';
+
+  @override
+  String get occurrenceActionUnskip => 'Put back';
+
+  @override
+  String get occurrenceActionException => 'Finish with a note';
+
+  @override
+  String get occurrenceActionSwap => 'I can\'t do this';
+
+  @override
+  String get occurrenceReopenTitle => 'Why reopen it?';
+
+  @override
+  String get occurrenceReassignTitle => 'Who should do it?';
+
+  @override
+  String get occurrenceReassignReasonTitle => 'Why move it?';
+
+  @override
+  String get occurrenceSkipTitle => 'Why skip it?';
+
+  @override
+  String get occurrenceExceptionTitle => 'What could not be done?';
+
+  @override
+  String get occurrenceUndone => 'Completion undone';
+
+  @override
+  String get occurrenceStepReopened => 'Done: the chore is open again.';
+
+  @override
+  String get occurrencePlannedReadOnly =>
+      'This chore is only planned; the first change will add it.';
+
+  @override
+  String get todayTitle => 'Today';
+
+  @override
+  String get todayEmptyTitle => 'Nothing to do today';
+
+  @override
+  String get todayEmptyMessage =>
+      'Enjoy the free time, or plan a chore for later.';
+
+  @override
+  String get todaySectionOverdue => 'Overdue';
+
+  @override
+  String get todaySectionDone => 'Done today';
+
+  @override
+  String get todayScopeMine => 'Mine';
+
+  @override
+  String get todayScopeFamily => 'Whole family';
+
+  @override
+  String todayProgress(String done, String total) {
+    return '$done of $total done';
+  }
+
+  @override
+  String get todayUndo => 'Undo';
+
+  @override
+  String get verifyTitle => 'Waiting for a check';
+
+  @override
+  String get verifyEmptyTitle => 'Nothing to verify';
+
+  @override
+  String get verifyEmptyMessage =>
+      'Chores somebody finished and needs a check on will appear here.';
+
+  @override
+  String get verifyApprove => 'Approve';
+
+  @override
+  String get verifyReopen => 'Send back';
+
+  @override
+  String get choreDayPartEarlyMorning => 'Early morning';
+
+  @override
+  String get choreDayPartMorning => 'Morning';
+
+  @override
+  String get choreDayPartNoon => 'Noon';
+
+  @override
+  String get choreDayPartAfternoon => 'Afternoon';
+
+  @override
+  String get choreDayPartEvening => 'Evening';
+
+  @override
+  String get choreDayPartNight => 'Night';
+
+  @override
+  String choreDueTime(String time) {
+    return 'by $time';
+  }
+
+  @override
+  String choreStepsCount(String done, String total) {
+    return '$done/$total';
+  }
 }

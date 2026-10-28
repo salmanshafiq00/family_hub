@@ -5085,6 +5085,378 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'{to} {date}-এ {name} সামলাবেন'**
   String activityChoresCoverAssigned(String to, String name, String date);
+
+  /// No description provided for @occurrenceDetailTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজ'**
+  String get occurrenceDetailTitle;
+
+  /// No description provided for @occurrenceDueToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ, {time}টার মধ্যে'**
+  String occurrenceDueToday(String time);
+
+  /// No description provided for @occurrenceDueDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'{date}, {time}টার মধ্যে'**
+  String occurrenceDueDay(String time, String date);
+
+  /// No description provided for @occurrenceDueNoTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'দিনের শেষে'**
+  String get occurrenceDueNoTime;
+
+  /// No description provided for @occurrenceUnassigned.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কেউ দায়িত্বে নেই'**
+  String get occurrenceUnassigned;
+
+  /// No description provided for @occurrenceCoveringFor.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর হয়ে করছেন'**
+  String occurrenceCoveringFor(String name);
+
+  /// No description provided for @occurrenceStepsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপগুলো'**
+  String get occurrenceStepsTitle;
+
+  /// No description provided for @occurrenceInstructionsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কীভাবে করবেন'**
+  String get occurrenceInstructionsTitle;
+
+  /// No description provided for @occurrenceEstimated.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রায় {minutes} মিনিট'**
+  String occurrenceEstimated(String minutes);
+
+  /// No description provided for @occurrenceDifficultyEasy.
+  ///
+  /// In bn, this message translates to:
+  /// **'সহজ'**
+  String get occurrenceDifficultyEasy;
+
+  /// No description provided for @occurrenceDifficultyNormal.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাধারণ'**
+  String get occurrenceDifficultyNormal;
+
+  /// No description provided for @occurrenceDifficultyHard.
+  ///
+  /// In bn, this message translates to:
+  /// **'কঠিন'**
+  String get occurrenceDifficultyHard;
+
+  /// No description provided for @occurrenceTimelineTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইতিহাস'**
+  String get occurrenceTimelineTitle;
+
+  /// No description provided for @occurrenceEventCompleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} সম্পন্ন করেছেন'**
+  String occurrenceEventCompleted(String name);
+
+  /// No description provided for @occurrenceEventUncompleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} সম্পন্নতা ফিরিয়ে নিয়েছেন'**
+  String occurrenceEventUncompleted(String name);
+
+  /// No description provided for @occurrenceEventVerified.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} যাচাই করেছেন'**
+  String occurrenceEventVerified(String name);
+
+  /// No description provided for @occurrenceEventReopened.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আবার খুলেছেন: {reason}'**
+  String occurrenceEventReopened(String name, String reason);
+
+  /// No description provided for @occurrenceEventReassigned.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {to}-কে দিয়েছেন: {reason}'**
+  String occurrenceEventReassigned(String name, String to, String reason);
+
+  /// No description provided for @occurrenceEventSkipped.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} বাদ দিয়েছেন: {reason}'**
+  String occurrenceEventSkipped(String name, String reason);
+
+  /// No description provided for @occurrenceEventUnskipped.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আবার ফিরিয়ে দিয়েছেন'**
+  String occurrenceEventUnskipped(String name);
+
+  /// No description provided for @occurrenceEventException.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} নোট দিয়ে শেষ করেছেন: {reason}'**
+  String occurrenceEventException(String name, String reason);
+
+  /// No description provided for @occurrenceEventSwapped.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {to}-এর সাথে বদল করেছেন'**
+  String occurrenceEventSwapped(String name, String to);
+
+  /// No description provided for @occurrenceEventCovered.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {to}-এর কাজ করেছেন'**
+  String occurrenceEventCovered(String name, String to);
+
+  /// No description provided for @occurrenceActionComplete.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন করুন'**
+  String get occurrenceActionComplete;
+
+  /// No description provided for @occurrenceActionUndo.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্নতা ফিরিয়ে নিন'**
+  String get occurrenceActionUndo;
+
+  /// No description provided for @occurrenceActionVerify.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই করুন'**
+  String get occurrenceActionVerify;
+
+  /// No description provided for @occurrenceActionReopen.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার খুলুন'**
+  String get occurrenceActionReopen;
+
+  /// No description provided for @occurrenceActionReassign.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যকে দিন'**
+  String get occurrenceActionReassign;
+
+  /// No description provided for @occurrenceActionSkip.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাদ দিন'**
+  String get occurrenceActionSkip;
+
+  /// No description provided for @occurrenceActionUnskip.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিরিয়ে দিন'**
+  String get occurrenceActionUnskip;
+
+  /// No description provided for @occurrenceActionException.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট দিয়ে শেষ করুন'**
+  String get occurrenceActionException;
+
+  /// No description provided for @occurrenceActionSwap.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি এটা করতে পারব না'**
+  String get occurrenceActionSwap;
+
+  /// No description provided for @occurrenceReopenTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন আবার খুলবেন?'**
+  String get occurrenceReopenTitle;
+
+  /// No description provided for @occurrenceReassignTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে করবে?'**
+  String get occurrenceReassignTitle;
+
+  /// No description provided for @occurrenceReassignReasonTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন অন্যকে দিচ্ছেন?'**
+  String get occurrenceReassignReasonTitle;
+
+  /// No description provided for @occurrenceSkipTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন বাদ দিচ্ছেন?'**
+  String get occurrenceSkipTitle;
+
+  /// No description provided for @occurrenceExceptionTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী করা যায়নি?'**
+  String get occurrenceExceptionTitle;
+
+  /// No description provided for @occurrenceUndone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্নতা ফিরিয়ে নেওয়া হয়েছে'**
+  String get occurrenceUndone;
+
+  /// No description provided for @occurrenceStepReopened.
+  ///
+  /// In bn, this message translates to:
+  /// **'হয়ে গেছে: কাজটি আবার খোলা আছে।'**
+  String get occurrenceStepReopened;
+
+  /// No description provided for @occurrencePlannedReadOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'এটি এখন শুধু পরিকল্পিত; প্রথম পরিবর্তনেই কাজটি যোগ হবে।'**
+  String get occurrencePlannedReadOnly;
+
+  /// No description provided for @todayTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ'**
+  String get todayTitle;
+
+  /// No description provided for @todayEmptyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ কোনো কাজ নেই'**
+  String get todayEmptyTitle;
+
+  /// No description provided for @todayEmptyMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফাঁকা সময়টা উপভোগ করুন, বা পরে করার জন্য কাজ যোগ করুন।'**
+  String get todayEmptyMessage;
+
+  /// No description provided for @todaySectionOverdue.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিলম্বিত'**
+  String get todaySectionOverdue;
+
+  /// No description provided for @todaySectionDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ সম্পন্ন'**
+  String get todaySectionDone;
+
+  /// No description provided for @todayScopeMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার কাজ'**
+  String get todayScopeMine;
+
+  /// No description provided for @todayScopeFamily.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুরো পরিবার'**
+  String get todayScopeFamily;
+
+  /// No description provided for @todayProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'{total}-এর মধ্যে {done} সম্পন্ন'**
+  String todayProgress(String done, String total);
+
+  /// No description provided for @todayUndo.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিরিয়ে নিন'**
+  String get todayUndo;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাইয়ের অপেক্ষায়'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyEmptyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই করার কিছু নেই'**
+  String get verifyEmptyTitle;
+
+  /// No description provided for @verifyEmptyMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ শেষ করে দিলে যে কাজগুলো যাচাই দরকার, সেগুলো এখানে দেখাবে।'**
+  String get verifyEmptyMessage;
+
+  /// No description provided for @verifyApprove.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিক আছে'**
+  String get verifyApprove;
+
+  /// No description provided for @verifyReopen.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত দিন'**
+  String get verifyReopen;
+
+  /// No description provided for @choreDayPartEarlyMorning.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভোর'**
+  String get choreDayPartEarlyMorning;
+
+  /// No description provided for @choreDayPartMorning.
+  ///
+  /// In bn, this message translates to:
+  /// **'সকাল'**
+  String get choreDayPartMorning;
+
+  /// No description provided for @choreDayPartNoon.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুপুর'**
+  String get choreDayPartNoon;
+
+  /// No description provided for @choreDayPartAfternoon.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিকাল'**
+  String get choreDayPartAfternoon;
+
+  /// No description provided for @choreDayPartEvening.
+  ///
+  /// In bn, this message translates to:
+  /// **'সন্ধ্যা'**
+  String get choreDayPartEvening;
+
+  /// No description provided for @choreDayPartNight.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাত'**
+  String get choreDayPartNight;
+
+  /// No description provided for @choreDueTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'{time}টার মধ্যে'**
+  String choreDueTime(String time);
+
+  /// No description provided for @choreStepsCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{done}/{total}'**
+  String choreStepsCount(String done, String total);
 }
 
 class _AppLocalizationsDelegate

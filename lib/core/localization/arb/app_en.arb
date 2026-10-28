@@ -2693,4 +2693,261 @@
       }
     }
   }
+  ,
+  "occurrenceDetailTitle": "Chore",
+  "@occurrenceDetailTitle": {},
+  "occurrenceDueToday": "Today, by {time}",
+  "@occurrenceDueToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDueDay": "{date}, by {time}",
+  "@occurrenceDueDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDueNoTime": "By the end of the day",
+  "@occurrenceDueNoTime": {},
+  "occurrenceUnassigned": "Nobody assigned yet",
+  "@occurrenceUnassigned": {},
+  "occurrenceCoveringFor": "Covering for {name}",
+  "@occurrenceCoveringFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceStepsTitle": "Steps",
+  "@occurrenceStepsTitle": {},
+  "occurrenceInstructionsTitle": "How to do it",
+  "@occurrenceInstructionsTitle": {},
+  "occurrenceEstimated": "About {minutes} min",
+  "@occurrenceEstimated": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceDifficultyEasy": "Easy",
+  "@occurrenceDifficultyEasy": {},
+  "occurrenceDifficultyNormal": "Normal",
+  "@occurrenceDifficultyNormal": {},
+  "occurrenceDifficultyHard": "Hard",
+  "@occurrenceDifficultyHard": {},
+  "occurrenceTimelineTitle": "History",
+  "@occurrenceTimelineTitle": {},
+  "occurrenceEventCompleted": "Completed by {name}",
+  "@occurrenceEventCompleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventUncompleted": "Completion undone by {name}",
+  "@occurrenceEventUncompleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventVerified": "Verified by {name}",
+  "@occurrenceEventVerified": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventReopened": "Reopened by {name}: {reason}",
+  "@occurrenceEventReopened": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventReassigned": "{name} moved it to {to}: {reason}",
+  "@occurrenceEventReassigned": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventSkipped": "Skipped by {name}: {reason}",
+  "@occurrenceEventSkipped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventUnskipped": "Put back by {name}",
+  "@occurrenceEventUnskipped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventException": "Exception by {name}: {reason}",
+  "@occurrenceEventException": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventSwapped": "{name} swapped with {to}",
+  "@occurrenceEventSwapped": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceEventCovered": "{name} covered for {to}",
+  "@occurrenceEventCovered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "occurrenceActionComplete": "Mark done",
+  "@occurrenceActionComplete": {},
+  "occurrenceActionUndo": "Undo completion",
+  "@occurrenceActionUndo": {},
+  "occurrenceActionVerify": "Verify",
+  "@occurrenceActionVerify": {},
+  "occurrenceActionReopen": "Reopen",
+  "@occurrenceActionReopen": {},
+  "occurrenceActionReassign": "Reassign",
+  "@occurrenceActionReassign": {},
+  "occurrenceActionSkip": "Skip",
+  "@occurrenceActionSkip": {},
+  "occurrenceActionUnskip": "Put back",
+  "@occurrenceActionUnskip": {},
+  "occurrenceActionException": "Finish with a note",
+  "@occurrenceActionException": {},
+  "occurrenceActionSwap": "I can't do this",
+  "@occurrenceActionSwap": {},
+  "occurrenceReopenTitle": "Why reopen it?",
+  "@occurrenceReopenTitle": {},
+  "occurrenceReassignTitle": "Who should do it?",
+  "@occurrenceReassignTitle": {},
+  "occurrenceReassignReasonTitle": "Why move it?",
+  "@occurrenceReassignReasonTitle": {},
+  "occurrenceSkipTitle": "Why skip it?",
+  "@occurrenceSkipTitle": {},
+  "occurrenceExceptionTitle": "What could not be done?",
+  "@occurrenceExceptionTitle": {},
+  "occurrenceUndone": "Completion undone",
+  "@occurrenceUndone": {},
+  "occurrenceStepReopened": "Done: the chore is open again.",
+  "@occurrenceStepReopened": {},
+  "occurrencePlannedReadOnly": "This chore is only planned; the first change will add it.",
+  "@occurrencePlannedReadOnly": {},
+  "todayTitle": "Today",
+  "@todayTitle": {},
+  "todayEmptyTitle": "Nothing to do today",
+  "@todayEmptyTitle": {},
+  "todayEmptyMessage": "Enjoy the free time, or plan a chore for later.",
+  "@todayEmptyMessage": {},
+  "todaySectionOverdue": "Overdue",
+  "@todaySectionOverdue": {},
+  "todaySectionDone": "Done today",
+  "@todaySectionDone": {},
+  "todayScopeMine": "Mine",
+  "@todayScopeMine": {},
+  "todayScopeFamily": "Whole family",
+  "@todayScopeFamily": {},
+  "todayProgress": "{done} of {total} done",
+  "@todayProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "todayUndo": "Undo",
+  "@todayUndo": {},
+  "verifyTitle": "Waiting for a check",
+  "@verifyTitle": {},
+  "verifyEmptyTitle": "Nothing to verify",
+  "@verifyEmptyTitle": {},
+  "verifyEmptyMessage": "Chores somebody finished and needs a check on will appear here.",
+  "@verifyEmptyMessage": {},
+  "verifyApprove": "Approve",
+  "@verifyApprove": {},
+  "verifyReopen": "Send back",
+  "@verifyReopen": {},
+  "choreDayPartEarlyMorning": "Early morning",
+  "@choreDayPartEarlyMorning": {},
+  "choreDayPartMorning": "Morning",
+  "@choreDayPartMorning": {},
+  "choreDayPartNoon": "Noon",
+  "@choreDayPartNoon": {},
+  "choreDayPartAfternoon": "Afternoon",
+  "@choreDayPartAfternoon": {},
+  "choreDayPartEvening": "Evening",
+  "@choreDayPartEvening": {},
+  "choreDayPartNight": "Night",
+  "@choreDayPartNight": {},
+  "choreDueTime": "by {time}",
+  "@choreDueTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "choreStepsCount": "{done}/{total}",
+  "@choreStepsCount": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  }
 }

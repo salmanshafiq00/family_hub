@@ -62,8 +62,11 @@ final class OccurrenceContext {
       isManager:
           settings.isModuleEnabled(PermissionModule.chores) &&
           member.permissionActor.isManager,
+      // A chore nobody owns yet counts its PLANNED owner as the assignee: the
+      // rotation already decided whose turn it is (D-P3-12). Without this a
+      // projected item with `assigneeId == null` would only accept a manager.
       isAssignee:
-          occurrence.assigneeId != null && occurrence.assigneeId == member.uid,
+          (occurrence.assigneeId ?? occurrence.plannedAssigneeId) == member.uid,
       canCompleteForOthers: settings.membersCanCompleteForOthers,
       isCompleter:
           occurrence.completedBy != null &&
@@ -142,9 +145,23 @@ Future<Result<OccurrenceContext>> loadOccurrenceContext({
   if (draft == null) {
     return const Failure<OccurrenceContext>(NotFound(entity: 'occurrence'));
   }
+  // A projected item that an approved absence already covers is UNASSIGNED
+  // (D-P3-12). Acting on it must not silently hand it to whoever taps first,
+  // so it needs a cover/assignment first; a manager may still act on it.
+  final occurrence = draft.toOccurrence();
+  if (occurrence.needsCover || occurrence.assigneeId == null) {
+    return Success<OccurrenceContext>(
+      OccurrenceContext.build(
+        occurrence: occurrence,
+        member: member,
+        settings: settings,
+        draft: draft,
+      ),
+    );
+  }
   return Success<OccurrenceContext>(
     OccurrenceContext.build(
-      occurrence: draft.toOccurrence(),
+      occurrence: occurrence,
       member: member,
       settings: settings,
       draft: draft,
@@ -188,16 +205,14 @@ Future<Result<OccurrenceDraft?>> _draftFor({
 ///
 /// The use case has already checked the permission; this only turns a
 /// "not allowed in this state" into the stable code the UI localizes.
-AppFailure? stateFailure(
-  OccurrenceContext context,
-  OccurrenceAction action,
-) {
+AppFailure? stateFailure(OccurrenceContext context, OccurrenceAction action) {
   final status = effectiveStatus(context.occurrence);
   if (OccurrenceStateMachine.can(status, action, context.actor)) return null;
   return switch (action) {
-    OccurrenceAction.verify => context.actor.isCompleter
-        ? const Conflict(code: 'self_verification')
-        : const Conflict(code: 'not_completed'),
+    OccurrenceAction.verify =>
+      context.actor.isCompleter
+          ? const Conflict(code: 'self_verification')
+          : const Conflict(code: 'not_completed'),
     OccurrenceAction.reopen =>
       status == ChoreStatus.verified
           ? const Conflict(code: 'verified_requires_manager')

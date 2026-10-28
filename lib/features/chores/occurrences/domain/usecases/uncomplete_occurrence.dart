@@ -73,13 +73,12 @@ class UncompleteOccurrence {
     final denied = permitted.failureOrNull;
     if (denied != null) return Failure<ChoreOccurrence>(denied);
 
+    // "Not completed" is the more useful answer than the generic state code.
+    if (effectiveStatus(context.occurrence) != ChoreStatus.completed) {
+      return const Failure<ChoreOccurrence>(Conflict(code: 'not_completed'));
+    }
     final blocked = stateFailure(context, OccurrenceAction.uncheckParent);
     if (blocked != null) return Failure<ChoreOccurrence>(blocked);
-    if (effectiveStatus(context.occurrence) != ChoreStatus.completed) {
-      return const Failure<ChoreOccurrence>(
-        Conflict(code: 'not_completed'),
-      );
-    }
 
     final at = _clock.nowUtc();
     final patch = OccurrencePatch(

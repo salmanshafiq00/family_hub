@@ -2,9 +2,7 @@ import 'package:family_hub/core/audit/audit_event_type.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/permissions/permission_settings.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
-import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
-import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
@@ -48,16 +46,16 @@ void main() {
 
     expect(await tick('cara'), isNull);
 
-    final stored =
-        fixture.occurrences.occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
+    final stored = fixture
+        .occurrences
+        .occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
     expect(stored.status, OccurrenceStatus.completed);
     expect(stored.completedBy, 'cara');
     expect(stored.subtaskDone.keys, <String>['step_1']);
     expect(effectiveStatus(stored).id, 'completed');
-    expect(
-      lastPlan().audits.map((audit) => audit.type),
-      <String>[AuditEventType.choresOccurrenceCompleted],
-    );
+    expect(lastPlan().audits.map((audit) => audit.type), <String>[
+      AuditEventType.choresOccurrenceCompleted,
+    ]);
     expect(lastPlan().events, isEmpty, reason: 'a tick writes no event');
   });
 
@@ -94,26 +92,33 @@ void main() {
     expect(await tick('cara', subtaskId: 'a'), isNull);
     expect(await tick('cara', subtaskId: 'b'), isNull);
 
-    final stored =
-        fixture.occurrences.occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
+    final stored = fixture
+        .occurrences
+        .occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
     expect(effectiveStatus(stored).id, 'completed');
     expect(stored.subtaskDone.keys, containsAll(<String>['a', 'b']));
   });
 
   test('a manager may tick somebody else’s chore', () async {
-    seedOccurrence(fixture, anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]));
+    seedOccurrence(
+      fixture,
+      anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]),
+    );
 
     expect(await tick('bob'), isNull);
   });
 
   test('a plain member may not, unless the family switch is on', () async {
-    seedOccurrence(fixture, anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]));
+    seedOccurrence(
+      fixture,
+      anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]),
+    );
 
-    expect(await tick('frank'), isA<PermissionDenied>());
+    expect(await tick('dave'), isA<PermissionDenied>());
 
     fixture.backend.permissionSettings[ChoresFixture.familyId] =
         PermissionSettings.defaults.copyWith(membersCanCompleteForOthers: true);
-    expect(await tick('frank'), isNull);
+    expect(await tick('dave'), isNull);
   });
 
   test('a pending member may never tick', () async {
@@ -142,41 +147,48 @@ void main() {
     expect(failure, const Conflict(code: 'already_verified'));
   });
 
-  test('unticking a completed box keeps the old completion in history', () async {
-    final at = DateTime.utc(2026, 10, 24, 3, 30);
-    seedOccurrence(
-      fixture,
-      anOccurrence(
-        subtasks: <TemplateSubtask>[aSubtask(id: 'a', required: true)],
-        status: OccurrenceStatus.completed,
-        completedAt: at,
-        completedBy: 'cara',
-        subtaskDone: <String, SubtaskDone>{
-          'a': SubtaskDone(at: at, by: 'cara'),
-        },
-      ),
-    );
+  test(
+    'unticking a completed box keeps the old completion in history',
+    () async {
+      final at = DateTime.utc(2026, 10, 24, 3, 30);
+      seedOccurrence(
+        fixture,
+        anOccurrence(
+          subtasks: <TemplateSubtask>[aSubtask(id: 'a', required: true)],
+          status: OccurrenceStatus.completed,
+          completedAt: at,
+          completedBy: 'cara',
+          subtaskDone: <String, SubtaskDone>{
+            'a': SubtaskDone(at: at, by: 'cara'),
+          },
+        ),
+      );
 
-    expect(await tick('cara', subtaskId: 'a'), isNull);
+      expect(await tick('cara', subtaskId: 'a'), isNull);
 
-    final stored =
-        fixture.occurrences.occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
-    expect(stored.completedAt, isNull);
-    expect(effectiveStatus(stored).id, 'scheduled');
+      final stored = fixture
+          .occurrences
+          .occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
+      expect(stored.completedAt, isNull);
+      expect(effectiveStatus(stored).id, 'scheduled');
 
-    final plan = lastPlan();
-    expect(plan.patches.single.removedFields, contains('subtaskDone.a'));
-    final event = plan.events.single;
-    expect(event.type, OccurrenceEventType.uncompleted);
-    expect(event.prevCompletedAt, at);
-    expect(
-      plan.audits.single.type,
-      AuditEventType.choresOccurrenceUncompleted,
-    );
-  });
+      final plan = lastPlan();
+      expect(plan.patches.single.removedFields, contains('subtaskDone.a'));
+      final event = plan.events.single;
+      expect(event.type, OccurrenceEventType.uncompleted);
+      expect(event.prevCompletedAt, at);
+      expect(
+        plan.audits.single.type,
+        AuditEventType.choresOccurrenceUncompleted,
+      );
+    },
+  );
 
   test('an unknown subtask is a concurrent edit, not a crash', () async {
-    seedOccurrence(fixture, anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]));
+    seedOccurrence(
+      fixture,
+      anOccurrence(subtasks: <TemplateSubtask>[aSubtask()]),
+    );
 
     expect(
       await tick('cara', subtaskId: 'gone'),
@@ -184,38 +196,48 @@ void main() {
     );
   });
 
-  test('an unwritten (projected) chore is materialized in the same batch',
-      () async {
-    // The DRAFT is generated from the template, so the template (not the
-    // occurrence helper) decides the owner: a fixed assignment to cara.
-    seedTemplate(
-      fixture,
-      wrapTemplate(
-        aTemplate(
-          assignee: const AssigneeSpec(
-            strategy: AssigneeStrategy.fixed,
-            fixedMemberId: 'cara',
+  test(
+    'an unwritten (projected) chore is materialized in the same batch',
+    () async {
+      // The DRAFT is generated from the template, so the template (not the
+      // occurrence helper) decides the owner and the snapshot: a fixed
+      // assignment to cara, with the same `step_1` the test ticks.
+      seedTemplate(
+        fixture,
+        wrapTemplate(
+          aTemplate(
+            subtasks: <TemplateSubtask>[aSubtask(id: 'step_1')],
+            assignee: const AssigneeSpec(
+              strategy: AssigneeStrategy.fixed,
+              fixedMemberId: 'cara',
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    final failure = await tick('cara');
-    expect(failure, isNull, reason: 'failure: $failure');
+      final result = await useCases.toggleSubtask(
+        familyId: ChoresFixture.familyId,
+        actorUid: 'cara',
+        occurrenceId: 'tpl_1_20261024',
+        subtaskId: 'step_1',
+      );
+      expect(
+        result.failureOrNull,
+        isNull,
+        reason: 'code: ${(result.failureOrNull as Conflict?)?.code}',
+      );
 
-    final plan = lastPlan();
-    expect(plan.creates.single.id, 'tpl_1_20261024');
-    expect(plan.patches.single.occurrenceId, 'tpl_1_20261024');
-    expect(
-      fixture.occurrences.occurrences[ChoresFixture.familyId],
-      contains('tpl_1_20261024'),
-    );
-  });
+      final plan = lastPlan();
+      expect(plan.creates.single.id, 'tpl_1_20261024');
+      expect(plan.patches.single.occurrenceId, 'tpl_1_20261024');
+      expect(
+        fixture.occurrences.occurrences[ChoresFixture.familyId],
+        contains('tpl_1_20261024'),
+      );
+    },
+  );
 
   test('an occurrence with no template and no document is NotFound', () async {
-    expect(
-      await tick('cara'),
-      const NotFound(entity: 'occurrence'),
-    );
+    expect(await tick('cara'), const NotFound(entity: 'occurrence'));
   });
 }
