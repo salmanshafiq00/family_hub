@@ -3,6 +3,7 @@ import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
 import 'package:family_hub/features/family/domain/family.dart';
@@ -78,6 +79,11 @@ class ChoresFixture {
 
   /// The family port the use cases ask for permissions through.
   FamilyRepository get families => backend;
+
+  /// The seeded roster as the rotation resolver sees it (Alice, Bob, Cara,
+  /// Dave and the pending Erin).
+  List<Member> get roster =>
+      backend.members[familyId]?.values.toList() ?? const <Member>[];
 }
 
 /// A valid draft: daily "wash the dishes", manual assignment, one main slot.
@@ -138,6 +144,63 @@ TemplateSubtask aSubtask({
   bool required = false,
   String? hint,
 }) => TemplateSubtask(id: id, title: title, required: required, hint: hint);
+
+/// A stored rotation version, Saturday week start unless stated (F.2).
+RotationVersion aVersion({
+  List<String> members = const <String>['alice', 'cara', 'dave'],
+  DateKey? from,
+  DateKey? anchorDate,
+  int anchorIndex = 0,
+  CycleUnit cycleUnit = CycleUnit.week,
+  int weekStartDay = DateTime.saturday,
+}) => RotationVersion(
+  from: from ?? DateKey(2026, 9, 1),
+  members: members,
+  anchorDate: anchorDate ?? DateKey(2026, 10, 3),
+  anchorIndex: anchorIndex,
+  cycleUnit: cycleUnit,
+  weekStartDay: weekStartDay,
+);
+
+/// A one-version rotation: the common setup of the rotation tests.
+Rotation aRotation({
+  List<String> members = const <String>['alice', 'cara', 'dave'],
+  DateKey? from,
+  DateKey? anchorDate,
+  int anchorIndex = 0,
+  CycleUnit cycleUnit = CycleUnit.week,
+  int weekStartDay = DateTime.saturday,
+}) => Rotation(
+  versions: <RotationVersion>[
+    aVersion(
+      members: members,
+      from: from,
+      anchorDate: anchorDate,
+      anchorIndex: anchorIndex,
+      cycleUnit: cycleUnit,
+      weekStartDay: weekStartDay,
+    ),
+  ],
+);
+
+/// A duty group whose rotation is [rotation].
+DutyGroup aDutyGroup({
+  String id = 'group_1',
+  String nameBn = 'দৈনিক রান্নাঘর ডিউটি',
+  String? nameEn = 'Daily kitchen duty',
+  int? colorIndex = 1,
+  Rotation? rotation,
+  bool active = true,
+  int sortOrder = 0,
+}) => DutyGroup(
+  id: id,
+  nameBn: nameBn,
+  nameEn: nameEn,
+  colorIndex: colorIndex,
+  rotation: rotation ?? aRotation(),
+  active: active,
+  sortOrder: sortOrder,
+);
 
 /// In-memory [ChoreSettingsRepository] for use-case tests.
 class FakeChoreSettingsRepository implements ChoreSettingsRepository {
