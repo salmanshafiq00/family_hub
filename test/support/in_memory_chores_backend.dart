@@ -12,6 +12,7 @@ import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.d
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
+import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_patch_apply.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 
@@ -461,22 +462,10 @@ class InMemoryOccurrenceBackend
     return next;
   }
 
-  ChoreOccurrence _patch(ChoreOccurrence current, OccurrencePatch patch) {
-    var deletedAt = current.deletedAt;
-    var deletedBy = current.deletedBy;
-    for (final entry in patch.fields.entries) {
-      if (entry.key == 'deletedAt') {
-        deletedAt = entry.value as DateTime?;
-      } else if (entry.key == 'deletedBy') {
-        deletedBy = entry.value as String?;
-      } else {
-        throw UnsupportedError('patch field ${entry.key}');
-      }
-    }
-    if (patch.removedFields.contains('deletedAt')) deletedAt = null;
-    if (patch.removedFields.contains('deletedBy')) deletedBy = null;
-    return current.copyWith(deletedAt: deletedAt, deletedBy: deletedBy);
-  }
+  /// Applies a dotted-key patch exactly like the stored document (P3-14):
+  /// only the named keys change, so two patches never overwrite each other.
+  ChoreOccurrence _patch(ChoreOccurrence current, OccurrencePatch patch) =>
+      applyOccurrencePatch(current, patch);
 
   @override
   Stream<DateKey?> watchThrough(String familyId) async* {
