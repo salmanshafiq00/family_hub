@@ -131,7 +131,9 @@ void main() {
 
         final plan = fixture.occurrences.plans.last;
         final event = plan.events.single;
-        expect(event.id, 'reopened_0');
+        // B-05: the id is unique per intent and the patch names it.
+        expect(event.id, isNotEmpty);
+        expect(plan.patches.single.fields['lastEventId'], event.id);
         expect(event.type, OccurrenceEventType.reopened);
         expect(event.reason, 'ভুল হয়ে গেছে');
         expect(event.prevCompletedAt, at);
@@ -141,6 +143,47 @@ void main() {
           AuditEventType.choresOccurrenceReopened,
         );
         expect(useCases.inbox.sent, <String>['chore_reopened -> cara']);
+      },
+    );
+
+    test(
+      'B-04: reopening a chore with steps unticks the steps to redo',
+      () async {
+        seedOccurrence(
+          fixture,
+          anOccurrence(
+            subtasks: <TemplateSubtask>[
+              aSubtask(id: 'step_1', required: true),
+              aSubtask(id: 'step_2', required: true),
+              aSubtask(id: 'step_3', required: true),
+            ],
+            subtaskDone: <String, SubtaskDone>{
+              'step_1': SubtaskDone(at: at, by: 'cara'),
+              'step_2': SubtaskDone(at: at, by: 'cara'),
+              'step_3': SubtaskDone(at: at, by: 'cara'),
+            },
+            status: OccurrenceStatus.completed,
+            completedAt: at,
+            completedBy: 'cara',
+          ),
+        );
+
+        final result = await useCases.reopen(
+          familyId: ChoresFixture.familyId,
+          actorUid: 'cara',
+          occurrenceId: 'tpl_1_20261024',
+          reason: 'ভুল হয়ে গেছে',
+          redoSubtaskIds: <String>{'step_2'},
+        );
+        expect(result.failureOrNull, isNull);
+
+        final occurrence = stored()!;
+        expect(effectiveStatus(occurrence), ChoreStatus.inProgress);
+        expect(occurrence.subtaskDone.keys, <String>['step_1', 'step_3']);
+        expect(
+          fixture.occurrences.plans.last.events.single.redoSubtaskIds,
+          <String>['step_2'],
+        );
       },
     );
 
@@ -313,7 +356,9 @@ void main() {
       final plan = fixture.occurrences.plans.last;
       expect(fixture.occurrences.integrityWrites, 1);
       final event = plan.events.single;
-      expect(event.id, 'reassigned_dave');
+      // B-05: the id is unique per intent and the patch names it.
+      expect(event.id, isNotEmpty);
+      expect(plan.patches.last.fields['lastEventId'], event.id);
       expect(event.fromAssigneeId, 'cara');
       expect(event.toAssigneeId, 'dave');
       expect(event.reason, 'কারা আজ ছুটিতে');

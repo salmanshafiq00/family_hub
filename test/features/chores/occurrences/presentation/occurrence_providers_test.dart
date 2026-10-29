@@ -54,6 +54,13 @@ void main() {
     };
   }
 
+  /// The app-open run waits on several repositories; one `pump` is not enough.
+  Future<void> settle(ProviderContainer container) async {
+    for (var i = 0; i < 20; i++) {
+      await container.pump();
+    }
+  }
+
   test(
     'monthOccurrencesProvider keeps the live documents of the month',
     () async {
@@ -183,7 +190,7 @@ void main() {
     final container = makeContainer();
     container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
     fixture.occurrences.nextMarkerFailure = const Network();
-    await container.pump();
+    await settle(container);
 
     expect(
       container.read(ensureOccurrencesOnOpenProvider(familyId)).value,
@@ -191,22 +198,25 @@ void main() {
     );
   });
 
-  test('the app-open hook reports a denied write instead of hiding it', () async {
-    // B-01: only "offline" is silent; every other failure is surfaced.
-    final container = makeContainer();
-    container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
-    fixture.occurrences.nextMarkerFailure = const PermissionDenied();
-    await container.pump();
+  test(
+    'the app-open hook reports a denied write instead of hiding it',
+    () async {
+      // B-01: only "offline" is silent; every other failure is surfaced.
+      final container = makeContainer();
+      container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
+      fixture.occurrences.nextMarkerFailure = const PermissionDenied();
+      await settle(container);
 
-    final state = container.read(ensureOccurrencesOnOpenProvider(familyId));
-    expect(state.hasError, isFalse, reason: 'it never fails the app start');
-    expect(state.value, isA<PermissionDenied>());
-  });
+      final state = container.read(ensureOccurrencesOnOpenProvider(familyId));
+      expect(state.hasError, isFalse, reason: 'it never fails the app start');
+      expect(state.value, isA<PermissionDenied>());
+    },
+  );
 
   test('the app-open hook reports nothing on success', () async {
     final container = makeContainer();
     container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
-    await container.pump();
+    await settle(container);
 
     final state = container.read(ensureOccurrencesOnOpenProvider(familyId));
     expect(state.hasError, isFalse);
@@ -225,7 +235,7 @@ void main() {
     );
     addTearDown(container.dispose);
     container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
-    await container.pump();
+    await settle(container);
 
     expect(
       container.read(ensureOccurrencesOnOpenProvider(familyId)).value,

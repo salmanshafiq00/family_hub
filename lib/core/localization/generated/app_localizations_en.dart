@@ -3072,6 +3072,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'This chore is only planned; the first change will add it.';
 
   @override
+  String get occurrenceAwaitingVerification =>
+      'Done; somebody else has to check it.';
+
+  @override
+  String get occurrenceReopenStepsTitle => 'Which steps have to be done again?';
+
+  @override
+  String get occurrenceReopenStepsHint => 'The ones you pick will be unticked.';
+
+  @override
   String get todayTitle => 'Today';
 
   @override

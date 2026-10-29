@@ -23,6 +23,7 @@ final class OccurrenceEvent {
     this.toAssigneeId,
     this.reason,
     this.prevCompletedAt,
+    this.redoSubtaskIds = const <String>[],
     this.requestId,
   });
 
@@ -42,6 +43,10 @@ final class OccurrenceEvent {
   /// The completion this reopen cleared, so the history keeps it.
   final DateTime? prevCompletedAt;
 
+  /// The steps a reopen sent back to "not done" (B-04), so the timeline can
+  /// say which ones to do again.
+  final List<String> redoSubtaskIds;
+
   /// The accepted swap/cover request that authorised an assignee change.
   final String? requestId;
 
@@ -57,6 +62,7 @@ final class OccurrenceEvent {
       other.toAssigneeId == toAssigneeId &&
       other.reason == reason &&
       other.prevCompletedAt == prevCompletedAt &&
+      _sameList(other.redoSubtaskIds, redoSubtaskIds) &&
       other.requestId == requestId;
 
   @override
@@ -70,8 +76,12 @@ final class OccurrenceEvent {
     toAssigneeId,
     reason,
     prevCompletedAt,
+    Object.hashAll(redoSubtaskIds),
     requestId,
   );
+
+  static bool _sameList(List<String> a, List<String> b) =>
+      a.length == b.length && a.toSet().containsAll(b);
 
   @override
   String toString() =>

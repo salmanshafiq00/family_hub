@@ -3053,6 +3053,17 @@ class AppLocalizationsBn extends AppLocalizations {
       'এটি এখন শুধু পরিকল্পিত; প্রথম পরিবর্তনেই কাজটি যোগ হবে।';
 
   @override
+  String get occurrenceAwaitingVerification =>
+      'কাজটি শেষ হয়েছে; যিনি করেননি তিনি যাচাই করবেন।';
+
+  @override
+  String get occurrenceReopenStepsTitle => 'কোন ধাপগুলো আবার করতে হবে?';
+
+  @override
+  String get occurrenceReopenStepsHint =>
+      'যেগুলো বেছে নেবেন সেগুলোর টিক মুছে যাবে।';
+
+  @override
   String get todayTitle => 'আজ';
 
   @override

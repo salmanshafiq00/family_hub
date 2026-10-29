@@ -5326,6 +5326,24 @@ abstract class AppLocalizations {
   /// **'এটি এখন শুধু পরিকল্পিত; প্রথম পরিবর্তনেই কাজটি যোগ হবে।'**
   String get occurrencePlannedReadOnly;
 
+  /// No description provided for @occurrenceAwaitingVerification.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজটি শেষ হয়েছে; যিনি করেননি তিনি যাচাই করবেন।'**
+  String get occurrenceAwaitingVerification;
+
+  /// No description provided for @occurrenceReopenStepsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোন ধাপগুলো আবার করতে হবে?'**
+  String get occurrenceReopenStepsTitle;
+
+  /// No description provided for @occurrenceReopenStepsHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'যেগুলো বেছে নেবেন সেগুলোর টিক মুছে যাবে।'**
+  String get occurrenceReopenStepsHint;
+
   /// No description provided for @todayTitle.
   ///
   /// In bn, this message translates to:

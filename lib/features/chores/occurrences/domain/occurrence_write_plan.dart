@@ -100,6 +100,7 @@ final class NewEvent {
     this.toAssigneeId,
     this.reason,
     this.prevCompletedAt,
+    this.redoSubtaskIds = const <String>[],
     this.requestId,
   });
 
@@ -115,6 +116,9 @@ final class NewEvent {
   /// Required for `reassigned`, `reopened`, `exception`, `skipped` (3–300).
   final String? reason;
   final DateTime? prevCompletedAt;
+
+  /// The steps a `reopened` event sent back to "not done" (B-04).
+  final List<String> redoSubtaskIds;
   final String? requestId;
 
   NewEvent withId(String newId) => NewEvent(
@@ -125,6 +129,7 @@ final class NewEvent {
     toAssigneeId: toAssigneeId,
     reason: reason,
     prevCompletedAt: prevCompletedAt,
+    redoSubtaskIds: redoSubtaskIds,
     requestId: requestId,
   );
 

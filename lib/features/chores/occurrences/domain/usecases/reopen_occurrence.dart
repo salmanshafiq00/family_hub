@@ -146,6 +146,7 @@ class ReopenOccurrence {
         type: OccurrenceEventType.reopened,
         reason: note,
         prevCompletedAt: occurrence.completedAt,
+        redoSubtaskIds: redo,
       ),
       inbox: assignee == null
           ? null

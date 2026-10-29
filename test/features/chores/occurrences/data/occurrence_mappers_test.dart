@@ -195,11 +195,25 @@ void main() {
         at: at,
       );
       const allowed = <String>{
-        'templateRev', 'nameBn', 'nameEn', 'groupId', 'instructions',
-        'subtasks', 'difficulty', 'estimatedMinutes', 'verification',
-        'dueAt', 'dueMinutes', 'plannedAssigneeId', 'assigneeId',
-        'assignmentSource', 'needsCover', 'deletedAt', 'deletedBy',
-        'updatedAt', 'updatedBy',
+        'templateRev',
+        'nameBn',
+        'nameEn',
+        'groupId',
+        'instructions',
+        'subtasks',
+        'difficulty',
+        'estimatedMinutes',
+        'verification',
+        'dueAt',
+        'dueMinutes',
+        'plannedAssigneeId',
+        'assigneeId',
+        'assignmentSource',
+        'needsCover',
+        'deletedAt',
+        'deletedBy',
+        'updatedAt',
+        'updatedBy',
       };
       expect(map.keys.toSet().difference(allowed), isEmpty);
       expect(map.containsKey('status'), isFalse);
@@ -236,7 +250,33 @@ void main() {
         )?.reason,
         event.reason,
       );
+      expect(
+        OccurrenceEventMappers.fromDoc(
+          event.occurrenceId,
+          event.id,
+          map,
+        )?.redoSubtaskIds,
+        event.redoSubtaskIds,
+      );
       expect(map.keys, containsAll(<String>['type', 'actorId', 'reason']));
+    });
+
+    test('B-04: the steps a reopen cleared survive the round trip', () {
+      final event = OccurrenceEvent(
+        id: 'reopened_1',
+        occurrenceId: 'tpl_1_20261024',
+        type: OccurrenceEventType.reopened,
+        actorId: 'bob',
+        at: at,
+        redoSubtaskIds: const <String>['step_1', 'step_2'],
+      );
+      final map = OccurrenceEventMappers.toMap(event, meta);
+      final read = OccurrenceEventMappers.fromDoc(
+        event.occurrenceId,
+        event.id,
+        map,
+      );
+      expect(read?.redoSubtaskIds, event.redoSubtaskIds);
     });
 
     test('an unknown event type is dropped', () {
@@ -259,9 +299,8 @@ void main() {
         type: OccurrenceEventType.uncompleted,
       );
       final stamped = event.withId('evt_two');
-      final patch = const OccurrencePatch(
-        occurrenceId: 'tpl_1_20261024',
-      ).withField('lastEventId', stamped.id);
+      final patch = const OccurrencePatch(occurrenceId: 'tpl_1_20261024')
+          .withField('lastEventId', stamped.id);
 
       expect(event.id, isEmpty);
       expect(stamped.id, 'evt_two');
