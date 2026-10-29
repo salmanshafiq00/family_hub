@@ -187,6 +187,24 @@ void main() {
       expect(map[BaseMapper.keyDeletedAt], isNull);
       expect(map[BaseMapper.keyDeletedBy], isNull);
     });
+
+    test('B-06: a restore writes ONLY the keys rule 12 allows', () {
+      final map = OccurrenceMappers.restoreMap(
+        anOccurrence(deletedAt: at, deletedBy: 'bob'),
+        actorId: 'bob',
+        at: at,
+      );
+      const allowed = <String>{
+        'templateRev', 'nameBn', 'nameEn', 'groupId', 'instructions',
+        'subtasks', 'difficulty', 'estimatedMinutes', 'verification',
+        'dueAt', 'dueMinutes', 'plannedAssigneeId', 'assigneeId',
+        'assignmentSource', 'needsCover', 'deletedAt', 'deletedBy',
+        'updatedAt', 'updatedBy',
+      };
+      expect(map.keys.toSet().difference(allowed), isEmpty);
+      expect(map.containsKey('status'), isFalse);
+      expect(map.containsKey('subtaskDone'), isFalse);
+    });
   });
 
   group('events', () {
@@ -235,15 +253,19 @@ void main() {
       expect(OccurrenceEventMappers.fromDoc('o', 'x', map), isNull);
     });
 
-    test('the deterministic event ids are stable', () {
-      expect(
-        OccurrenceEventIds.transition(OccurrenceEventType.reopened, 2),
-        'reopened_2',
+    test('B-05: a patch records the unique event id as lastEventId', () {
+      const event = NewEvent(
+        occurrenceId: 'tpl_1_20261024',
+        type: OccurrenceEventType.uncompleted,
       );
-      expect(
-        OccurrenceEventIds.assignment(OccurrenceEventType.reassigned, 'dave'),
-        'reassigned_dave',
-      );
+      final stamped = event.withId('evt_two');
+      final patch = const OccurrencePatch(
+        occurrenceId: 'tpl_1_20261024',
+      ).withField('lastEventId', stamped.id);
+
+      expect(event.id, isEmpty);
+      expect(stamped.id, 'evt_two');
+      expect(patch.fields['lastEventId'], 'evt_two');
     });
   });
 

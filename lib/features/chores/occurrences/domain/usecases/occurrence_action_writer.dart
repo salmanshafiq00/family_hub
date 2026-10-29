@@ -1,4 +1,5 @@
 import 'package:family_hub/core/errors/result.dart';
+import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_draft.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
@@ -11,13 +12,17 @@ import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrenc
 /// * the draft, when the item was projected (D-P3-6: the first action
 ///   materializes it in the same batch);
 /// * the dotted-key patch (never a whole-document write, so two phones merge);
-/// * the lifecycle event the state machine requires;
+/// * the lifecycle event the state machine requires, with its OWN unique id
+///   (B-05) that the patch records as `lastEventId`;
 /// * the inbox row (only when the port builds one);
 /// * the audit entry (always).
 final class OccurrenceActionWriter {
-  const OccurrenceActionWriter(this._occurrences);
+  const OccurrenceActionWriter(this._occurrences, [this._newId = randomId]);
 
   final OccurrenceRepository _occurrences;
+
+  /// One id per event, drawn once per [stage] call (once per user intent).
+  final IdGenerator _newId;
 
   /// Builds the plan, so a test can assert it without a repository.
   static OccurrenceWritePlan planFor({
@@ -27,15 +32,27 @@ final class OccurrenceActionWriter {
     NewEvent? event,
     NewInboxItem? inbox,
     RequiredAudit? audit,
-  }) => OccurrenceWritePlan(
-    actorId: context.member.uid,
-    at: at,
-    creates: <OccurrenceDraft>[?context.draft],
-    patches: <OccurrencePatch>[?patch],
-    events: <NewEvent>[?event],
-    inbox: <NewInboxItem>[?inbox],
-    audits: <NewAudit>[?audit?.build(context, at)],
-  );
+    IdGenerator newId = randomId,
+  }) {
+    // B-05: every event gets a unique id, and the occurrence names it in
+    // `lastEventId` so the rules can find it without guessing a path.
+    final stamped = event == null || event.id.isNotEmpty
+        ? event
+        : event.withId(newId());
+    final linked = patch != null && stamped != null
+        ? patch.withField('lastEventId', stamped.id)
+        : patch;
+    final auditEntry = audit?.build(context, at);
+    return OccurrenceWritePlan(
+      actorId: context.member.uid,
+      at: at,
+      creates: <OccurrenceDraft>[?context.draft],
+      patches: <OccurrencePatch>[?linked],
+      events: <NewEvent>[?stamped],
+      inbox: <NewInboxItem>[?inbox],
+      audits: <NewAudit>[?auditEntry],
+    );
+  }
 
   Future<Result<void>> stage(
     String familyId,
@@ -54,6 +71,7 @@ final class OccurrenceActionWriter {
       event: event,
       inbox: inbox,
       audit: audit,
+      newId: _newId,
     );
     return integrity
         ? _occurrences.stageIntegrity(familyId, plan)

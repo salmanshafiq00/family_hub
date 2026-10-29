@@ -52,14 +52,29 @@ import 'package:family_hub/core/permissions/permission_settings.dart';
 /// only their own expenses, admin/moderator any"; Step 25's "reassign
 /// (admin/moderator)"; CLAUDE.md's "members see only their own contributions").
 abstract final class PermissionPolicy {
+  /// "May this person verify OTHER people's chores at all?" (B-02).
+  ///
+  /// `verifyChore` needs a completer and a template, so a screen that only
+  /// decides whether to SHOW the Verify queue has nobody to ask about. This asks
+  /// the same cell with the template switch on and a completer who is never the
+  /// actor, so the family switch, the module switch and the role still decide.
+  static bool canVerifyOthers(
+    PermissionActor actor, {
+    PermissionSettings settings = PermissionSettings.defaults,
+  }) => can(
+    actor,
+    Permission.verifyChore,
+    ownerId: '${actor.uid}#someone-else',
+    settings: settings,
+    template: const PermissionTemplate(verificationEnabled: true),
+  );
+
   /// True when [actor] may do [permission].
   ///
   /// [ownerId] is the member an occurrence/expense belongs to: the assignee for
   /// `completeOwnChore`, `completeChoreForOthers` and `requestSwap`, the
   /// completer for `verifyChore`, the member for `recordOwnAvailability`.
   /// [settings] carries the family switches, [template] the template switch.
-  ///
-  /// For a "may I at all?" question use [canVerifyAny], not a sentinel owner.
   static bool can(
     PermissionActor actor,
     Permission permission, {
@@ -121,28 +136,6 @@ abstract final class PermissionPolicy {
       Permission.moderateChoreComments => actor.isManager,
     };
   }
-
-  /// May the viewer verify ANY chore of somebody else, before one is chosen?
-  ///
-  /// The same cell as [Permission.verifyChore], asked without a concrete
-  /// completer: it answers only "this actor, this role, this family switch"
-  /// (B-02 — the Verify tile, the queue screen and the badge need that answer
-  /// before an occurrence is picked, and [can] needs a completer).  Every real
-  /// verification is still checked with its completer and the snapshot's
-  /// `verification`.
-  static bool canVerifyAny(
-    PermissionActor actor, {
-    PermissionSettings settings = PermissionSettings.defaults,
-  }) =>
-      can(
-        actor,
-        Permission.verifyChore,
-        // A completer that can never be the actor, and a chore that asks for a
-        // check: the answer then depends only on the role and the switch.
-        ownerId: '\u0000someone',
-        settings: settings,
-        template: const PermissionTemplate(verificationEnabled: true),
-      );
 
   /// Admin always; a moderator only while the family lets moderators manage
   /// finance (spec section 6, "Configurable").

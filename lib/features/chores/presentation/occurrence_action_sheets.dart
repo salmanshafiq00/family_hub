@@ -1,11 +1,6 @@
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
-import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
-import 'package:family_hub/features/chores/occurrences/domain/occurrence_reopen.dart';
-import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_action_providers.dart';
-import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
-import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/shared/widgets/person_picker.dart';
 import 'package:family_hub/shared/widgets/reason_sheet.dart';
@@ -23,60 +18,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// screen stays a layout file and the "which sheet asks what" rules live in one
 /// place — the same rules the verify queue reuses.
 extension OccurrenceActionSheets on WidgetRef {
-  /// Reopen with a reason, and with the steps to redo (B-04).
-  ///
-  /// A chore with ticks asks WHICH steps must be done again (all of them by
-  /// default); the answer is unticked in the same patch, otherwise the chore
-  /// would stay `completed` and the button would look broken.  Returns null
-  /// when the person cancelled a sheet (or the session ended), otherwise the
-  /// use case result so the caller can show the failure.
+  /// Reopen with a reason. Returns null when the person cancelled a sheet (or
+  /// the session ended), otherwise the use case result so the caller can show
+  /// the failure.
   Future<Result<Object?>?> reopenWithSheet(
     BuildContext context, {
     required String occurrenceId,
   }) async {
-    final l10n = context.l10n;
-    final document = read(occurrenceProvider(occurrenceId)).value;
-    // Only a chore that is COMPLETED right now has steps to redo: one whose
-    // ticks were already removed is open again (`effectiveStatus`, not the
-    // stored cache), and asking about its steps would be nonsense.
-    final completed = document != null
-        ? effectiveStatus(document) == ChoreStatus.completed
-        : false;
-    final ticked = <String>{
-      if (completed) ...OccurrenceReopen.redoCandidates(document!),
-    };
-    final steps = <TemplateSubtask>[
-      if (document != null)
-        for (final subtask in document.subtasks)
-          if (ticked.contains(subtask.id)) subtask,
-    ];
-
-    String? reason;
-    List<String>? redo;
-    if (steps.isEmpty) {
-      reason = await showReasonSheet(
-        context,
-        title: l10n.occurrenceReopenTitle,
-      );
-    } else {
-      final answer = await showReasonChecklistSheet(
-        context,
-        title: l10n.occurrenceReopenTitle,
-        checklistTitle: l10n.occurrenceReopenStepsTitle,
-        hint: l10n.occurrenceReopenStepsHint,
-        options: <String>[for (final step in steps) step.title],
-        selected: <bool>[for (final _ in steps) true],
-      );
-      if (answer != null) {
-        reason = answer.reason;
-        // The sheet answers with LABELS (that is what a person reads); the use
-        // case needs the step ids.  Labels are unique per chore here.
-        redo = <String>[
-          for (final step in steps)
-            if (answer.stepIds.contains(step.title)) step.id,
-        ];
-      }
-    }
+    final reason = await showReasonSheet(
+      context,
+      title: context.l10n.occurrenceReopenTitle,
+    );
     if (reason == null || !context.mounted) return null;
     final familyId = read(currentFamilyIdProvider);
     final uid = read(currentUidProvider);
@@ -86,12 +38,9 @@ extension OccurrenceActionSheets on WidgetRef {
       actorUid: uid,
       occurrenceId: occurrenceId,
       reason: reason,
-      redoSubtaskIds: redo,
     );
     return result;
   }
-
-
 
   /// Pick a member, then a reason, then move the chore.
   Future<Result<Object?>?> reassignWithSheets(

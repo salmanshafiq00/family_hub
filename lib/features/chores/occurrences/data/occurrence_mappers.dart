@@ -57,7 +57,6 @@ abstract final class OccurrenceMappers {
     'skipReason': occurrence.skipReason?.id,
     'needsAttention': occurrence.needsAttention,
     'lastCommentAt': BaseMapper.dateTimeToTimestamp(occurrence.lastCommentAt),
-    'redoSubtaskIds': occurrence.redoSubtaskIds,
     ...BaseMapper.metadataToMap(meta),
   };
 
@@ -108,62 +107,50 @@ abstract final class OccurrenceMappers {
           ? map['needsAttention'] as bool
           : false,
       lastCommentAt: BaseMapper.timestampToDateTime(map['lastCommentAt']),
-      redoSubtaskIds: _stringList(map['redoSubtaskIds']),
       deletedAt: BaseMapper.timestampToDateTime(map['deletedAt']),
       deletedBy: _nullableString(map['deletedBy'], 64),
     );
   }
 
-  /// A soft-deleted document restored by regeneration (rule 12 · RESTORE).
-  ///
-  /// The restored document is a FRESH PLAN: no ticks, no completion, no
-  /// reopen history — a rolled-forward `reopenCount` would also block the
-  /// replay of an event id.  It writes exactly the keys the RESTORE rule
-  /// allows (the replan snapshot set plus the cleared delete pair and the
-  /// update stamps); the creation metadata is left untouched (B-06).
+  /// The restore of one soft-deleted occurrence (a resumed template, a re-added
+  /// date). B-06: ONLY the snapshot fields the replan rule allows, the cleared
+  /// delete pair and the update stamps - never the whole document - so the
+  /// `RESTORE` rule (rule 12) can bound the write with `affectedKeys()`. The
+  /// original `createdAt/By` stay.
   static Map<String, dynamic> restoreMap(
-    ChoreOccurrence draft, {
+    ChoreOccurrence occurrence, {
     required String actorId,
     required DateTime at,
-  }) {
-    final occurrence = draft;
-    return <String, dynamic>{
-      'templateId': occurrence.templateId,
-      'templateRev': occurrence.templateRev,
-      'dueAt': BaseMapper.dateTimeToTimestamp(occurrence.dueAt),
-      'dueMinutes': occurrence.dueMinutes,
-      'nameBn': occurrence.nameBn,
-      'nameEn': occurrence.nameEn,
-      'groupId': occurrence.groupId,
-      'instructions': occurrence.instructions,
-      'subtasks': <Map<String, Object?>>[
-        for (final subtask in occurrence.subtasks) subtask.toMap(),
-      ],
-      'difficulty': occurrence.difficulty.id,
-      'estimatedMinutes': occurrence.estimatedMinutes,
-      'verification': occurrence.verification.id,
-      'status': occurrence.status.id,
-      'plannedAssigneeId': occurrence.plannedAssigneeId,
-      'assigneeId': occurrence.assigneeId,
-      'assignmentSource': occurrence.assignmentSource.id,
-      'needsCover': occurrence.needsCover,
-      'subtaskDone': const <String, Object?>{},
-      'reopenCount': 0,
-      'needsAttention': false,
-      BaseMapper.keyDeletedAt: null,
-      BaseMapper.keyDeletedBy: null,
-      BaseMapper.keyUpdatedAt: BaseMapper.dateTimeToTimestamp(at),
-      BaseMapper.keyUpdatedBy: actorId,
-    };
-  }
+  }) => <String, dynamic>{
+    ..._snapshotFields(
+      occurrence,
+      recomputeAssignment: true,
+      actorId: actorId,
+      at: at,
+    ),
+    BaseMapper.keyDeletedAt: null,
+    BaseMapper.keyDeletedBy: null,
+  };
 
   /// The snapshot refresh of one unstarted occurrence (P3-12 replan).
   static Map<String, dynamic> replanMap(
     OccurrenceReplan replan, {
     required String actorId,
     required DateTime at,
+  }) => _snapshotFields(
+    replan.draft.occurrence,
+    recomputeAssignment: replan.recomputeAssignment,
+    actorId: actorId,
+    at: at,
+  );
+
+  /// The snapshot keys shared by a replan and a restore (rules 10 and 12).
+  static Map<String, dynamic> _snapshotFields(
+    ChoreOccurrence draft, {
+    required bool recomputeAssignment,
+    required String actorId,
+    required DateTime at,
   }) {
-    final draft = replan.draft.occurrence;
     return <String, dynamic>{
       'templateRev': draft.templateRev,
       'dueAt': BaseMapper.dateTimeToTimestamp(draft.dueAt),
@@ -178,7 +165,7 @@ abstract final class OccurrenceMappers {
       'difficulty': draft.difficulty.id,
       'estimatedMinutes': draft.estimatedMinutes,
       'verification': draft.verification.id,
-      if (replan.recomputeAssignment) ...<String, dynamic>{
+      if (recomputeAssignment) ...<String, dynamic>{
         'plannedAssigneeId': draft.plannedAssigneeId,
         'assigneeId': draft.assigneeId,
         'assignmentSource': draft.assignmentSource.id,
@@ -279,15 +266,6 @@ abstract final class OccurrenceMappers {
     final at = BaseMapper.timestampToDateTime(raw['at']);
     if (note == null || by == null || at == null) return null;
     return CompletionException(note: note, by: by, at: at);
-  }
-
-  /// The step ids a reopen asked to redo; a malformed row is dropped.
-  static List<String> _stringList(Object? raw) {
-    if (raw is! List) return const <String>[];
-    return <String>[
-      for (final item in raw)
-        if (item is String && item.isNotEmpty && item.length <= 16) item,
-    ];
   }
 
   static DateKey? _dateKey(Object? value) =>

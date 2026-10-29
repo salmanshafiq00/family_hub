@@ -50,6 +50,13 @@ final class OccurrencePatch {
 
   bool get isEmpty => fields.isEmpty && removedFields.isEmpty;
 
+  /// The same patch with one more written field (`lastEventId`, B-05).
+  OccurrencePatch withField(String key, Object? value) => OccurrencePatch(
+    occurrenceId: occurrenceId,
+    fields: <String, Object?>{...fields, key: value},
+    removedFields: removedFields,
+  );
+
   @override
   bool operator ==(Object other) =>
       other is OccurrencePatch &&
@@ -86,20 +93,19 @@ final class OccurrencePatch {
 /// A lifecycle event to append in the same batch as its patch.
 final class NewEvent {
   const NewEvent({
-    required this.id,
+    this.id = '',
     required this.occurrenceId,
     required this.type,
     this.fromAssigneeId,
     this.toAssigneeId,
     this.reason,
     this.prevCompletedAt,
-    this.redoSubtaskIds = const <String>[],
     this.requestId,
   });
 
-  /// A UNIQUE id generated once per user intent ([OccurrenceEventIds.of],
-  /// CLAUDE.md rule 15).  The same intent retried (a queued write) reuses it,
-  /// and a second occurrence of the same transition gets a new one (B-05).
+  /// Unique event id, generated ONCE per user intent (B-05). Leave it empty and
+  /// `OccurrenceActionWriter` fills it and records it as the patch's
+  /// `lastEventId`, which is how the rules find the event.
   final String id;
   final String occurrenceId;
   final OccurrenceEventType type;
@@ -109,10 +115,18 @@ final class NewEvent {
   /// Required for `reassigned`, `reopened`, `exception`, `skipped` (3–300).
   final String? reason;
   final DateTime? prevCompletedAt;
-
-  /// The steps a `reopened` event asked to redo (B-04); empty otherwise.
-  final List<String> redoSubtaskIds;
   final String? requestId;
+
+  NewEvent withId(String newId) => NewEvent(
+    id: newId,
+    occurrenceId: occurrenceId,
+    type: type,
+    fromAssigneeId: fromAssigneeId,
+    toAssigneeId: toAssigneeId,
+    reason: reason,
+    prevCompletedAt: prevCompletedAt,
+    requestId: requestId,
+  );
 
   @override
   String toString() => 'NewEvent(${type.id} on $occurrenceId)';

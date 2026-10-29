@@ -2,6 +2,7 @@ import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
 import 'package:family_hub/core/permissions/permission.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/today_providers.dart';
+import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,7 +20,7 @@ class ChoresEntry {
     required this.route,
     this.subtitle,
     this.requires,
-    this.allowed,
+    this.gate,
     this.badge,
   });
 
@@ -40,10 +41,9 @@ class ChoresEntry {
   /// Permission the viewer needs to see this tile; `null` = everybody.
   final Permission? requires;
 
-  /// A boolean gate for a question the permission matrix cannot answer alone
-  /// (B-02: verification needs a completer AND the template switch, so the
-  /// tile asks the dedicated provider instead of `requires`).
-  final Provider<bool>? allowed;
+  /// An extra yes/no the tile needs (B-02): for a cell like `verifyChore` that
+  /// cannot be answered without a chore, so [requires] cannot express it.
+  final Provider<bool>? gate;
 
   /// Optional count shown on the tile (for example open verifications).  A
   /// value of zero shows nothing.
@@ -68,10 +68,7 @@ final List<ChoresEntry> choresEntries = <ChoresEntry>[
     title: (l10n) => l10n.verifyTitle,
     subtitle: (l10n) => l10n.verifyEmptyMessage,
     route: AppRoutes.choresVerify,
-    // Not `requires: Permission.verifyChore`: that permission needs a concrete
-    // completer and a template, so asking it here always answered `false` and
-    // the tile was hidden for everybody (B-02).
-    allowed: canVerifyAnyProvider,
+    gate: canVerifyAnyProvider,
     badge: verifyQueueCountProvider,
   ),
 ];

@@ -5,7 +5,6 @@ import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart'
     as domain;
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_action.dart';
-import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:flutter/material.dart';
@@ -69,22 +68,16 @@ class OccurrenceActionsBar extends ConsumerWidget {
           : Permission.completeChoreForOthers,
       ownerId: item.assigneeId,
     );
-    // B-02: the matrix needs the TEMPLATE switch as well as the completer, so
-    // the snapshot's `verification` travels with the question. Without it
-    // `verifyChore` is always false and the button never appears.
     final canVerify =
         status == ChoreStatus.completed &&
         completedBy != uid &&
         ref.can(
           Permission.verifyChore,
           ownerId: completedBy,
+          // B-02: the template switch is part of the cell; without it the
+          // policy always said no and Verify never appeared.
           template: permissionTemplateFor(item.verification),
         );
-    // A chore that asks for a check the viewer cannot give says why, with an
-    // icon and a label (never colour alone).
-    final blockedVerification = status == ChoreStatus.completed
-        ? _verificationBlockedReason(context, item, canVerify)
-        : null;
     final canComment = ref.can(Permission.commentOnChore);
 
     final actions = <Widget>[
@@ -108,23 +101,6 @@ class OccurrenceActionsBar extends ConsumerWidget {
           onPressed: busy ? null : onVerify,
           icon: const Icon(Icons.verified_outlined),
           label: Text(l10n.occurrenceActionVerify),
-        ),
-      if (blockedVerification != null)
-        Row(
-          key: const ValueKey('action_verify_blocked'),
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.fact_check_outlined, color: t.textSecondary),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                blockedVerification,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: t.textSecondary),
-              ),
-            ),
-          ],
         ),
       if ((status == ChoreStatus.completed && canComment) ||
           (status == ChoreStatus.verified && canManage))
@@ -186,18 +162,5 @@ class OccurrenceActionsBar extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  /// Why the viewer cannot verify this completion, or null when the button is
-  /// shown (or the chore needs no check).
-  static String? _verificationBlockedReason(
-    BuildContext context,
-    domain.ChoreItem item,
-    bool canVerify,
-  ) {
-    if (canVerify || item.verification != VerificationMode.required) {
-      return null;
-    }
-    return context.l10n.occurrenceAwaitingVerification;
   }
 }

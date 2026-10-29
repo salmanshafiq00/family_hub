@@ -11,7 +11,6 @@ import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart'
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
-import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
 import 'package:family_hub/shared/widgets/reason_sheet.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +31,6 @@ class VerifyQueueScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final items = ref.watch(verifyItemsProvider);
     final queue = ref.watch(verifyQueueProvider);
-    // B-02: `ref.can(Permission.verifyChore)` needs a completer AND the
-    // template switch, so asking it with a sentinel owner was always `false`
-    // and the list never appeared. The question before an item is chosen is
-    // "may this person verify somebody else's chore at all?"
     final allowed = ref.watch(canVerifyAnyProvider);
 
     final empty = EmptyState(
@@ -48,31 +43,15 @@ class VerifyQueueScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.verifyTitle)),
       body: !allowed
           ? empty
-          : queue.hasError
-          ? ErrorView(
-              message: l10n.choresFailureMessage(
-                queue.error is AppFailure
-                    ? queue.error! as AppFailure
-                    : Unknown(queue.error!),
-              ),
-              onRetry: () => ref.invalidate(verifyQueueProvider),
-            )
           : queue.isLoading
           ? const LoadingView()
           : items.isEmpty
           ? empty
-          : RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(verifyQueueProvider);
-                await ref.read(verifyQueueProvider.future);
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: items.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 8),
-                itemBuilder: (context, index) => _VerifyRow(item: items[index]),
-              ),
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: items.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemBuilder: (context, index) => _VerifyRow(item: items[index]),
             ),
     );
   }

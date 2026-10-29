@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/firebase/query_limits.dart';
 import 'package:family_hub/core/utils/clock_provider.dart';
@@ -102,97 +100,34 @@ final ensureOccurrencesProvider = Provider<EnsureOccurrences>(
   ),
 );
 
-/// The app-open generation run, started ONCE per family per app start
-/// (B-01: `ensureOccurrencesOnOpenCallProvider` below is its one caller).
+/// The app-open generation run, started ONCE per family per app start by
+/// `ChoresGenerationHook` (B-01).
 ///
-/// * `Network` (offline) is silent: the marker stays put and the next open
-///   retries — a generation must never block the app start.
-/// * Every OTHER failure is reported through [generationFailureProvider] for
-///   the global banner (CLAUDE.md rule 9: no silent catches); it is never a
-///   stream error, so watchers of this provider are not disturbed.
-/// * A signed-out moment (`uid == null`) runs nothing at all.
+/// The value is the failure to SHOW, or null when there is nothing to report:
+/// the run succeeded, there is no signed-in user, or the device is offline
+/// (`Network` retries silently on the next open - the deterministic ids make a
+/// repeat harmless). Every other failure is returned instead of swallowed
+/// (CLAUDE rule 9: no silent catches); it never throws, so a failed generation
+/// can still never block the app start.
 final ensureOccurrencesOnOpenProvider =
-    FutureProvider.family<GenerationOutcome?, String>((ref, familyId) async {
+    FutureProvider.family<AppFailure?, String>((ref, familyId) async {
       final uid = ref.read(currentUidProvider);
-      if (uid == null || uid.isEmpty) return null;
-      final result = await ref.read(ensureOccurrencesProvider)(
-        familyId: familyId,
-        actorUid: uid,
-        today: ref.read(familyDateKeysProvider).today(),
-      );
-      final failure = result.failureOrNull;
-      if (failure == null) {
-        ref.read(generationFailureProvider.notifier).clear(familyId);
-        return result.valueOrNull;
+      if (uid == null) return null;
+      try {
+        final result = await ref.read(ensureOccurrencesProvider)(
+          familyId: familyId,
+          actorUid: uid,
+          today: ref.read(familyDateKeysProvider).today(),
+        );
+        final failure = result.failureOrNull;
+        if (failure == null || failure is Network) return null;
+        return failure;
+      } on Object catch (error) {
+        // A thrown error is reported as `Unknown`, not rethrown: the hook runs
+        // beside the app start and must never take it down.
+        return Unknown(error);
       }
-      if (failure is! Network) {
-        ref.read(generationFailureProvider.notifier).report(familyId, failure);
-      }
-      return null;
     }, isAutoDispose: false);
-
-/// The last NON-offline generation failure (B-01).
-///
-/// The hook itself never throws (a failed generation must not fail the app
-/// start), so this is the only place a person can learn about it; the shell
-/// turns it into one snackbar.
-final generationFailureProvider =
-    NotifierProvider<GenerationFailureNotifier, GenerationFailure?>(
-      GenerationFailureNotifier.new,
-    );
-
-/// One reported failure and the family it belongs to.
-final class GenerationFailure {
-  const GenerationFailure({required this.familyId, required this.failure});
-
-  final String familyId;
-  final AppFailure failure;
-
-  @override
-  bool operator ==(Object other) =>
-      other is GenerationFailure &&
-      other.familyId == familyId &&
-      other.failure.runtimeType == failure.runtimeType;
-
-  @override
-  int get hashCode => Object.hash(familyId, failure.runtimeType);
-
-  @override
-  String toString() => 'GenerationFailure($familyId, $failure)';
-}
-
-/// Holds (and clears) the reported generation failure.
-final class GenerationFailureNotifier extends Notifier<GenerationFailure?> {
-  @override
-  GenerationFailure? build() => null;
-
-  void report(String familyId, AppFailure failure) {
-    state = GenerationFailure(familyId: familyId, failure: failure);
-  }
-
-  void clear(String familyId) {
-    if (state?.familyId == familyId) state = null;
-  }
-}
-
-/// One call that starts the app-open generation run once per family (B-01).
-///
-/// The app calls it from ONE place that already knows "signed in + active
-/// member + family id": the session hook in `FamilyHubApp`.  The seen-set makes
-/// it idempotent across the rebuilds that widget does (theme, locale, tab
-/// change), which is what "once per family per app start" means; a new family
-/// id or a new process runs it again.
-final ensureOccurrencesOnOpenCallProvider = Provider<void Function(String)>((
-  ref,
-) {
-  final seen = <String>{};
-  return (familyId) {
-    if (!seen.add(familyId)) return;
-    // Not awaited on purpose: the run is fire-and-forget and reports through
-    // `generationFailureProvider`, so no widget build ever blocks on it.
-    unawaited(ref.read(ensureOccurrencesOnOpenProvider(familyId).future));
-  };
-});
 
 /// One month of live occurrences plus the truncation flag.
 final class MonthOccurrences {

@@ -95,6 +95,19 @@ final canProvider = Provider.family<bool, PermissionQuery>((ref, query) {
   );
 });
 
+/// Whether the signed-in user may verify other people's chores at all (B-02):
+/// what decides if the Verify tile and the Verify queue are shown. Whether ONE
+/// chore can be verified also depends on its template (`ref.can(...,
+/// template:)`), which this provider deliberately does not know.
+final canVerifyAnyProvider = Provider<bool>((ref) {
+  final actor = ref.watch(currentActorProvider);
+  if (actor == null) return false;
+  return PermissionPolicy.canVerifyOthers(
+    actor,
+    settings: ref.watch(permissionSettingsProvider),
+  );
+});
+
 /// `ref.can(Permission.inviteMembers)` inside a widget's `build`.
 extension WidgetRefPermissions on WidgetRef {
   bool can(

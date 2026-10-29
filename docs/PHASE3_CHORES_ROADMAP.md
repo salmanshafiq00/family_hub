@@ -1233,3 +1233,16 @@ Dates: 2026-10-24 is a Saturday. ISO weekdays: 1 = Monday … 7 = Sunday.
 | Q9 | How long before a chore is due should a swap request expire? | 120 minutes before. |
 | Q10 | Reminders and badges wait for Phase 4 — OK? | Yes; Phase 3 only stores the reminder settings. |
 | Q11 | Default calendar view on phones? | Agenda (month and week one tap away). |
+
+
+---
+
+## Appendix H - Wave R1 spec corrections (docs/PHASE3_REVIEW_ROADMAP.md)
+
+| Finding | Spec change |
+| --- | --- |
+| B-04 | **Reopen unticks steps.** `ReopenOccurrence` removes `subtaskDone.<id>` for the steps to redo (default: every ticked required step; `redoSubtaskIds` narrows it) in the SAME patch. Choosing only optional steps is refused (`Validation('redoSubtaskIds','pick_required_step')`). Rule 4 allows `subtaskDone` to shrink, never grow. The step list is NOT yet stored on the `reopened` event (open item). |
+| B-05 | **Event ids are unique per intent**, generated once by `OccurrenceActionWriter`. The patch carries `lastEventId`; every rule requires that event to be created in the same batch (`!exists` before, `existsAfter`), with the right type, actor and reason. The `type_reopenCount` / `type_assignee` ids are gone. |
+| B-06 | **Rule 12 RESTORE** (manager, soft-deleted, `status == scheduled`, no ticks) allows only the replan keys + the delete pair + update stamps; `restoreMap` writes exactly those. |
+| B-11 | Rules compile fixes: `prev()`/`next()` declared inside the occurrence match, no regex capture groups, `todayKey` built from `request.time + duration.value(6,'h')` with `year()/month()/day()`. |
+| B-01/B-02/B-03 | App-open generation starts from the shell and reports non-network failures; `canVerifyAnyProvider` drives the Verify tile/queue; the queue filter is `verifiableOccurrences`. |

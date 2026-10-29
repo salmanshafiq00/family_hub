@@ -191,15 +191,48 @@ void main() {
     );
   });
 
-  test('the app-open hook never fails the app start', () async {
+  test('the app-open hook reports a denied write instead of hiding it', () async {
+    // B-01: only "offline" is silent; every other failure is surfaced.
     final container = makeContainer();
     container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
     fixture.occurrences.nextMarkerFailure = const PermissionDenied();
     await container.pump();
 
     final state = container.read(ensureOccurrencesOnOpenProvider(familyId));
-    expect(state.error, isNull);
+    expect(state.hasError, isFalse, reason: 'it never fails the app start');
+    expect(state.value, isA<PermissionDenied>());
+  });
+
+  test('the app-open hook reports nothing on success', () async {
+    final container = makeContainer();
+    container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
+    await container.pump();
+
+    final state = container.read(ensureOccurrencesOnOpenProvider(familyId));
+    expect(state.hasError, isFalse);
     expect(state.value, isNull);
+  });
+
+  test('the app-open hook does nothing without a signed-in user', () async {
+    final container = ProviderContainer(
+      overrides: [
+        occurrenceRepositoryProvider.overrideWithValue(fixture.occurrences),
+        generationMarkerRepositoryProvider.overrideWithValue(
+          fixture.occurrences,
+        ),
+        currentUidProvider.overrideWithValue(null),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.listen(ensureOccurrencesOnOpenProvider(familyId), (_, _) {});
+    await container.pump();
+
+    expect(
+      container.read(ensureOccurrencesOnOpenProvider(familyId)).value,
+      isNull,
+    );
+    // The marker was never read or written: nothing was generated.
+    expect(fixture.occurrences.markers[familyId], isNull);
   });
 
   test('the ensure use case is wired to every repository', () {

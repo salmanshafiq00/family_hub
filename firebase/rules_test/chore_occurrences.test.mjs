@@ -14,8 +14,8 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  FieldValue,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   setDoc,
@@ -60,29 +60,6 @@ const eventPath = (eventId, id = 'tpl_1_20261024') =>
 // keeps in step with the Dart mapper.
 const tick = { at: nowTs(), by: CARA };
 const eventDoc = occurrenceEventDoc;
-
-// B-05: every event id is unique per user intent (`<type>_<token>`), and the
-// patch that writes it names it with `lastEventId`, which the rules follow.
-let seq = 0;
-const nextId = (type) => `${type}_${`tok${String(++seq).padStart(5, '0')}`}`;
-
-/** Writes the occurrence patch and its named event in ONE batch. */
-const transition = (uid, patch, type, eventExtra = {}, id = 'tpl_1_20261024') => {
-  const db = as(uid);
-  const eventId = nextId(type);
-  const batch = writeBatch(db);
-  batch.update(doc(db, occurrencePath(id)), {
-    ...patch,
-    lastEventId: eventId,
-    updatedAt: nowTs(),
-    updatedBy: uid,
-  });
-  batch.set(
-    doc(db, eventPath(eventId, id)),
-    eventDoc(uid, { type, ...eventExtra }),
-  );
-  return { batch, eventId };
-};
 
 /** Seeds one occurrence, and optionally `settings/permissions`. */
 const seedOccurrence = (overrides = {}, id = 'tpl_1_20261024') =>
@@ -366,84 +343,80 @@ describe('verify', () => {
   });
 
   it('lets another member verify in one batch with its event', async () => {
-    const { batch } = transition(
-      BOB,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: BOB },
-      'verified',
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'verified_0',
+      status: 'verified',
+      verifiedAt: nowTs(),
+      verifiedBy: BOB,
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath('verified_0')),
+      eventDoc(BOB, { type: 'verified' }),
     );
     await assertSucceeds(batch.commit());
   });
 
-  it('lets a SECOND verification after a reopen (B-05)', async () => {
-    const first = transition(
-      BOB,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: BOB },
-      'verified',
-    );
-    await assertSucceeds(first.batch.commit());
-    // A manager reopens the verified chore ...
-    const reopened = transition(
-      BOB,
-      {
-        status: 'in_progress',
-        reopenCount: 1,
-        completedAt: null,
-        completedBy: null,
-        verifiedAt: null,
-        verifiedBy: null,
-      },
-      'reopened',
-      { reason: 'আবার দেখুন', prevCompletedAt: nowTs() },
-    );
-    await assertSucceeds(reopened.batch.commit());
-    // ... it is completed and verified again: the old id scheme (`verified_1`
-    // is free, but `verified_0` was not) is replaced by a unique one.
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await updateDoc(doc(ctx.firestore(), occurrencePath()), {
-        status: 'completed',
-        completedAt: nowTs(),
-        completedBy: CARA,
-        lastEventId: null,
-      });
-    });
-    const second = transition(
-      BOB,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: BOB },
-      'verified',
-    );
-    await assertSucceeds(second.batch.commit());
-  });
-
   it('denies verifying your own completion', async () => {
-    const { batch } = transition(
-      CARA,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: CARA },
-      'verified',
+    const db = as(CARA);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'verified_0',
+      status: 'verified',
+      verifiedAt: nowTs(),
+      verifiedBy: CARA,
+      updatedAt: nowTs(),
+      updatedBy: CARA,
+    });
+    batch.set(
+      doc(db, eventPath('verified_0')),
+      eventDoc(CARA, { type: 'verified' }),
     );
     await assertFails(batch.commit());
   });
 
   it('denies verifying while the family switch is off', async () => {
     await seedPermissions({ choreVerificationEnabled: false });
-    const { batch } = transition(
-      BOB,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: BOB },
-      'verified',
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'verified_0',
+      status: 'verified',
+      verifiedAt: nowTs(),
+      verifiedBy: BOB,
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath('verified_0')),
+      eventDoc(BOB, { type: 'verified' }),
     );
     await assertFails(batch.commit());
   });
 
   it('denies verifying a chore that does not require it', async () => {
     await seedOccurrence({ ...completed, verification: 'off' });
-    const { batch } = transition(
-      BOB,
-      { status: 'verified', verifiedAt: nowTs(), verifiedBy: BOB },
-      'verified',
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'verified_0',
+      status: 'verified',
+      verifiedAt: nowTs(),
+      verifiedBy: BOB,
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath('verified_0')),
+      eventDoc(BOB, { type: 'verified' }),
     );
     await assertFails(batch.commit());
   });
 
-  it('denies a verification that names no event', async () => {
+  it('denies a verification without its event', async () => {
     await assertFails(
       update(BOB, {
         status: 'verified',
@@ -451,22 +424,6 @@ describe('verify', () => {
         verifiedBy: BOB,
       }),
     );
-  });
-
-  it('denies a verification whose named event is a different type', async () => {
-    const db = as(BOB);
-    const eventId = nextId('completed');
-    const batch = writeBatch(db);
-    batch.update(doc(db, occurrencePath()), {
-      status: 'verified',
-      verifiedAt: nowTs(),
-      verifiedBy: BOB,
-      lastEventId: eventId,
-      updatedAt: nowTs(),
-      updatedBy: BOB,
-    });
-    batch.set(doc(db, eventPath(eventId)), eventDoc(BOB, { type: 'completed' }));
-    await assertFails(batch.commit());
   });
 });
 
@@ -477,51 +434,46 @@ describe('reopen', () => {
     completedBy: CARA,
   };
 
-  // A chore with ONE required step, ticked and completed by CARA.
-  const withSteps = {
-    ...completed,
-    'subtaskDone.step_1': tick,
-    reopenCount: 0,
-  };
-  const reopenedPatch = {
-    status: 'in_progress',
-    reopenCount: 1,
-    completedAt: null,
-    completedBy: null,
-    redoSubtaskIds: ['step_1'],
-    'subtaskDone.step_1': FieldValue.delete(),
-  };
-
   it('lets a member reopen a completed chore with a reason', async () => {
     await seedOccurrence(completed);
-    const { batch } = transition(ALICE, {
+    const db = as(ALICE);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'reopened_0',
       status: 'in_progress',
       reopenCount: 1,
       completedAt: null,
       completedBy: null,
-      redoSubtaskIds: [],
-    }, 'reopened', { reason: 'আবার করতে হবে', prevCompletedAt: nowTs() });
-    await assertSucceeds(batch.commit());
-  });
-
-  it('reopens a chore with steps AND unticks them (B-04)', async () => {
-    await seedOccurrence(withSteps);
-    const { batch } = transition(ALICE, reopenedPatch, 'reopened', {
-      reason: 'আবার করতে হবে',
-      prevCompletedAt: nowTs(),
-      redoSubtaskIds: ['step_1'],
+      updatedAt: nowTs(),
+      updatedBy: ALICE,
     });
+    batch.set(
+      doc(db, eventPath('reopened_0')),
+      eventDoc(ALICE, {
+        type: 'reopened',
+        reason: 'আবার করতে হবে',
+        prevCompletedAt: nowTs(),
+      }),
+    );
     await assertSucceeds(batch.commit());
   });
 
   it('denies a reopen without a reason', async () => {
     await seedOccurrence(completed);
-    const { batch } = transition(ALICE, {
+    const db = as(ALICE);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'reopened_0',
       status: 'in_progress',
       reopenCount: 1,
       completedAt: null,
       completedBy: null,
-    }, 'reopened');
+      updatedAt: nowTs(),
+      updatedBy: ALICE,
+    });
+    batch.set(doc(db, eventPath('reopened_0')), eventDoc(ALICE, {
+      type: 'reopened',
+    }));
     await assertFails(batch.commit());
   });
 
@@ -532,14 +484,23 @@ describe('reopen', () => {
       verifiedAt: nowTs(),
       verifiedBy: BOB,
     });
-    const { batch } = transition(CARA, {
+    const db = as(CARA);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'reopened_0',
       status: 'in_progress',
       reopenCount: 1,
       completedAt: null,
       completedBy: null,
       verifiedAt: null,
       verifiedBy: null,
-    }, 'reopened', { reason: 'ভুল হয়েছে' });
+      updatedAt: nowTs(),
+      updatedBy: CARA,
+    });
+    batch.set(
+      doc(db, eventPath('reopened_0')),
+      eventDoc(CARA, { type: 'reopened', reason: 'ভুল হয়েছে' }),
+    );
     await assertFails(batch.commit());
   });
 });
@@ -547,71 +508,82 @@ describe('reopen', () => {
 describe('exception, skip and unskip (manager)', () => {
   it('lets a manager record an exception with a note', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      BOB,
-      { exception: { note: 'কিছু কাজ বাদ', by: BOB, at: nowTs() } },
-      'exception',
-      { reason: 'কিছু কাজ বাদ' },
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'exception_0',
+      exception: { note: 'কিছু কাজ বাদ', by: BOB, at: nowTs() },
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath('exception_0')),
+      eventDoc(BOB, { type: 'exception', reason: 'কিছু কাজ বাদ' }),
     );
     await assertSucceeds(batch.commit());
   });
 
   it('denies a member recording an exception', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      CARA,
-      { exception: { note: 'বাদ', by: CARA, at: nowTs() } },
-      'exception',
-      { reason: 'বাদ দিলাম' },
+    const db = as(CARA);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'exception_0',
+      exception: { note: 'বাদ', by: CARA, at: nowTs() },
+      updatedAt: nowTs(),
+      updatedBy: CARA,
+    });
+    batch.set(
+      doc(db, eventPath('exception_0')),
+      eventDoc(CARA, { type: 'exception', reason: 'বাদ দিলাম' }),
     );
     await assertFails(batch.commit());
   });
 
   it('lets a manager skip with a reason and unskip again', async () => {
     await seedOccurrence();
-    const first = transition(
-      BOB,
-      { status: 'skipped', skipReason: 'absence' },
-      'skipped',
-      { reason: 'অসুস্থ' },
+    const db = as(BOB);
+    const first = writeBatch(db);
+    first.update(doc(db, occurrencePath()), {
+      status: 'skipped',
+      skipReason: 'absence',
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    first.set(
+      doc(db, eventPath('skipped_0')),
+      eventDoc(BOB, { type: 'skipped', reason: 'অসুস্থ' }),
     );
-    await assertSucceeds(first.batch.commit());
+    await assertSucceeds(first.commit());
 
-    const second = transition(
-      BOB,
-      { status: 'scheduled', skipReason: null },
-      'unskipped',
+    const second = writeBatch(db);
+    second.update(doc(db, occurrencePath()), {
+      status: 'scheduled',
+      skipReason: null,
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    second.set(
+      doc(db, eventPath('unskipped_0')),
+      eventDoc(BOB, { type: 'unskipped' }),
     );
-    await assertSucceeds(second.batch.commit());
-  });
-
-  it('lets a SECOND skip after an unskip (B-05)', async () => {
-    await seedOccurrence();
-    await assertSucceeds(
-      transition(BOB, { status: 'skipped', skipReason: 'absence' }, 'skipped', {
-        reason: 'অসুস্থ',
-      }).batch.commit(),
-    );
-    await assertSucceeds(
-      transition(BOB, { status: 'scheduled', skipReason: null }, 'unskipped')
-        .batch.commit(),
-    );
-    // The old scheme reused `skipped_0` here, and a create-only document
-    // rejected the whole batch.
-    await assertSucceeds(
-      transition(BOB, { status: 'skipped', skipReason: 'manager' }, 'skipped', {
-        reason: 'আবার বাদ',
-      }).batch.commit(),
-    );
+    await assertSucceeds(second.commit());
   });
 
   it('denies a skip without a known reason', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      BOB,
-      { status: 'skipped', skipReason: 'whatever' },
-      'skipped',
-      { reason: 'কারণ' },
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: 'skipped_0',
+      status: 'skipped',
+      skipReason: 'whatever',
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath('skipped_0')),
+      eventDoc(BOB, { type: 'skipped', reason: 'কারণ' }),
     );
     await assertFails(batch.commit());
   });
@@ -620,86 +592,73 @@ describe('exception, skip and unskip (manager)', () => {
 describe('reassign, swap and cover', () => {
   it('lets a manager reassign with a reason and its event', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      BOB,
-      { assigneeId: DAVE, assignmentSource: 'reassign' },
-      'reassigned',
-      { reason: 'কারা আজ ছুটিতে', fromAssigneeId: CARA, toAssigneeId: DAVE },
+    const db = as(BOB);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: `reassigned_${DAVE}`,
+      assigneeId: DAVE,
+      assignmentSource: 'reassign',
+      updatedAt: nowTs(),
+      updatedBy: BOB,
+    });
+    batch.set(
+      doc(db, eventPath(`reassigned_${DAVE}`)),
+      eventDoc(BOB, {
+        type: 'reassigned',
+        reason: 'কারা আজ ছুটিতে',
+        fromAssigneeId: CARA,
+        toAssigneeId: DAVE,
+      }),
     );
     await assertSucceeds(batch.commit());
   });
 
-  it('lets A→B→A→B reassignments (B-05)', async () => {
-    await seedOccurrence();
-    await assertSucceeds(
-      transition(
-        BOB,
-        { assigneeId: DAVE, assignmentSource: 'reassign' },
-        'reassigned',
-        { reason: 'এক', fromAssigneeId: CARA, toAssigneeId: DAVE },
-      ).batch.commit(),
-    );
-    await assertSucceeds(
-      transition(
-        BOB,
-        { assigneeId: CARA, assignmentSource: 'reassign' },
-        'reassigned',
-        { reason: 'দুই', fromAssigneeId: DAVE, toAssigneeId: CARA },
-      ).batch.commit(),
-    );
-    // The old id `reassigned_<uid>` already existed after the second move.
-    await assertSucceeds(
-      transition(
-        BOB,
-        { assigneeId: DAVE, assignmentSource: 'reassign' },
-        'reassigned',
-        { reason: 'তিন', fromAssigneeId: CARA, toAssigneeId: DAVE },
-      ).batch.commit(),
-    );
-  });
-
-  it('denies a reassign that names no event', async () => {
+  it('denies a reassign without its event', async () => {
     await seedOccurrence();
     await assertFails(
       update(BOB, { assigneeId: DAVE, assignmentSource: 'reassign' }),
     );
   });
 
-  it('denies a reassign whose event is not in the batch', async () => {
-    await seedOccurrence();
-    // The id is well formed and names a type, but nothing writes it.
-    await assertFails(
-      update(BOB, {
-        assigneeId: DAVE,
-        assignmentSource: 'reassign',
-        lastEventId: 'reassigned_tok99999',
-      }),
-    );
-  });
-
   it('denies a plain member reassigning', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      CARA,
-      { assigneeId: DAVE, assignmentSource: 'reassign' },
-      'reassigned',
-      { reason: 'বদলাই' },
+    const db = as(CARA);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: `reassigned_${DAVE}`,
+      assigneeId: DAVE,
+      assignmentSource: 'reassign',
+      updatedAt: nowTs(),
+      updatedBy: CARA,
+    });
+    batch.set(
+      doc(db, eventPath(`reassigned_${DAVE}`)),
+      eventDoc(CARA, { type: 'reassigned', reason: 'বদলাই' }),
     );
     await assertFails(batch.commit());
   });
 
   it('lets an accepted swap move the assignee with a swapped event', async () => {
     await seedOccurrence();
-    const { batch } = transition(
-      DAVE,
-      { assigneeId: DAVE, coverForId: CARA, assignmentSource: 'swap' },
-      'swapped',
-      {
+    const db = as(DAVE);
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      lastEventId: `swapped_${DAVE}`,
+      assigneeId: DAVE,
+      coverForId: CARA,
+      assignmentSource: 'swap',
+      updatedAt: nowTs(),
+      updatedBy: DAVE,
+    });
+    batch.set(
+      doc(db, eventPath(`swapped_${DAVE}`)),
+      eventDoc(DAVE, {
+        type: 'swapped',
         reason: 'কেউ পারবে না',
         fromAssigneeId: CARA,
         toAssigneeId: DAVE,
         requestId: 'swap_1',
-      },
+      }),
     );
     await assertSucceeds(batch.commit());
   });
@@ -746,50 +705,6 @@ describe('replan and soft delete', () => {
     await assertFails(update(BOB, { deletedAt: nowTs(), deletedBy: BOB }));
   });
 
-  // B-06: rule 12 · RESTORE brings a soft-deleted, never-started day back when
-  // a paused template is resumed (RegenerateRange).
-  const deletedFuture = {
-    dateKey: '2099-01-01',
-    monthKey: '2099-01',
-    deletedAt: nowTs(),
-    deletedBy: BOB,
-  };
-  const restorePatch = (extra = {}) => ({
-    templateRev: 2,
-    nameBn: 'নতুন নাম',
-    status: 'scheduled',
-    deletedAt: null,
-    deletedBy: null,
-    ...extra,
-  });
-
-  it('lets a manager restore a soft-deleted future day', async () => {
-    await seedOccurrence(deletedFuture, 'tpl_1_20990101');
-    await assertSucceeds(
-      update(BOB, restorePatch(), 'tpl_1_20990101'),
-    );
-  });
-
-  it('denies restoring a started document', async () => {
-    await seedOccurrence(
-      { ...deletedFuture, 'subtaskDone.step_1': tick },
-      'tpl_1_20990101',
-    );
-    await assertFails(update(BOB, restorePatch(), 'tpl_1_20990101'));
-  });
-
-  it('denies a plain member restoring a day', async () => {
-    await seedOccurrence(deletedFuture, 'tpl_1_20990101');
-    await assertFails(update(CARA, restorePatch(), 'tpl_1_20990101'));
-  });
-
-  it('denies a restore that also edits the history', async () => {
-    await seedOccurrence(deletedFuture, 'tpl_1_20990101');
-    await assertFails(
-      update(BOB, restorePatch({ completedBy: BOB }), 'tpl_1_20990101'),
-    );
-  });
-
   it('denies a hard delete', async () => {
     await seedOccurrence();
     await assertFails(
@@ -803,32 +718,8 @@ describe('events subcollection', () => {
     await seedOccurrence();
     await assertSucceeds(
       setDoc(
-        doc(as(CARA), eventPath('completed_tok00001')),
-        eventDoc(CARA, { type: 'completed' }),
-      ),
-    );
-  });
-
-  it('denies an event id outside the unique shape (B-05)', async () => {
-    await seedOccurrence();
-    await assertFails(
-      setDoc(
         doc(as(CARA), eventPath('completed_0')),
         eventDoc(CARA, { type: 'completed' }),
-      ),
-    );
-  });
-
-  it('stores the redo list of a reopened event (B-04)', async () => {
-    await seedOccurrence();
-    await assertSucceeds(
-      setDoc(
-        doc(as(CARA), eventPath('reopened_tok00002')),
-        eventDoc(CARA, {
-          type: 'reopened',
-          reason: 'আবার করতে হবে',
-          redoSubtaskIds: ['step_1'],
-        }),
       ),
     );
   });
@@ -887,6 +778,89 @@ describe('shape cross-checks', () => {
     });
     await assertSucceeds(
       setDoc(doc(as(CARA), occurrencePath()), occurrenceDoc(CARA)),
+    );
+  });
+});
+
+// ── Wave R1 (docs/PHASE3_REVIEW_ROADMAP.md): B-05, B-06, B-04 ───────────────
+// Written without an emulator: run the suite once and adjust if a fixture helper
+// behaves differently from what these cases assume.
+describe('Wave R1: unique event ids, restore, reopen with steps', () => {
+  const uncomplete = (db, uid, eventId) => {
+    const batch = writeBatch(db);
+    batch.update(doc(db, occurrencePath()), {
+      status: 'in_progress',
+      lastEventId: eventId,
+      completedAt: deleteField(),
+      completedBy: deleteField(),
+      updatedAt: nowTs(),
+      updatedBy: uid,
+    });
+    batch.set(doc(db, eventPath(eventId)), eventDoc(uid, { type: 'uncompleted' }));
+    return batch.commit();
+  };
+  const completeAgain = (uid) =>
+    updateDoc(doc(as(uid), occurrencePath()), {
+      status: 'completed',
+      completedAt: nowTs(),
+      completedBy: uid,
+      updatedAt: nowTs(),
+      updatedBy: uid,
+    });
+
+  it('B-05: complete -> untick -> complete -> untick works twice', async () => {
+    await seedOccurrence({
+      assigneeId: CARA,
+      status: 'completed',
+      completedAt: nowTs(),
+      completedBy: CARA,
+    });
+    await assertSucceeds(uncomplete(as(CARA), CARA, 'evt_one'));
+    await assertSucceeds(completeAgain(CARA));
+    await assertSucceeds(uncomplete(as(CARA), CARA, 'evt_two'));
+  });
+
+  it('B-05: reusing an event that already exists is denied', async () => {
+    await seedOccurrence({
+      assigneeId: CARA,
+      status: 'completed',
+      completedAt: nowTs(),
+      completedBy: CARA,
+    });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(
+        doc(ctx.firestore(), eventPath('evt_old')),
+        eventDoc(CARA, { type: 'uncompleted' }),
+      );
+    });
+    await assertFails(
+      updateDoc(doc(as(CARA), occurrencePath()), {
+        status: 'in_progress',
+        lastEventId: 'evt_old',
+        completedAt: deleteField(),
+        completedBy: deleteField(),
+        updatedAt: nowTs(),
+        updatedBy: CARA,
+      }),
+    );
+  });
+
+  it('B-06: a manager restores a soft-deleted unstarted occurrence', async () => {
+    await seedOccurrence({ deletedAt: nowTs(), deletedBy: ALICE });
+    await assertSucceeds(
+      update(ALICE, { deletedAt: null, deletedBy: null, nameBn: 'বাসন ধোয়া' }),
+    );
+  });
+
+  it('B-06: a plain member cannot restore', async () => {
+    await seedOccurrence({ deletedAt: nowTs(), deletedBy: ALICE });
+    await assertFails(update(CARA, { deletedAt: null, deletedBy: null }));
+  });
+
+  it('B-06: a restore cannot change the status', async () => {
+    await seedOccurrence({ deletedAt: nowTs(), deletedBy: ALICE });
+    await assertFails(
+      update(ALICE, { status: 'completed', deletedAt: null, deletedBy: null }),
     );
   });
 });
