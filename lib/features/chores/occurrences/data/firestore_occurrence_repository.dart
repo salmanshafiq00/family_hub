@@ -10,6 +10,7 @@ import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/occurrences/data/occurrence_event_mappers.dart';
 import 'package:family_hub/features/chores/occurrences/data/occurrence_mappers.dart';
+import 'package:family_hub/features/chores/occurrences/data/occurrence_paging.dart';
 import 'package:family_hub/features/chores/occurrences/data/occurrence_write_stager.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/generation_plan.dart';
@@ -219,26 +220,33 @@ class FirestoreOccurrenceRepository
       .orderBy('dateKey')
       .limit(kMaxOccurrencesPerMonth + 1);
 
-  /// Reads a bounded query page by page (the last `dateKey` resumes it), so a
-  /// regeneration range never loads an unbounded result.  The first page keeps
-  /// the query's own limit; every page after it re-applies
-  /// [kOccurrencePageSize].
+  /// Reads a bounded query page by page (keyset: `dateKey`, then document id),
+  /// so a regeneration range never loads an unbounded result and a page that
+  /// ends inside a day never skips the rest of that day (B-09). Every page uses
+  /// [kOccurrencePageSize], the same limit the loop checks.
   Future<List<ChoreOccurrence>> _readAll(
     Query<Map<String, dynamic>> query,
-  ) async {
-    final all = <ChoreOccurrence>[];
-    var startAfter = <Object?>[];
-    while (true) {
-      final page = startAfter.isEmpty
-          ? query
-          : query.startAfter(startAfter).limit(kOccurrencePageSize);
+  ) => readAllOccurrencePages<ChoreOccurrence>(
+    pageSize: kOccurrencePageSize,
+    read: (after, limit) async {
+      final base = query.orderBy(FieldPath.documentId).limit(limit);
+      final page = after == null
+          ? base
+          : base.startAfter(<Object?>[after.dateKey, after.id]);
       final snapshot = await page.get();
-      all.addAll(_toOccurrences(snapshot));
-      if (snapshot.docs.length < kOccurrencePageSize) break;
-      startAfter = <Object?>[snapshot.docs.last.get('dateKey')];
-    }
-    return all;
-  }
+      final docs = snapshot.docs;
+      final last = docs.isEmpty ? null : docs.last;
+      // A document the rules cannot have written (no string `dateKey`) cannot
+      // be resumed after; stop rather than repeat the same page forever.
+      final rawDay = last?.get('dateKey');
+      return OccurrencePage<ChoreOccurrence>(
+        items: _toOccurrences(snapshot),
+        next: docs.length < limit || rawDay is! String
+            ? null
+            : OccurrenceCursor(dateKey: rawDay, id: last!.id),
+      );
+    },
+  );
 
   static DateKey? _epochDayOf(Map<String, dynamic>? map) {
     final raw = map?['throughEpochDay'];
@@ -254,6 +262,3 @@ class FirestoreOccurrenceRepository
       ?OccurrenceMappers.fromDoc(doc.id, doc.data()),
   ];
 }
-
-/// Documents per one-shot page (generation, regeneration, replan).
-const int kOccurrencePageSize = 400;
