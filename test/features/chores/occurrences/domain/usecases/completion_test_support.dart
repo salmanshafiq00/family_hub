@@ -30,6 +30,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -38,6 +40,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -46,6 +50,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -54,6 +60,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -62,6 +70,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -70,6 +80,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
     inbox: inbox,
@@ -79,6 +91,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -87,6 +101,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -95,6 +111,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );
@@ -103,6 +121,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
     inbox: inbox,
@@ -112,6 +132,8 @@ class CompletionUseCases {
     occurrences: fixture.occurrences,
     templates: fixture.chores,
     families: fixture.families,
+    dutyGroups: fixture.chores.dutyGroups,
+    settings: fixture.settings,
     dateKeys: fixture.dateKeys,
     clock: fixture.clock,
   );

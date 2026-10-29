@@ -1,6 +1,8 @@
 import 'package:family_hub/core/audit/audit_event_type.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/permissions/permission_settings.dart';
+import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
@@ -239,5 +241,42 @@ void main() {
 
   test('an occurrence with no template and no document is NotFound', () async {
     expect(await tick('cara'), const NotFound(entity: 'occurrence'));
+  });
+
+  test('B-08: a projected duty-group chore keeps the rotation owner', () async {
+    // The template rotates through a duty group, so the planned owner can only
+    // come from the group's rotation - not from the template.
+    fixture.chores.dutyGroups.groups[ChoresFixture.familyId] =
+        <String, DutyGroup>{
+          'group_1': aDutyGroup(
+            id: 'group_1',
+            rotation: aRotation(
+              members: const <String>['cara', 'alice', 'dave'],
+              anchorDate: DateKey(2026, 10, 24),
+            ),
+          ),
+        };
+    seedTemplate(
+      fixture,
+      wrapTemplate(
+        aTemplate(
+          subtasks: <TemplateSubtask>[aSubtask(id: 'step_1')],
+          assignee: const AssigneeSpec(
+            strategy: AssigneeStrategy.rotation,
+            dutyGroupId: 'group_1',
+          ),
+        ),
+      ),
+    );
+
+    final failure = await tick('cara');
+    expect(failure, isNull, reason: 'failure: $failure');
+
+    final created = fixture
+        .occurrences
+        .occurrences[ChoresFixture.familyId]!['tpl_1_20261024']!;
+    expect(created.plannedAssigneeId, 'cara');
+    expect(created.assigneeId, 'cara');
+    expect(created.needsCover, isFalse);
   });
 }

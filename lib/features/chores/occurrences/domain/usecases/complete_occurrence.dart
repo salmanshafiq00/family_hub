@@ -4,6 +4,7 @@ import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
@@ -14,6 +15,7 @@ import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrenc
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_action_writer.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/occurrence_patch_apply.dart';
 
+import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 import 'package:family_hub/features/family/domain/family_repository.dart';
 import 'package:family_hub/features/family/domain/permission_access.dart';
@@ -33,6 +35,8 @@ class CompleteOccurrence {
     required this._occurrences,
     required this._templates,
     required this._families,
+    required this._dutyGroups,
+    required this._settings,
     required this._dateKeys,
     required this._clock,
   });
@@ -40,6 +44,8 @@ class CompleteOccurrence {
   final OccurrenceRepository _occurrences;
   final TemplateRepository _templates;
   final FamilyRepository _families;
+  final DutyGroupRepository _dutyGroups;
+  final ChoreSettingsRepository _settings;
   final FamilyDateKeys _dateKeys;
   final Clock _clock;
 
@@ -52,6 +58,8 @@ class CompleteOccurrence {
       occurrences: _occurrences,
       templates: _templates,
       families: _families,
+      dutyGroups: _dutyGroups,
+      choreSettings: _settings,
       dateKeys: _dateKeys,
       familyId: familyId,
       occurrenceId: occurrenceId,

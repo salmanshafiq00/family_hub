@@ -1,4 +1,5 @@
 import 'package:family_hub/core/utils/clock_provider.dart';
+import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/assign_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/complete_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/record_completion_exception.dart';
@@ -13,6 +14,7 @@ import 'package:family_hub/features/chores/occurrences/domain/usecases/unskip_oc
 import 'package:family_hub/features/chores/occurrences/domain/usecases/verify_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/inbox_port_provider.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
+import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +30,8 @@ final toggleSubtaskProvider = Provider<ToggleSubtask>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -38,6 +42,8 @@ final toggleParentProvider = Provider<ToggleParent>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -48,6 +54,8 @@ final completeOccurrenceProvider = Provider<CompleteOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -58,6 +66,8 @@ final uncompleteOccurrenceProvider = Provider<UncompleteOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -68,6 +78,8 @@ final verifyOccurrenceProvider = Provider<VerifyOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -78,6 +90,8 @@ final reopenOccurrenceProvider = Provider<ReopenOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
     inbox: ref.watch(inboxPortProvider),
@@ -89,6 +103,8 @@ final recordCompletionExceptionProvider = Provider<RecordCompletionException>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -99,6 +115,8 @@ final skipOccurrenceProvider = Provider<SkipOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -109,6 +127,8 @@ final unskipOccurrenceProvider = Provider<UnskipOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),
@@ -119,6 +139,8 @@ final reassignOccurrenceProvider = Provider<ReassignOccurrence>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
     inbox: ref.watch(inboxPortProvider),
@@ -134,6 +156,8 @@ final repairStatusProvider = Provider<RepairStatus>(
     occurrences: ref.watch(occurrenceRepositoryProvider),
     templates: ref.watch(templateRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
+    dutyGroups: ref.watch(dutyGroupRepositoryProvider),
+    settings: ref.watch(choreSettingsRepositoryProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
     clock: ref.watch(clockProvider),
   ),

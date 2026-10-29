@@ -4,6 +4,9 @@ import 'package:family_hub/core/permissions/permission.dart';
 import 'package:family_hub/core/permissions/permission_settings.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/features/chores/availability/domain/availability_index.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_draft.dart';
@@ -12,6 +15,7 @@ import 'package:family_hub/features/chores/occurrences/domain/occurrence_id.dart
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_state_machine.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
+import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
@@ -82,14 +86,22 @@ PermissionTemplate permissionTemplateFor(VerificationMode mode) =>
 ///
 /// Order: the stored document (`get`), else the template's current snapshot for
 /// that exact id (a projected day, D-P3-6), else `NotFound`.
+///
+/// The projected draft is built with the SAME inputs `EnsureOccurrences` uses
+/// (duty groups, absence policy, roster, availability), so the owner of a
+/// projected day and the owner of the document the first action materializes
+/// can never differ (B-08).
 Future<Result<OccurrenceContext>> loadOccurrenceContext({
   required OccurrenceRepository occurrences,
   required TemplateRepository templates,
   required FamilyRepository families,
+  required DutyGroupRepository dutyGroups,
+  required ChoreSettingsRepository choreSettings,
   required FamilyDateKeys dateKeys,
   required String familyId,
   required String occurrenceId,
   required String actorUid,
+  AvailabilityIndex availabilityIndex = AvailabilityIndex.empty,
 }) async {
   final loadedMember = await families.getMember(familyId, actorUid);
   final memberFailure = loadedMember.failureOrNull;
@@ -106,7 +118,7 @@ Future<Result<OccurrenceContext>> loadOccurrenceContext({
   if (settingsFailure != null) {
     return Failure<OccurrenceContext>(settingsFailure);
   }
-  final settings = loadedSettings.valueOrNull ?? PermissionSettings.defaults;
+  final permissions = loadedSettings.valueOrNull ?? PermissionSettings.defaults;
 
   final stored = await occurrences.get(familyId, occurrenceId);
   final readFailure = stored.failureOrNull;
@@ -122,7 +134,7 @@ Future<Result<OccurrenceContext>> loadOccurrenceContext({
       OccurrenceContext.build(
         occurrence: document,
         member: member,
-        settings: settings,
+        settings: permissions,
       ),
     );
   }
@@ -130,12 +142,25 @@ Future<Result<OccurrenceContext>> loadOccurrenceContext({
   final roster = await families.getMembers(familyId);
   final rosterFailure = roster.failureOrNull;
   if (rosterFailure != null) return Failure<OccurrenceContext>(rosterFailure);
+  final loadedGroups = await dutyGroups.list(familyId);
+  final groupsFailure = loadedGroups.failureOrNull;
+  if (groupsFailure != null) {
+    return Failure<OccurrenceContext>(groupsFailure);
+  }
+  final loadedPolicy = await choreSettings.getAbsencePolicy(familyId);
+  final policyFailure = loadedPolicy.failureOrNull;
+  if (policyFailure != null) {
+    return Failure<OccurrenceContext>(policyFailure);
+  }
   final projected = await _draftFor(
     occurrenceId: occurrenceId,
     templates: templates,
     familyId: familyId,
     dateKeys: dateKeys,
+    dutyGroups: loadedGroups.valueOrNull ?? const <DutyGroup>[],
+    policy: loadedPolicy.valueOrNull ?? AbsencePolicy.askCover,
     members: roster.valueOrNull ?? const <Member>[],
+    availabilityIndex: availabilityIndex,
   );
   final draftFailure = projected.failureOrNull;
   if (draftFailure != null) {
@@ -146,24 +171,13 @@ Future<Result<OccurrenceContext>> loadOccurrenceContext({
     return const Failure<OccurrenceContext>(NotFound(entity: 'occurrence'));
   }
   // A projected item that an approved absence already covers is UNASSIGNED
-  // (D-P3-12). Acting on it must not silently hand it to whoever taps first,
-  // so it needs a cover/assignment first; a manager may still act on it.
-  final occurrence = draft.toOccurrence();
-  if (occurrence.needsCover || occurrence.assigneeId == null) {
-    return Success<OccurrenceContext>(
-      OccurrenceContext.build(
-        occurrence: occurrence,
-        member: member,
-        settings: settings,
-        draft: draft,
-      ),
-    );
-  }
+  // (D-P3-12) and counts as "somebody else's": the state machine only accepts a
+  // manager until a cover/assignment gives it an owner.
   return Success<OccurrenceContext>(
     OccurrenceContext.build(
-      occurrence: occurrence,
+      occurrence: draft.toOccurrence(),
       member: member,
-      settings: settings,
+      settings: permissions,
       draft: draft,
     ),
   );
@@ -175,7 +189,10 @@ Future<Result<OccurrenceDraft?>> _draftFor({
   required TemplateRepository templates,
   required String familyId,
   required FamilyDateKeys dateKeys,
+  required List<DutyGroup> dutyGroups,
+  required AbsencePolicy policy,
   required List<Member> members,
+  required AvailabilityIndex availabilityIndex,
 }) async {
   final parsed = OccurrenceId.parse(occurrenceId).valueOrNull;
   if (parsed == null) return const Success<OccurrenceDraft?>(null);
@@ -188,12 +205,14 @@ Future<Result<OccurrenceDraft?>> _draftFor({
 
   final drafts = OccurrenceGenerator.drafts(
     templates: <ChoreTemplate>[template],
-    dutyGroups: const [],
+    dutyGroups: dutyGroups,
     // The roster decides whether a planned owner is ACTIVE (D-P3-12); an empty
     // list would make every rotation/fixed draft look unassigned.
     members: members,
     range: DateKeyRange(parsed.dateKey, parsed.dateKey),
     dateKeys: dateKeys,
+    availabilityIndex: availabilityIndex,
+    policy: policy,
   );
   for (final draft in drafts) {
     if (draft.id == occurrenceId) return Success<OccurrenceDraft?>(draft);
