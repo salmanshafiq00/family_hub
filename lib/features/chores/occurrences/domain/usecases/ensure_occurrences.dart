@@ -178,6 +178,10 @@ class EnsureOccurrences {
   }
 
   /// Stages one chunk, retrying ONCE after re-reading the ids on a conflict.
+  ///
+  /// A create whose id already exists is evaluated by the rules as an update
+  /// and denied with `permission-denied` (B-07), so BOTH failure kinds mean
+  /// "somebody else wrote this range first" and get the same re-read.
   Future<Result<int>> _writeChunk({
     required String familyId,
     required String actorUid,
@@ -190,7 +194,9 @@ class EnsureOccurrences {
     );
     final failure = first.failureOrNull;
     if (failure == null) return Success<int>(chunk.length);
-    if (failure is! Conflict) return Failure<int>(failure);
+    if (failure is! Conflict && failure is! PermissionDenied) {
+      return Failure<int>(failure);
+    }
 
     final fresh = await _occurrences.idsInRange(
       familyId,
@@ -213,7 +219,7 @@ class EnsureOccurrences {
     final retryFailure = retry.failureOrNull;
     if (retryFailure != null) {
       return Failure<int>(
-        retryFailure is Conflict
+        retryFailure is Conflict || retryFailure is PermissionDenied
             ? const Conflict(code: 'concurrent_edit')
             : retryFailure,
       );

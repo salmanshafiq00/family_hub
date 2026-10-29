@@ -250,6 +250,12 @@ class InMemoryOccurrenceBackend
   /// that read before the other one wrote).
   bool hideExistingIdsOnce = false;
 
+  /// When true, a create on an id that already exists fails the way the RULES
+  /// do (`permission-denied`), not with `already_exists`: Firestore evaluates a
+  /// create on an existing document as an update, and no update rule accepts a
+  /// fresh document. B-07 depends on that difference.
+  bool createsDeniedAsPermission = false;
+
   int stageAttempts = 0;
   int conflicts = 0;
   int writes = 0;
@@ -386,7 +392,9 @@ class InMemoryOccurrenceBackend
     for (final draft in plan.creates) {
       if (docs.containsKey(draft.id)) {
         conflicts++;
-        return const Failure<void>(Conflict(code: 'already_exists'));
+        return createsDeniedAsPermission
+            ? const Failure<void>(PermissionDenied())
+            : const Failure<void>(Conflict(code: 'already_exists'));
       }
     }
     for (final draft in plan.creates) {

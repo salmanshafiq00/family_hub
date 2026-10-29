@@ -4,6 +4,7 @@ import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
+import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/ensure_occurrences.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -107,6 +108,60 @@ void main() {
       expect(fixture.occurrences.markers[familyId], DateKey(2026, 11, 24));
     },
   );
+
+  test(
+    'B-07: a create denied because the id exists retries once and succeeds',
+    () async {
+      seedTemplate();
+      // The RULES see a create on an existing id as an update and deny it with
+      // `permission-denied`; the run must retry exactly like a Conflict.
+      fixture.occurrences.createsDeniedAsPermission = true;
+      // This device read the ids before the other one's batch landed.
+      fixture.occurrences.hideExistingIdsOnce = true;
+      var seeded = false;
+      fixture.occurrences.beforeStage = (familyId, plan) {
+        if (seeded) return;
+        seeded = true;
+        final docs = fixture.occurrences.occurrences[familyId] ??=
+            <String, ChoreOccurrence>{};
+        for (final draft in plan.creates.take(10)) {
+          docs[draft.id] = draft.toOccurrence();
+        }
+      };
+
+      final result = await ensure(
+        familyId: familyId,
+        actorUid: 'cara',
+        today: DateKey(2026, 10, 25),
+      );
+
+      expect(result.failureOrNull, isNull);
+      expect(result.valueOrNull!.created, 21);
+      expect(fixture.occurrences.conflicts, 1);
+      expect(fixture.occurrences.stageAttempts, 2);
+      expect(fixture.occurrences.occurrences[familyId], hasLength(31));
+      expect(fixture.occurrences.markers[familyId], DateKey(2026, 11, 24));
+    },
+  );
+
+  test('B-07: a second denied chunk ends with concurrent_edit', () async {
+    seedTemplate();
+    var attempts = 0;
+    fixture.occurrences.beforeStage = (_, _) {
+      if (attempts++ < 2) {
+        fixture.occurrences.nextStageFailure = const PermissionDenied();
+      }
+    };
+
+    final result = await ensure(
+      familyId: familyId,
+      actorUid: 'cara',
+      today: DateKey(2026, 10, 25),
+    );
+
+    expect(result.failureOrNull, const Conflict(code: 'concurrent_edit'));
+    expect(fixture.occurrences.markers, isEmpty);
+  });
 
   test(
     'F.3 7: 20 templates x 30 days fit in at most 3 chunks of 400',
