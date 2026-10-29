@@ -3,6 +3,7 @@ import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
@@ -97,10 +98,8 @@ class RecordCompletionException {
       integrity: false,
       patch: patch,
       event: NewEvent(
-        id: OccurrenceEventIds.transition(
-          OccurrenceEventType.exception,
-          context.occurrence.reopenCount,
-        ),
+        // Unique per intent (B-05).
+        id: OccurrenceEventIds.of(OccurrenceEventType.exception, randomId()),
         occurrenceId: occurrenceId,
         type: OccurrenceEventType.exception,
         reason: reason,

@@ -1345,3 +1345,28 @@ Run locally on Flutter 3.47.7 / Dart 3.13.5 (Windows). No rules, index or widget
 - P3-06 (chore settings and catalogs) is written: 47 focused Dart tests pass, analyzer clean, and the key-set contract test proves the mapper and `settingsKeys()` agree. The **rules suite has not been run** (no Java): `firebase/rules_test/chore_settings.test.mjs` must be run before P3-07 relies on the rules.
 - P3-07 (template domain + use cases + in-memory backend) is written and green: 62 new tests, 166/166 across the chores suites and the architecture tests, analyzer clean.
 - P3-08 (template data layer, rules, providers) is written: 203/203 across the template, settings, contract and architecture suites; `flutter analyze lib/features/chores` is clean (the P3-01 breakage is fixed). The rules suite has not been run (no Java). Next: P3-09 (rotation engine).
+
+## Phase 3 - Wave R0 (repair base; see docs/PHASE3_REVIEW_ROADMAP.md §3)
+
+### Done in code (static, no SDK available)
+- **R0-4:** `occurrence_detail_screen.dart` 309 -> ~200 lines. Body moved to `widgets/occurrence_detail_body.dart`; the four sheet actions now use the existing `occurrence_action_sheets.dart` extension (it returns the use case `Result`, `null` = cancelled, so failures still show a snackbar). Repeated `ref.read(...)!` replaced by one `_session()` helper. The dead `detailSections` stub was removed. Behaviour unchanged (the reassign dialog is now scrollable).
+- **R0-6:** `today_screen.dart` - braces added to the `if (mounted)` in `confirmDismiss`.
+- NEW `tools/p3_r0_gate.sh` runs the whole gate and writes `docs/p3_r0_gate.log`.
+
+### Still to do on a machine with the SDK (R0-1, R0-2, R0-3, R0-5)
+Run `tools/p3_r0_gate.sh`, paste its table here, fix only red items in a commit `P3-00: repair base`, then fill in the P3-09..P3-15 sections below.
+
+| Command | Result |
+| --- | --- |
+| (paste gate table) | |
+
+### P3-09 .. P3-15 gate records
+| Step | format | analyze | tests | rules suite |
+| --- | --- | --- | --- | --- |
+| P3-09 rotation | ? | ? | ? | n/a |
+| P3-10 duty-group data | ? | ? | ? | ? |
+| P3-11 occurrence domain | ? | ? | ? | n/a |
+| P3-12 generator | ? | ? | ? | n/a |
+| P3-13 occurrence data + rules | ? | ? | ? | ? |
+| P3-14 use cases | ? | ? | ? | ? |
+| P3-15 screens | ? | ? | ? | n/a |

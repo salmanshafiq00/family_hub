@@ -93,10 +93,13 @@ final class NewEvent {
     this.toAssigneeId,
     this.reason,
     this.prevCompletedAt,
+    this.redoSubtaskIds = const <String>[],
     this.requestId,
   });
 
-  /// Deterministic event id ([OccurrenceEventIds]), generated once per intent.
+  /// A UNIQUE id generated once per user intent ([OccurrenceEventIds.of],
+  /// CLAUDE.md rule 15).  The same intent retried (a queued write) reuses it,
+  /// and a second occurrence of the same transition gets a new one (B-05).
   final String id;
   final String occurrenceId;
   final OccurrenceEventType type;
@@ -106,6 +109,9 @@ final class NewEvent {
   /// Required for `reassigned`, `reopened`, `exception`, `skipped` (3–300).
   final String? reason;
   final DateTime? prevCompletedAt;
+
+  /// The steps a `reopened` event asked to redo (B-04); empty otherwise.
+  final List<String> redoSubtaskIds;
   final String? requestId;
 
   @override

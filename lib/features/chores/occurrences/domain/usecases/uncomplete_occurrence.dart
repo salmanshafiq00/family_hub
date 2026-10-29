@@ -4,6 +4,7 @@ import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
@@ -98,10 +99,9 @@ class UncompleteOccurrence {
       integrity: false,
       patch: patch,
       event: NewEvent(
-        id: OccurrenceEventIds.transition(
-          OccurrenceEventType.uncompleted,
-          context.occurrence.reopenCount,
-        ),
+        // Unique per intent (B-05), so complete → undo → complete → undo never
+        // reuses a create-only document id.
+        id: OccurrenceEventIds.of(OccurrenceEventType.uncompleted, randomId()),
         occurrenceId: occurrenceId,
         type: OccurrenceEventType.uncompleted,
         prevCompletedAt: context.occurrence.completedAt,

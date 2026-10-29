@@ -19,6 +19,7 @@ final class OccurrenceEvent {
     this.toAssigneeId,
     this.reason,
     this.prevCompletedAt,
+    this.redoSubtaskIds = const <String>[],
     this.requestId,
   });
 
@@ -38,6 +39,9 @@ final class OccurrenceEvent {
   /// The completion this reopen cleared, so the history keeps it.
   final DateTime? prevCompletedAt;
 
+  /// The steps a `reopened` event asked to redo (B-04); empty otherwise.
+  final List<String> redoSubtaskIds;
+
   /// The accepted swap/cover request that authorised an assignee change.
   final String? requestId;
 
@@ -53,6 +57,8 @@ final class OccurrenceEvent {
       other.toAssigneeId == toAssigneeId &&
       other.reason == reason &&
       other.prevCompletedAt == prevCompletedAt &&
+      other.redoSubtaskIds.length == redoSubtaskIds.length &&
+      other.redoSubtaskIds.toSet().containsAll(redoSubtaskIds) &&
       other.requestId == requestId;
 
   @override
@@ -66,6 +72,7 @@ final class OccurrenceEvent {
     toAssigneeId,
     reason,
     prevCompletedAt,
+    Object.hashAllUnordered(redoSubtaskIds),
     requestId,
   );
 
@@ -74,16 +81,19 @@ final class OccurrenceEvent {
       'OccurrenceEvent($id, ${type.id} on $occurrenceId by $actorId)';
 }
 
-/// The deterministic ids the rules can reconstruct from the document.
+/// The id of one lifecycle event (B-05).
 ///
-/// Lifecycle events carry the occurrence's `reopenCount` (so a second
-/// completion after a reopen is a new event), assignment events carry the new
-/// assignee (so a swap to a different person is a new event). The P3-14 use
-/// cases generate these once per intent; a retry reuses the same id.
+/// Every event gets a UNIQUE random id, generated once per user intent and
+/// reused by a retry of that same intent (CLAUDE.md rule 15).  The earlier
+/// scheme (`<type>_<reopenCount>`, `<type>_<assignee>`) collided on the second
+/// occurrence of a transition — untick → complete → untick, skip → unskip →
+/// skip, reassign A→B→A→B — and, because events are create-only, rejected the
+/// whole batch.  The rules no longer reconstruct the path: the patch names the
+/// event with `lastEventId` and they check that document with `getAfter`.
+///
+/// Shape `<type>_<token>`: the type is readable in a log or a console, the
+/// token keeps it unique (`^[a-z0-9]{8,20}$`, mirrored by the rules).
 abstract final class OccurrenceEventIds {
-  static String transition(OccurrenceEventType type, int reopenCount) =>
-      '${type.id}_$reopenCount';
-
-  static String assignment(OccurrenceEventType type, String assigneeId) =>
-      '${type.id}_$assigneeId';
+  static String of(OccurrenceEventType type, String token) =>
+      '${type.id}_$token';
 }

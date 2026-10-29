@@ -57,6 +57,7 @@ abstract final class OccurrenceMappers {
     'skipReason': occurrence.skipReason?.id,
     'needsAttention': occurrence.needsAttention,
     'lastCommentAt': BaseMapper.dateTimeToTimestamp(occurrence.lastCommentAt),
+    'redoSubtaskIds': occurrence.redoSubtaskIds,
     ...BaseMapper.metadataToMap(meta),
   };
 
@@ -107,36 +108,53 @@ abstract final class OccurrenceMappers {
           ? map['needsAttention'] as bool
           : false,
       lastCommentAt: BaseMapper.timestampToDateTime(map['lastCommentAt']),
+      redoSubtaskIds: _stringList(map['redoSubtaskIds']),
       deletedAt: BaseMapper.timestampToDateTime(map['deletedAt']),
       deletedBy: _nullableString(map['deletedBy'], 64),
     );
   }
 
-  /// A soft-deleted document restored by regeneration.
+  /// A soft-deleted document restored by regeneration (rule 12 · RESTORE).
   ///
-  /// Creation metadata is deliberately omitted: the original `createdAt/By`
-  /// stay, and only the update stamps and the cleared delete pair change.
+  /// The restored document is a FRESH PLAN: no ticks, no completion, no
+  /// reopen history — a rolled-forward `reopenCount` would also block the
+  /// replay of an event id.  It writes exactly the keys the RESTORE rule
+  /// allows (the replan snapshot set plus the cleared delete pair and the
+  /// update stamps); the creation metadata is left untouched (B-06).
   static Map<String, dynamic> restoreMap(
-    ChoreOccurrence occurrence, {
+    ChoreOccurrence draft, {
     required String actorId,
     required DateTime at,
   }) {
-    final map =
-        toMap(
-            occurrence,
-            BaseDocumentMetadata(
-              createdAt: at,
-              createdBy: actorId,
-              updatedAt: at,
-              updatedBy: actorId,
-            ),
-          )
-          ..remove(BaseMapper.keyCreatedAt)
-          ..remove(BaseMapper.keyCreatedBy)
-          ..remove(BaseMapper.keySchemaVersion)
-          ..[BaseMapper.keyDeletedAt] = null
-          ..[BaseMapper.keyDeletedBy] = null;
-    return map;
+    final occurrence = draft;
+    return <String, dynamic>{
+      'templateId': occurrence.templateId,
+      'templateRev': occurrence.templateRev,
+      'dueAt': BaseMapper.dateTimeToTimestamp(occurrence.dueAt),
+      'dueMinutes': occurrence.dueMinutes,
+      'nameBn': occurrence.nameBn,
+      'nameEn': occurrence.nameEn,
+      'groupId': occurrence.groupId,
+      'instructions': occurrence.instructions,
+      'subtasks': <Map<String, Object?>>[
+        for (final subtask in occurrence.subtasks) subtask.toMap(),
+      ],
+      'difficulty': occurrence.difficulty.id,
+      'estimatedMinutes': occurrence.estimatedMinutes,
+      'verification': occurrence.verification.id,
+      'status': occurrence.status.id,
+      'plannedAssigneeId': occurrence.plannedAssigneeId,
+      'assigneeId': occurrence.assigneeId,
+      'assignmentSource': occurrence.assignmentSource.id,
+      'needsCover': occurrence.needsCover,
+      'subtaskDone': const <String, Object?>{},
+      'reopenCount': 0,
+      'needsAttention': false,
+      BaseMapper.keyDeletedAt: null,
+      BaseMapper.keyDeletedBy: null,
+      BaseMapper.keyUpdatedAt: BaseMapper.dateTimeToTimestamp(at),
+      BaseMapper.keyUpdatedBy: actorId,
+    };
   }
 
   /// The snapshot refresh of one unstarted occurrence (P3-12 replan).
@@ -261,6 +279,15 @@ abstract final class OccurrenceMappers {
     final at = BaseMapper.timestampToDateTime(raw['at']);
     if (note == null || by == null || at == null) return null;
     return CompletionException(note: note, by: by, at: at);
+  }
+
+  /// The step ids a reopen asked to redo; a malformed row is dropped.
+  static List<String> _stringList(Object? raw) {
+    if (raw is! List) return const <String>[];
+    return <String>[
+      for (final item in raw)
+        if (item is String && item.isNotEmpty && item.length <= 16) item,
+    ];
   }
 
   static DateKey? _dateKey(Object? value) =>

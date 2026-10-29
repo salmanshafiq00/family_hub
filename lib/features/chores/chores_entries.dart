@@ -19,6 +19,7 @@ class ChoresEntry {
     required this.route,
     this.subtitle,
     this.requires,
+    this.allowed,
     this.badge,
   });
 
@@ -38,6 +39,11 @@ class ChoresEntry {
 
   /// Permission the viewer needs to see this tile; `null` = everybody.
   final Permission? requires;
+
+  /// A boolean gate for a question the permission matrix cannot answer alone
+  /// (B-02: verification needs a completer AND the template switch, so the
+  /// tile asks the dedicated provider instead of `requires`).
+  final Provider<bool>? allowed;
 
   /// Optional count shown on the tile (for example open verifications).  A
   /// value of zero shows nothing.
@@ -62,7 +68,10 @@ final List<ChoresEntry> choresEntries = <ChoresEntry>[
     title: (l10n) => l10n.verifyTitle,
     subtitle: (l10n) => l10n.verifyEmptyMessage,
     route: AppRoutes.choresVerify,
-    requires: Permission.verifyChore,
+    // Not `requires: Permission.verifyChore`: that permission needs a concrete
+    // completer and a template, so asking it here always answered `false` and
+    // the tile was hidden for everybody (B-02).
+    allowed: canVerifyAnyProvider,
     badge: verifyQueueCountProvider,
   ),
 ];

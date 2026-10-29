@@ -38,11 +38,10 @@ abstract final class OccurrenceWriteStager {
       );
     }
     for (final draft in plan.restores) {
-      final occurrence = draft.toOccurrence();
       batch.update(
-        docs.occurrence(occurrence.id),
+        docs.occurrence(draft.id),
         OccurrenceMappers.restoreMap(
-          occurrence,
+          draft.toOccurrence(),
           actorId: plan.actorId,
           at: plan.at,
         ),
@@ -107,6 +106,7 @@ abstract final class OccurrenceWriteStager {
         toAssigneeId: event.toAssigneeId,
         reason: event.reason,
         prevCompletedAt: event.prevCompletedAt,
+        redoSubtaskIds: event.redoSubtaskIds,
         requestId: event.requestId,
       );
 

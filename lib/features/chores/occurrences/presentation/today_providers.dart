@@ -1,15 +1,18 @@
 import 'dart:async';
 
 import 'package:family_hub/core/firebase/query_limits.dart';
+import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock_provider.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
+import 'package:family_hub/features/chores/occurrences/domain/verify_queue.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
+import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A minute ticker, watched ONLY by screens that show "overdue" (road map 3.5).
@@ -121,8 +124,12 @@ final occurrenceItemProvider = Provider.family<ChoreItem?, String>((ref, id) {
       ._withOverdue(occurrence, now, grace);
 });
 
-/// The manager's verification queue, without the items the viewer completed
-/// (nobody verifies their own work) and without chores that do not need a check.
+/// The verification queue: completions that need a check, without the items the
+/// viewer completed (nobody verifies their own work).
+///
+/// The filter is [VerifyQueue.filter] (B-03): a chore that does not ask for a
+/// check never appears, and the decision uses the EFFECTIVE status, not the
+/// stored cache (CLAUDE.md rule 36).
 final verifyItemsProvider = Provider<List<ChoreItem>>((ref) {
   final uid = ref.watch(currentUidProvider);
   final now = ref.watch(nowProvider);
@@ -130,18 +137,34 @@ final verifyItemsProvider = Provider<List<ChoreItem>>((ref) {
   final documents =
       ref.watch(verifyQueueProvider).value ?? const <ChoreOccurrence>[];
   return <ChoreItem>[
-    for (final occurrence in documents)
-      if (occurrence.status == OccurrenceStatus.completed &&
-          occurrence.completedBy != uid)
-        ChoreItem.fromOccurrence(occurrence)
-            ._withOverdue(occurrence, now, grace),
-  ]..sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    for (final occurrence in VerifyQueue.filter(documents, uid))
+      ChoreItem.fromOccurrence(occurrence)
+          ._withOverdue(occurrence, now, grace),
+  ];
 });
 
 /// How many chores wait for a check (a badge, capped by the query limit).
 final verifyQueueCountProvider = Provider<int>(
   (ref) => ref.watch(verifyItemsProvider).length.clamp(0, kMaxVerifyQueue),
 );
+
+/// Whether the viewer may verify SOMEBODY ELSE'S chore at all (B-02).
+///
+/// The permission matrix needs a completer, and `PermissionPolicy` refuses
+/// `verifyChore` without a template, so a screen calling
+/// `ref.can(Permission.verifyChore)` with no owner is always denied — the
+/// Verify tile and the queue stayed unreachable for everybody.  This asks the
+/// same matrix the question that has an answer BEFORE a document is chosen
+/// ([PermissionPolicy.canVerifyAny]); a concrete occurrence is still checked
+/// with its real completer and its snapshot's `verification`.
+final canVerifyAnyProvider = Provider<bool>((ref) {
+  final actor = ref.watch(currentActorProvider);
+  if (actor == null) return false;
+  return PermissionPolicy.canVerifyAny(
+    actor,
+    settings: ref.watch(permissionSettingsProvider),
+  );
+});
 
 /// The smallest extension needed to show "overdue" on a [ChoreItem].
 ///

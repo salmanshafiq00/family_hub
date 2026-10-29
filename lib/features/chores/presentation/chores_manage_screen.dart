@@ -23,7 +23,7 @@ class ChoresManageScreen extends ConsumerWidget {
     final entries = _entries ?? choresEntries;
     final visible = [
       for (final entry in entries)
-        if (entry.requires == null || ref.can(entry.requires!)) entry,
+        if (_shows(entry, ref)) entry,
     ];
 
     return Scaffold(
@@ -43,6 +43,16 @@ class ChoresManageScreen extends ConsumerWidget {
             ),
     );
   }
+}
+
+/// True when the viewer may use [entry]: no gate, the permission gate, or the
+/// boolean gate for a question the matrix cannot answer alone (B-02).
+bool _shows(ChoresEntry entry, WidgetRef ref) {
+  final requires = entry.requires;
+  final allowed = entry.allowed;
+  if (requires != null && !ref.can(requires)) return false;
+  if (allowed != null && !ref.watch(allowed)) return false;
+  return true;
 }
 
 class _EntryTile extends ConsumerWidget {

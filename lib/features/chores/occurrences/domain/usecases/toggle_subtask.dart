@@ -3,6 +3,7 @@ import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
@@ -124,10 +125,9 @@ class ToggleSubtask {
   /// The history entry an untick leaves behind (Appendix C: preserve the
   /// original completion).
   static NewEvent _uncompleted(OccurrenceContext context) => NewEvent(
-    id: OccurrenceEventIds.transition(
-      OccurrenceEventType.uncompleted,
-      context.occurrence.reopenCount,
-    ),
+    // Unique per intent (B-05): a second untick of a re-completed chore is a
+    // new event, never a collision with the first one.
+    id: OccurrenceEventIds.of(OccurrenceEventType.uncompleted, randomId()),
     occurrenceId: context.occurrence.id,
     type: OccurrenceEventType.uncompleted,
     prevCompletedAt: context.occurrence.completedAt,

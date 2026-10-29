@@ -50,6 +50,7 @@ final class ChoreOccurrence {
     this.skipReason,
     this.needsAttention = false,
     this.lastCommentAt,
+    this.redoSubtaskIds = const <String>[],
     this.deletedAt,
     this.deletedBy,
   }) : assert(
@@ -100,6 +101,12 @@ final class ChoreOccurrence {
   final SkipReason? skipReason;
   final bool needsAttention;
   final DateTime? lastCommentAt;
+
+  /// The steps a “Reopen” asked to redo (B-04, road map Appendix C).
+  ///
+  /// The same reopen unticks them, so the derived status can never disagree
+  /// with the decision. A document without this field holds no decision.
+  final List<String> redoSubtaskIds;
   final DateTime? deletedAt;
   final String? deletedBy;
 
@@ -156,6 +163,7 @@ final class ChoreOccurrence {
     Object? skipReason = _unset,
     bool? needsAttention,
     Object? lastCommentAt = _unset,
+    List<String>? redoSubtaskIds,
     Object? deletedAt = _unset,
     Object? deletedBy = _unset,
   }) => ChoreOccurrence(
@@ -191,6 +199,7 @@ final class ChoreOccurrence {
     skipReason: _pick(skipReason, this.skipReason),
     needsAttention: needsAttention ?? this.needsAttention,
     lastCommentAt: _pick(lastCommentAt, this.lastCommentAt),
+    redoSubtaskIds: redoSubtaskIds ?? this.redoSubtaskIds,
     deletedAt: _pick(deletedAt, this.deletedAt),
     deletedBy: _pick(deletedBy, this.deletedBy),
   );
@@ -230,6 +239,7 @@ final class ChoreOccurrence {
       other.skipReason == skipReason &&
       other.needsAttention == needsAttention &&
       other.lastCommentAt == lastCommentAt &&
+      _sameList(other.redoSubtaskIds, redoSubtaskIds) &&
       other.deletedAt == deletedAt &&
       other.deletedBy == deletedBy;
 
@@ -270,6 +280,7 @@ final class ChoreOccurrence {
     skipReason,
     needsAttention,
     lastCommentAt,
+    Object.hashAll(redoSubtaskIds),
     deletedAt,
     deletedBy,
   ]);

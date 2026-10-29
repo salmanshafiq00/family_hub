@@ -21,7 +21,7 @@ import {
   assertSucceeds,
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { Timestamp, doc, serverTimestamp, setDoc, writeBatch, increment } from 'firebase/firestore';
+import { Timestamp, deleteField, doc, serverTimestamp, setDoc, writeBatch, increment } from 'firebase/firestore';
 import { after, before, describe, it } from 'mocha';
 
 import {
@@ -35,6 +35,7 @@ import {
   itemDoc,
   memberDoc,
   nowTs,
+  occurrenceDoc,
 } from './support.mjs';
 
 const ADMIN = 'fixAdmin';
@@ -54,6 +55,7 @@ const rehydrate = (value) => {
   if (value && typeof value === 'object') {
     if (value.__ts !== undefined) return Timestamp.fromDate(new Date(value.__ts));
     if (value.__serverTime === true) return serverTimestamp();
+    if (value.__delete === true) return deleteField();
     if (value.__increment !== undefined) return increment(value.__increment);
     const out = {};
     for (const [k, v] of Object.entries(value)) out[k] = rehydrate(v);
@@ -229,6 +231,44 @@ const seeders = {
     await setDoc(
       doc(db, `families/${FAMILY}/members/fixCara`),
       memberDoc('fixCara', 'member', 'active'),
+    );
+  },
+  // B-04 / B-05: the reopen patch + its `reopened` event run as ONE batch on a
+  // completed chore with two ticks (the actor is the admin, a manager).
+  chore_occurrence_reopen: async (db) => {
+    await seedFamilyWithAdmin(db);
+    await setDoc(
+      doc(db, `families/${FAMILY}/members/fixCara`),
+      memberDoc('fixCara', 'member', 'active'),
+    );
+    await setDoc(
+      doc(db, `families/${FAMILY}/choreOccurrences/tpl_fixDishes_20261019`),
+      occurrenceDoc('fixCara', {
+        templateId: 'tpl_fixDishes',
+        dateKey: '2026-10-19',
+        monthKey: '2026-10',
+        status: 'completed',
+        completedAt: nowTs(),
+        completedBy: 'fixCara',
+        'subtaskDone.rinse': { at: nowTs(), by: 'fixCara' },
+        'subtaskDone.dry': { at: nowTs(), by: 'fixCara' },
+        redoSubtaskIds: [],
+      }),
+    );
+  },
+  // B-06: a soft-deleted, never-started future day that a resumed template
+  // restores (rule 12 · RESTORE).
+  chore_occurrence_restore: async (db) => {
+    await seedFamilyWithAdmin(db);
+    await setDoc(
+      doc(db, `families/${FAMILY}/choreOccurrences/tpl_fixDishes_20261102`),
+      occurrenceDoc(ADMIN, {
+        templateId: 'tpl_fixDishes',
+        dateKey: '2026-11-02',
+        monthKey: '2026-11',
+        deletedAt: nowTs(),
+        deletedBy: ADMIN,
+      }),
     );
   },
 };

@@ -138,11 +138,15 @@ class RegenerateRange {
     }
 
     final affectedIds = <String>{for (final template in affected) template.id};
+    // A restored document must not be soft-deleted again in the same run
+    // (B-06: `listRange` still returns it with its old `deletedAt`).
+    final restoredIds = <String>{for (final draft in restores) draft.id};
     final removals = <OccurrencePatch>[];
     final at = _clock.nowUtc();
     for (final occurrence in current) {
       if (!affectedIds.contains(occurrence.templateId)) continue;
       if (occurrence.isDeleted) continue;
+      if (restoredIds.contains(occurrence.id)) continue;
       if (matchingIds.contains(occurrence.id)) continue;
       if (!isUnstartedOnOrAfter(occurrence, from)) continue;
       removals.add(

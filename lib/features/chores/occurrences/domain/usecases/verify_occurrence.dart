@@ -4,6 +4,7 @@ import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
+import 'package:family_hub/core/utils/id_generator.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/effective_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_event.dart';
@@ -97,6 +98,7 @@ class VerifyOccurrence {
         'status': OccurrenceStatus.verified.id,
         'verifiedAt': at,
         'verifiedBy': actorUid,
+        'redoSubtaskIds': const <String>[],
         'updatedAt': at,
         'updatedBy': actorUid,
       },
@@ -109,10 +111,9 @@ class VerifyOccurrence {
       integrity: false,
       patch: patch,
       event: NewEvent(
-        id: OccurrenceEventIds.transition(
-          OccurrenceEventType.verified,
-          occurrence.reopenCount,
-        ),
+        // One id per intent (B-05): unique, so a second verify of the same
+        // reopen round is a new append-only event instead of a collision.
+        id: OccurrenceEventIds.of(OccurrenceEventType.verified, randomId()),
         occurrenceId: occurrenceId,
         type: OccurrenceEventType.verified,
       ),

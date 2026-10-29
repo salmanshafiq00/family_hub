@@ -19,6 +19,7 @@ abstract final class OccurrenceEventMappers {
     'toAssigneeId': event.toAssigneeId,
     'reason': event.reason,
     'prevCompletedAt': BaseMapper.dateTimeToTimestamp(event.prevCompletedAt),
+    'redoSubtaskIds': event.redoSubtaskIds,
     'requestId': event.requestId,
     ...BaseMapper.metadataToMap(meta),
   };
@@ -48,8 +49,18 @@ abstract final class OccurrenceEventMappers {
       toAssigneeId: _nullableString(map['toAssigneeId'], 64),
       reason: _nullableString(map['reason'], 300),
       prevCompletedAt: BaseMapper.timestampToDateTime(map['prevCompletedAt']),
+      redoSubtaskIds: _stringList(map['redoSubtaskIds'], 30),
       requestId: _nullableString(map['requestId'], 64),
     );
+  }
+
+  /// A bounded list of step ids; a malformed row is dropped, never thrown.
+  static List<String> _stringList(Object? raw, int max) {
+    if (raw is! List) return const <String>[];
+    return <String>[
+      for (final item in raw)
+        if (item is String && item.isNotEmpty && item.length <= 16) item,
+    ].take(max).toList(growable: false);
   }
 
   static String? _nullableString(Object? value, int max) {

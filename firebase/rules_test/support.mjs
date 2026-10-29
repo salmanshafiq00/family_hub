@@ -357,6 +357,8 @@ export const occurrenceDoc = (uid, extra = {}) =>
     exception: null,
     skipReason: null,
     lastCommentAt: null,
+    redoSubtaskIds: [],
+    lastEventId: null,
     ...extra,
   });
 
@@ -375,6 +377,7 @@ export const occurrenceEventDoc = (uid, extra = {}) =>
     toAssigneeId: null,
     reason: null,
     prevCompletedAt: null,
+    redoSubtaskIds: [],
     requestId: null,
     ...extra,
   });

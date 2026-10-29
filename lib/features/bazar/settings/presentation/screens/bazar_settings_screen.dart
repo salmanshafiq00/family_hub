@@ -118,7 +118,10 @@ class _BazarSettingsScreenState extends ConsumerState<BazarSettingsScreen> {
     if (familyId == null || uid == null) return;
     _loaded = true;
     final current = ref.read(bazarSettingsProvider);
-    final done = await ref.read(_settingsActionProvider.notifier).run<void>(
+    // Confusingly typed on purpose: `run` returns the action's value, and a
+    // `Result<void>` value IS null even on success — so the controller's state
+    // (not the return value) decides whether "saved" is shown.
+    await ref.read(_settingsActionProvider.notifier).run<Object?>(
       () => ref.read(updateBazarSettingsProvider)(
         actorUid: uid,
         familyId: familyId,
@@ -131,9 +134,7 @@ class _BazarSettingsScreenState extends ConsumerState<BazarSettingsScreen> {
       ),
     );
     if (!mounted) return;
-    if (done == null && ref.read(_settingsActionProvider).failure != null) {
-      return;
-    }
+    if (ref.read(_settingsActionProvider).failure != null) return;
     messenger.showSnackBar(SnackBar(content: Text(l10n.settingsSaved)));
   }
 

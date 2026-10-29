@@ -422,17 +422,16 @@ service cloud.firestore {
               'completedAt', 'completedBy', 'verifiedAt', 'verifiedBy',
               'reopenCount', 'exception', 'skipReason', 'needsAttention',
               'lastCommentAt', 'createdAt', 'createdBy', 'updatedAt',
-              'updatedBy', 'schemaVersion', 'deletedAt', 'deletedBy'];
+              'updatedBy', 'schemaVersion', 'deletedAt', 'deletedBy',
+              // B-04 / B-05 (see occurrenceOk for what they mean).
+              'redoSubtaskIds', 'lastEventId'];
     }
     // The deterministic id (CLAUDE.md rule 4, ADR 0009): README pattern only.
     function occurrenceIdOk(id) {
       return id is string
         && id.matches('^[A-Za-z0-9_]+_[0-9]{8}(_[a-z0-9]{1,12})?$');
     }
-    function occurrenceDateKey(id) {
-      let match = id.match('^[A-Za-z0-9_]+_([0-9]{8})(_[a-z0-9]{1,12})?$');
-      return match[0][1];
-    }
+
     function nullableTimestamp(d, k) {
       return !(k in d.keys()) || d[k] == null || d[k] is timestamp;
     }
@@ -455,8 +454,10 @@ service cloud.firestore {
         && str(d.get('templateId', ''), 1, 64)
         && d.get('dateKey', '') is string
         && d.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && d.dateKey.replace('-', '').replace('-', '')
-             == occurrenceDateKey(id)
+        // B-11: no capture groups in rules. The id must END with the dateKey
+        // without dashes (optionally followed by `_<slot>`).
+        && id.matches('.*_' + d.dateKey.replace('-', '').replace('-', '')
+             + '(_[a-z0-9]{1,12})?$')
         && monthKeyOk(d.get('monthKey', ''))
         && d.monthKey == d.dateKey.substring(0, 7)
         && d.get('dueAt', null) is timestamp
@@ -503,7 +504,35 @@ service cloud.firestore {
             || d.skipReason == null
             || d.skipReason in ['absence', 'manager'])
         && d.get('needsAttention', false) is bool
-        && nullableTimestamp(d, 'lastCommentAt');
+        && nullableTimestamp(d, 'lastCommentAt')
+        // B-04: the steps a reopen asked to redo (absent = no decision yet).
+        && redoListOk(d)
+        // B-05: the patch names the lifecycle event written in the same batch
+        // (`lastEventId`), so the rules check THAT document instead of
+        // reconstructing a path from the state (the old scheme collided on the
+        // second occurrence of a transition).
+        && (!('lastEventId' in d.keys())
+            || d.lastEventId == null
+            || eventIdOk(d.lastEventId));
+    }
+    function redoListOk(d) {
+      return !('redoSubtaskIds' in d.keys()) || d.redoSubtaskIds == null
+        || (d.redoSubtaskIds is list && d.redoSubtaskIds.size() <= 30);
+    }
+    // `<type>_<8-20 lowercase alphanumerics>`; the token is random and generated
+    // once per user intent (OccurrenceEventIds.of).
+    function eventIdOk(e) {
+      return e is string && e.matches('^[a-z]+_[a-z0-9]{8,20}$');
+    }
+    // The event a patch names must exist after the batch, be written by the
+    // caller for this occurrence, and carry the expected type (B-05).
+    function namedEventOk(f, o, after, type) {
+      return eventIdOk(after.get('lastEventId', null))
+        && existsAfter(occurrenceEventPath(f, o, after.lastEventId))
+        && getAfter(occurrenceEventPath(f, o, after.lastEventId))
+             .data.get('type', '') == type
+        && getAfter(occurrenceEventPath(f, o, after.lastEventId))
+             .data.get('actorId', '') == request.auth.uid;
     }
     // What a CREATE writes: straight from the generator, no history at all.
     function occurrenceFresh(d) {
@@ -516,6 +545,9 @@ service cloud.firestore {
         && !('skipReason' in d.keys())
         && d.get('needsAttention', false) == false
         && !('lastCommentAt' in d.keys())
+        && !('lastEventId' in d.keys())
+        && (!('redoSubtaskIds' in d.keys())
+            || d.redoSubtaskIds == null || d.redoSubtaskIds.size() == 0)
         && d.get('deletedAt', null) == null
         && d.get('deletedBy', null) == null;
     }
@@ -570,19 +602,26 @@ service cloud.firestore {
         && str(getAfter(occurrenceEventPath(f, o, e)).data.get('reason', ''),
               minReason, 300);
     }
-    // The family's calendar day (Asia/Dhaka, UTC+6, no DST).
-    function todayKey(f) {
-      let local = request.time.toMillis() + 21600000;
-      let day = (local - (local % 86400000)) / 86400000;
-      let date = timestamp.date(timestamp.value(day * 86400, 's'));
-      return date.year.toString() + '-'
-        + (date.month < 10 ? '0' : '') + date.month.toString() + '-'
-        + (date.day < 10 ? '0' : '') + date.day.toString();
+    // The 400-document generation batch budget (C-11) forbids one lookup per
+    // occurrence, so "future" is decided from the request time: the SOFT DELETE
+    // rule applies only to a `dateKey` at least two days ahead of UTC.  That is
+    // deliberately stricter than "tomorrow" (a delete is rare, a wrong delete
+    // is not repairable) and needs no date arithmetic, which the rules language
+    // does not offer in a reliable form (B-11).
+    // Allowed when the day is at least `horizonDays` after the server day in
+    // Asia/Dhaka (UTC+6, no DST — the family default, ADR 0011).
+    function isInFuture(dateKey, horizonDays) {
+      return dateKey is string
+        && dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && dateKey >= string(timestamp.value(
+             request.time.toMillis() - 21600000
+               + horizonDays * 86400000000, 'ms'));
     }
     function occurrenceEventOk(d) {
       return d.keys().hasOnly(['type', 'actorId', 'at', 'fromAssigneeId',
                                'toAssigneeId', 'reason', 'prevCompletedAt',
-                               'requestId', 'createdAt', 'createdBy',
+                               'redoSubtaskIds', 'requestId', 'createdAt',
+                               'createdBy',
                                'updatedAt', 'updatedBy', 'schemaVersion'])
         && d.get('type', '') in ['covered', 'swapped', 'reassigned',
                                  'completed', 'uncompleted', 'verified',
@@ -590,6 +629,7 @@ service cloud.firestore {
                                  'unskipped']
         && d.get('actorId', '') is string && d.get('at', null) is timestamp
         && optStr(d, 'reason', 300)
+        && redoListOk(d)
         && nullableId(d, 'fromAssigneeId')
         && nullableId(d, 'toAssigneeId')
         && nullableId(d, 'requestId')
@@ -2089,10 +2129,10 @@ service cloud.firestore {
           && after.get('verifiedAt', null) is timestamp
           && after.get('verifiedBy', '') == request.auth.uid
           && after.diff(before).affectedKeys()
-               .hasOnly(['status', 'verifiedAt', 'verifiedBy',
-                         'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o, 'verified_' + string(before.reopenCount),
-                                  'verified', 0);
+               .hasOnly(['status', 'verifiedAt', 'verifiedBy', 'redoSubtaskIds',
+                         'lastEventId', 'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'verified')
+          && after.get('lastEventId', null) != before.get('lastEventId', null);
 
         // 4. REOPEN: a completed task by anyone who may comment on it, a
         //    VERIFIED one by a manager only (verified_requires_manager).  The
@@ -2113,11 +2153,14 @@ service cloud.firestore {
           && after.get('verifiedBy', null) == null
           && after.diff(before).affectedKeys()
                .hasOnly(['status', 'reopenCount', 'completedAt', 'completedBy',
-                         'verifiedAt', 'verifiedBy', 'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o, 'reopened_' + string(before.reopenCount),
-                                  'reopened', 3)
-          && getAfter(occurrenceEventPath(f, o,
-               'reopened_' + string(before.reopenCount))).data
+                         'verifiedAt', 'verifiedBy', 'subtaskDone',
+                         'redoSubtaskIds', 'lastEventId',
+                         'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'reopened')
+          && after.get('lastEventId', null) != before.get('lastEventId', null)
+          && str(getAfter(occurrenceEventPath(f, o, after.lastEventId))
+               .data.get('reason', ''), 3, 300)
+          && getAfter(occurrenceEventPath(f, o, after.lastEventId)).data
                .get('prevCompletedAt', null) == before.get('completedAt', null);
 
         // 5. EXCEPTION (manager): finish without the required steps.
@@ -2130,9 +2173,11 @@ service cloud.firestore {
           && after.get('exception', {}).get('by', '') == request.auth.uid
           && after.get('status', '') == before.get('status', '')
           && after.diff(before).affectedKeys()
-               .hasOnly(['exception', 'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o, 'exception_' + string(before.reopenCount),
-                                  'exception', 3);
+               .hasOnly(['exception', 'lastEventId', 'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'exception')
+          && after.get('lastEventId', null) != before.get('lastEventId', null)
+          && str(getAfter(occurrenceEventPath(f, o, after.lastEventId))
+               .data.get('reason', ''), 3, 300);
 
         // 6. SKIP / UNSKIP (manager).
         allow update: if verified()
@@ -2143,9 +2188,12 @@ service cloud.firestore {
           && after.get('status', '') == 'skipped'
           && after.get('skipReason', null) in ['absence', 'manager']
           && after.diff(before).affectedKeys()
-               .hasOnly(['status', 'skipReason', 'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o, 'skipped_' + string(before.reopenCount),
-                                  'skipped', 3);
+               .hasOnly(['status', 'skipReason', 'lastEventId',
+                         'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'skipped')
+          && after.get('lastEventId', null) != before.get('lastEventId', null)
+          && str(getAfter(occurrenceEventPath(f, o, after.lastEventId))
+               .data.get('reason', ''), 3, 300);
         allow update: if verified()
           && isManager(f)
           && before.get('deletedAt', null) == null
@@ -2154,9 +2202,10 @@ service cloud.firestore {
           && after.get('status', '') == 'scheduled'
           && after.get('skipReason', null) == null
           && after.diff(before).affectedKeys()
-               .hasOnly(['status', 'skipReason', 'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o, 'unskipped_' + string(before.reopenCount),
-                                  'unskipped', 0);
+               .hasOnly(['status', 'skipReason', 'lastEventId',
+                         'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'unskipped')
+          && after.get('lastEventId', null) != before.get('lastEventId', null);
 
         // 7. REASSIGN (manager) or a manual ASSIGN.  The assignee only moves
         //    together with a `reassigned` event that carries the reason.
@@ -2170,10 +2219,11 @@ service cloud.firestore {
           && after.get('assignmentSource', '') in ['manual', 'reassign']
           && after.diff(before).affectedKeys()
                .hasOnly(['assigneeId', 'plannedAssigneeId', 'assignmentSource',
-                         'needsCover', 'updatedAt', 'updatedBy'])
-          && occurrenceEventAfter(f, o,
-               'reassigned_' + string(after.get('assigneeId', '')),
-               'reassigned', 3);
+                         'needsCover', 'lastEventId', 'updatedAt', 'updatedBy'])
+          && namedEventOk(f, o, after, 'reassigned')
+          && after.get('lastEventId', null) != before.get('lastEventId', null)
+          && str(getAfter(occurrenceEventPath(f, o, after.lastEventId))
+               .data.get('reason', ''), 3, 300);
 
         // 8. SWAP / COVER: the assignee moves only with a `swapped`/`covered`
         //    event that names the accepted request (P3-26 supplies its rules).
@@ -2187,15 +2237,17 @@ service cloud.firestore {
           && after.get('assignmentSource', '') in ['swap', 'cover']
           && after.diff(before).affectedKeys()
                .hasOnly(['assigneeId', 'coverForId', 'assignmentSource',
-                         'needsCover', 'updatedAt', 'updatedBy'])
+                         'needsCover', 'lastEventId', 'updatedAt', 'updatedBy'])
           && after.diff(before).affectedKeys().hasAny(['assigneeId'])
           && (
             (after.get('assignmentSource', '') == 'swap'
-              && occurrenceEventAfter(f, o,
-                   'swapped_' + string(after.assigneeId), 'swapped', 3))
+              && namedEventOk(f, o, after, 'swapped'))
             || (after.get('assignmentSource', '') == 'cover'
-              && occurrenceEventAfter(f, o,
-                   'covered_' + string(after.assigneeId), 'covered', 3))
+              && namedEventOk(f, o, after, 'covered'))
+          )
+          && after.get('lastEventId', null) != before.get('lastEventId', null)
+          && str(getAfter(occurrenceEventPath(f, o, after.lastEventId))
+               .data.get('reason', ''), 3, 300
           );
 
         // 9. ATTENTION flag and the comment marker (P3-25).
@@ -2234,9 +2286,36 @@ service cloud.firestore {
           && before.get('deletedAt', null) == null
           && after.get('deletedAt', null) is timestamp
           && after.get('deletedBy', '') == request.auth.uid
-          && (after.get('dateKey', '') > todayKey(f))
+          && isInFuture(after.get('dateKey', ''), 2)
           && after.diff(before).affectedKeys()
                .hasOnly(['deletedAt', 'deletedBy', 'updatedAt', 'updatedBy']);
+
+        // 12. RESTORE (B-06): regeneration of a resumed template brings a
+        //     soft-deleted, never-started day back.  No earlier rule ran on a
+        //     deleted document (`before.deletedAt == null`), so this one is the
+        //     only way back; it writes exactly the replan snapshot set plus the
+        //     cleared delete pair, and it never resurrects history.
+        allow update: if verified()
+          && isManager(f)
+          && occurrenceOk(o, after)
+          && before.get('deletedAt', null) != null
+          && after.get('deletedAt', null) == null
+          && after.get('deletedBy', null) == null
+          && before.get('status', '') == 'scheduled'
+          && before.get('subtaskDone', {}).size() == 0
+          && before.get('completedAt', null) == null
+          && before.get('reopenCount', 0) == 0
+          && after.get('status', '') == 'scheduled'
+          && after.get('subtaskDone', {}).size() == 0
+          && after.get('reopenCount', 0) == 0
+          && after.diff(before).affectedKeys()
+               .hasOnly(['templateRev', 'nameBn', 'nameEn', 'groupId',
+                         'instructions', 'subtasks', 'difficulty',
+                         'estimatedMinutes', 'verification', 'dueAt',
+                         'dueMinutes', 'plannedAssigneeId', 'assigneeId',
+                         'assignmentSource', 'needsCover', 'subtaskDone',
+                         'status', 'reopenCount', 'needsAttention',
+                         'deletedAt', 'deletedBy', 'updatedAt', 'updatedBy']);
 
         allow delete: if false;
 

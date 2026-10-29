@@ -172,8 +172,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             await _complete(item);
             return false;
           }
-          if (mounted)
+          if (mounted) {
             unawaited(context.push(AppRoutes.choresOccurrence(item.id)));
+          }
           return false;
         },
         background: _swipeBackground(

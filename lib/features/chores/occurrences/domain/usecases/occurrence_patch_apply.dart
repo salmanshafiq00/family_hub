@@ -47,6 +47,7 @@ ChoreOccurrence _withField(ChoreOccurrence o, String key, Object? value) {
     'needsCover' => o.copyWith(needsCover: value! as bool),
     'needsAttention' => o.copyWith(needsAttention: value! as bool),
     'lastCommentAt' => o.copyWith(lastCommentAt: value as DateTime?),
+    'redoSubtaskIds' => o.copyWith(redoSubtaskIds: _steps(value)),
     'deletedAt' => o.copyWith(deletedAt: value as DateTime?),
     'deletedBy' => o.copyWith(deletedBy: value as String?),
     _ => o,
@@ -67,11 +68,16 @@ ChoreOccurrence _withoutField(ChoreOccurrence o, String key) {
     'skipReason' => o.copyWith(skipReason: null),
     'exception' => o.copyWith(exception: null),
     'coverForId' => o.copyWith(coverForId: null),
+    'redoSubtaskIds' => o.copyWith(redoSubtaskIds: const <String>[]),
     'deletedAt' => o.copyWith(deletedAt: null),
     'deletedBy' => o.copyWith(deletedBy: null),
     _ => o,
   };
 }
+
+List<String> _steps(Object? value) => value is List
+    ? <String>[for (final step in value) if (step is String) step]
+    : const <String>[];
 
 SubtaskDone _tick(Object? value) {
   final map = value is Map ? value : const <Object?, Object?>{};
