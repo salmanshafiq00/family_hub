@@ -141,6 +141,7 @@ final class NewEvent {
 /// P3-26; the plan only carries the data so the write stays one batch).
 final class NewInboxItem {
   const NewInboxItem({
+    this.id = '',
     required this.toMemberId,
     required this.type,
     required this.refType,
@@ -148,6 +149,9 @@ final class NewInboxItem {
     this.params = const <String, String>{},
   });
 
+  /// The row's id, generated ONCE per intent (B-10). The stager writes
+  /// `inb_$id`, so staging the same intent twice writes one row, never two.
+  final String id;
   final String toMemberId;
 
   /// One of `swap_request, swap_result, needs_cover, chore_reopened,
@@ -157,19 +161,33 @@ final class NewInboxItem {
   final String refId;
   final Map<String, String> params;
 
+  NewInboxItem withId(String newId) => NewInboxItem(
+    id: newId,
+    toMemberId: toMemberId,
+    type: type,
+    refType: refType,
+    refId: refId,
+    params: params,
+  );
+
   @override
   String toString() => 'NewInboxItem($type to $toMemberId)';
 }
 
-/// One audit/activity entry. The repository stamps the id, actor and time from
-/// the plan, so the domain never needs a clock or an id generator.
+/// One audit/activity entry. The repository stamps the actor and time from the
+/// plan, so the domain never needs a clock.
 final class NewAudit {
   const NewAudit({
+    this.id = '',
     required this.type,
     required this.refId,
     this.refType = AuditRefType.occurrence,
     this.params = const <String, String>{},
   });
+
+  /// The row's id, generated ONCE per intent (B-10). The stager writes
+  /// `aud_$id`, so staging the same intent twice writes one entry, never two.
+  final String id;
 
   /// A key of `AuditEventType` (for example `chores.occurrence_completed`).
   final String type;
@@ -180,6 +198,14 @@ final class NewAudit {
   /// A key of `AuditRefType`; `occurrence` for the everyday actions.
   final String refType;
   final Map<String, String> params;
+
+  NewAudit withId(String newId) => NewAudit(
+    id: newId,
+    type: type,
+    refId: refId,
+    refType: refType,
+    params: params,
+  );
 
   @override
   String toString() => 'NewAudit($type, $refType/$refId)';

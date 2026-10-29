@@ -67,7 +67,7 @@ abstract final class OccurrenceWriteStager {
       );
     }
     for (final item in plan.inbox) {
-      batch.set(docs.inbox('inb_${_key(item)}'), <String, dynamic>{
+      batch.set(docs.inbox(_rowId('inb_', item.id)), <String, dynamic>{
         'toMemberId': item.toMemberId,
         'type': item.type,
         'refType': item.refType,
@@ -83,7 +83,7 @@ abstract final class OccurrenceWriteStager {
         batch,
         familyId,
         AuditEvent(
-          id: 'aud_${_key(audit)}',
+          id: _rowId('aud_', audit.id),
           type: audit.type,
           actorId: plan.actorId,
           refType: audit.refType,
@@ -110,10 +110,17 @@ abstract final class OccurrenceWriteStager {
         requestId: event.requestId,
       );
 
-  /// A deterministic document id: the same plan applied twice (a retry after a
-  /// queued write) writes the same inbox row and audit entry, never a second.
-  static String _key(Object value) =>
-      value.hashCode.toUnsigned(32).toRadixString(36).padLeft(7, '0');
+  /// The document id of an audit or inbox row: the intent's id, generated once
+  /// by the use case that built the plan (B-10). Restaging the SAME plan (a
+  /// retry) therefore writes the same path, never a second row.
+  static String _rowId(String prefix, String id) {
+    if (id.isEmpty) {
+      throw StateError(
+        'An audit/inbox id is generated once per intent; got an empty id.',
+      );
+    }
+    return '$prefix$id';
+  }
 }
 
 /// The one place the staged paths are built (they mirror the rules).

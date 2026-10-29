@@ -42,14 +42,22 @@ final class OccurrenceActionWriter {
     final linked = patch != null && stamped != null
         ? patch.withField('lastEventId', stamped.id)
         : patch;
-    final auditEntry = audit?.build(context, at);
+    // B-10: the audit and inbox rows get an id generated ONCE per intent too,
+    // so restaging the same plan writes the same path instead of a second row.
+    final inboxItem = inbox == null || inbox.id.isNotEmpty
+        ? inbox
+        : inbox.withId(newId());
+    final builtAudit = audit?.build(context, at);
+    final auditEntry = builtAudit == null || builtAudit.id.isNotEmpty
+        ? builtAudit
+        : builtAudit.withId(newId());
     return OccurrenceWritePlan(
       actorId: context.member.uid,
       at: at,
       creates: <OccurrenceDraft>[?context.draft],
       patches: <OccurrencePatch>[?linked],
       events: <NewEvent>[?stamped],
-      inbox: <NewInboxItem>[?inbox],
+      inbox: <NewInboxItem>[?inboxItem],
       audits: <NewAudit>[?auditEntry],
     );
   }

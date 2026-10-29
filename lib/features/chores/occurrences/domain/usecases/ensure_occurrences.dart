@@ -39,7 +39,8 @@ class EnsureOccurrences {
     required this._families,
     required this._dateKeys,
     required this._clock,
-  });
+    IdGenerator newId = randomId,
+  }) : _newId = newId;
 
   final OccurrenceRepository _occurrences;
   final GenerationMarkerRepository _markers;
@@ -49,6 +50,9 @@ class EnsureOccurrences {
   final FamilyRepository _families;
   final FamilyDateKeys _dateKeys;
   final Clock _clock;
+
+  /// One id per chunk's audit entry (B-10), reused by the retry of that chunk.
+  final IdGenerator _newId;
 
   Future<Result<GenerationOutcome>> call({
     required String familyId,
@@ -188,9 +192,18 @@ class EnsureOccurrences {
     required DateTime at,
     required List<OccurrenceDraft> chunk,
   }) async {
+    // One audit id for this chunk's intent: the retry below writes the same
+    // row if the first attempt failed AND was actually committed elsewhere.
+    final auditId = _newId();
     final first = await _occurrences.stageIntegrity(
       familyId,
-      _plan(familyId: familyId, actorUid: actorUid, at: at, drafts: chunk),
+      _plan(
+        familyId: familyId,
+        actorUid: actorUid,
+        at: at,
+        drafts: chunk,
+        auditId: auditId,
+      ),
     );
     final failure = first.failureOrNull;
     if (failure == null) return Success<int>(chunk.length);
@@ -214,7 +227,13 @@ class EnsureOccurrences {
 
     final retry = await _occurrences.stageIntegrity(
       familyId,
-      _plan(familyId: familyId, actorUid: actorUid, at: at, drafts: remaining),
+      _plan(
+        familyId: familyId,
+        actorUid: actorUid,
+        at: at,
+        drafts: remaining,
+        auditId: auditId,
+      ),
     );
     final retryFailure = retry.failureOrNull;
     if (retryFailure != null) {
@@ -232,12 +251,14 @@ class EnsureOccurrences {
     required String actorUid,
     required DateTime at,
     required List<OccurrenceDraft> drafts,
+    required String auditId,
   }) => OccurrenceWritePlan(
     actorId: actorUid,
     at: at,
     creates: drafts,
     audits: <NewAudit>[
       NewAudit(
+        id: auditId,
         type: AuditEventType.choresOccurrencesGenerated,
         refType: AuditRefType.choreSettings,
         refId: familyId,
