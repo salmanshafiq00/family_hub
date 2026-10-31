@@ -118,7 +118,59 @@ try { $head = (git rev-parse --short HEAD) 2>$null; $dirty = (git status --porce
   "Note    : files not listed here are simply not in this zip; ask me for them instead of guessing."
 ) | Set-Content -Encoding UTF8 (Join-Path $staging 'UPLOAD_MANIFEST.txt')
 
-if (Test-Path $zip) { Remove-Item $zip -Force }
-tar -a -c -f $zip -C $staging .
-Remove-Item $staging -Recurse -Force
-"{0}  ({1:N2} MB)" -f $zip, ((Get-Item $zip).Length / 1MB)
+# Create and validate ZIP using .NET
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+if (Test-Path $zip) {
+    Remove-Item $zip -Force
+}
+
+try {
+    # Create ZIP while preserving the complete folder structure.
+    [System.IO.Compression.ZipFile]::CreateFromDirectory(
+        $staging,
+        $zip,
+        [System.IO.Compression.CompressionLevel]::Optimal,
+        $false
+    )
+
+    # Verify archive integrity.
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($zip)
+
+    try {
+        $entryCount = $archive.Entries.Count
+
+        if ($entryCount -eq 0) {
+            throw "ZIP archive is empty!"
+        }
+
+        $totalSize = ($archive.Entries |
+            Measure-Object -Property Length -Sum).Sum
+
+        if ($totalSize -eq 0) {
+            throw "ZIP archive contains no file content!"
+        }
+
+        Write-Host ""
+        Write-Host "ZIP VALIDATION SUCCESSFUL" -ForegroundColor Green
+        Write-Host "Files       : $entryCount"
+        Write-Host "Content     : $([math]::Round($totalSize / 1MB, 2)) MB"
+        Write-Host "ZIP Size    : $([math]::Round((Get-Item $zip).Length / 1MB, 2)) MB"
+        Write-Host "Location    : $zip"
+    }
+    finally {
+        $archive.Dispose()
+    }
+
+    # Remove staging ONLY after successful validation.
+    Remove-Item $staging -Recurse -Force
+
+}
+catch {
+    Write-Host ""
+    Write-Host "ZIP CREATION / VALIDATION FAILED!" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host "Staging directory preserved: $staging" -ForegroundColor Yellow
+
+    throw
+}
