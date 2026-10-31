@@ -5889,6 +5889,390 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আইকন বেছে নিন'**
   String get choresSettingsPickIcon;
+
+  /// No description provided for @dutyGroupsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডিউটি গ্রুপ'**
+  String get dutyGroupsTitle;
+
+  /// No description provided for @dutyGroupsSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে ডিউটিতে আছেন আর রোটা কেমন'**
+  String get dutyGroupsSubtitle;
+
+  /// No description provided for @dutyGroupsEmptyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনও কোনো ডিউটি গ্রুপ নেই'**
+  String get dutyGroupsEmptyTitle;
+
+  /// No description provided for @dutyGroupsEmptyMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'একটি ডিউটি গ্রুপ কয়েকজনের মধ্যে একসেট কাজ পালা করে ভাগ করে দেয়।'**
+  String get dutyGroupsEmptyMessage;
+
+  /// No description provided for @dutyGroupNew.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন ডিউটি গ্রুপ'**
+  String get dutyGroupNew;
+
+  /// No description provided for @dutyGroupsTruncated.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রথম {count}টি গ্রুপ দেখানো হচ্ছে।'**
+  String dutyGroupsTruncated(String count);
+
+  /// No description provided for @dutyGroupOnDutyNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখন ডিউটিতে: {name}'**
+  String dutyGroupOnDutyNow(String name);
+
+  /// No description provided for @dutyGroupNobodyOnDuty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনও কেউ ডিউটিতে নেই'**
+  String get dutyGroupNobodyOnDuty;
+
+  /// No description provided for @dutyGroupChoreCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজ: {count}'**
+  String dutyGroupChoreCount(String count);
+
+  /// No description provided for @dutyGroupMemberCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য: {count}'**
+  String dutyGroupMemberCount(String count);
+
+  /// No description provided for @dutyGroupSwitchedOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ আছে'**
+  String get dutyGroupSwitchedOff;
+
+  /// No description provided for @dutyGroupEditTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডিউটি গ্রুপ সম্পাদনা'**
+  String get dutyGroupEditTitle;
+
+  /// No description provided for @dutyGroupNameBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম (বাংলা)'**
+  String get dutyGroupNameBn;
+
+  /// No description provided for @dutyGroupNameEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম (ইংরেজি, ঐচ্ছিক)'**
+  String get dutyGroupNameEn;
+
+  /// No description provided for @dutyGroupActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'সক্রিয়'**
+  String get dutyGroupActive;
+
+  /// No description provided for @dutyGroupActiveSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করা গ্রুপ ইতিহাসে থেকে যায়।'**
+  String get dutyGroupActiveSubtitle;
+
+  /// No description provided for @dutyGroupSave.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপ সংরক্ষণ করুন'**
+  String get dutyGroupSave;
+
+  /// No description provided for @dutyGroupSaved.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপ সংরক্ষিত হয়েছে'**
+  String get dutyGroupSaved;
+
+  /// No description provided for @dutyGroupReadOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'যারা কাজ পরিচালনা করেন শুধু তারাই ডিউটি গ্রুপ বদলাতে পারেন।'**
+  String get dutyGroupReadOnly;
+
+  /// No description provided for @dutyGroupNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ডিউটি গ্রুপটি আর নেই।'**
+  String get dutyGroupNotFound;
+
+  /// No description provided for @dutyGroupDeactivateTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই গ্রুপ বন্ধ করবেন?'**
+  String get dutyGroupDeactivateTitle;
+
+  /// No description provided for @dutyGroupDeactivateMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু কাজ এখনও এই গ্রুপ ব্যবহার করছে। আপনি না সরানো পর্যন্ত সেগুলো এটিকেই দেখাবে।'**
+  String get dutyGroupDeactivateMessage;
+
+  /// No description provided for @dutyGroupDeactivateConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করুন'**
+  String get dutyGroupDeactivateConfirm;
+
+  /// No description provided for @dutyRotationMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালার ক্রমে সদস্য'**
+  String get dutyRotationMembers;
+
+  /// No description provided for @dutyRotationNeedTwo.
+  ///
+  /// In bn, this message translates to:
+  /// **'কমপক্ষে দুইজন সদস্য যোগ করুন।'**
+  String get dutyRotationNeedTwo;
+
+  /// No description provided for @dutyRotationAddMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য যোগ করুন'**
+  String get dutyRotationAddMember;
+
+  /// No description provided for @dutyRotationNoCandidates.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব সক্রিয় সদস্য ইতিমধ্যে গ্রুপে আছেন।'**
+  String get dutyRotationNoCandidates;
+
+  /// No description provided for @dutyRotationRemoveMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-কে সরান'**
+  String dutyRotationRemoveMember(String name);
+
+  /// No description provided for @dutyRotationMoveMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-কে সরাতে টানুন'**
+  String dutyRotationMoveMember(String name);
+
+  /// No description provided for @dutyRotationCycleUnit.
+  ///
+  /// In bn, this message translates to:
+  /// **'কতদিন পরপর পালা বদলাবে'**
+  String get dutyRotationCycleUnit;
+
+  /// No description provided for @dutyRotationUnitDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'দিন'**
+  String get dutyRotationUnitDay;
+
+  /// No description provided for @dutyRotationUnitWeek.
+  ///
+  /// In bn, this message translates to:
+  /// **'সপ্তাহ'**
+  String get dutyRotationUnitWeek;
+
+  /// No description provided for @dutyRotationUnitMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস'**
+  String get dutyRotationUnitMonth;
+
+  /// No description provided for @dutyRotationUnitOccurrence.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের দিন'**
+  String get dutyRotationUnitOccurrence;
+
+  /// No description provided for @dutyRotationWeekStart.
+  ///
+  /// In bn, this message translates to:
+  /// **'সপ্তাহ শুরু হয় {day}'**
+  String dutyRotationWeekStart(String day);
+
+  /// No description provided for @dutyRotationStartsWith.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রথম পালা'**
+  String get dutyRotationStartsWith;
+
+  /// No description provided for @dutyRotationStartsOn.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরুর তারিখ'**
+  String get dutyRotationStartsOn;
+
+  /// No description provided for @dutyRotationPickDate.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখ বেছে নিন'**
+  String get dutyRotationPickDate;
+
+  /// No description provided for @dutyRotaTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরের পালাগুলো'**
+  String get dutyRotaTitle;
+
+  /// No description provided for @dutyRotaNeedsSchedule.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই রোটা কাজের দিন গুনে চলে, তাই দেখাতে একটি সময়সূচি লাগবে।'**
+  String get dutyRotaNeedsSchedule;
+
+  /// No description provided for @dutyRotaNobody.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনও কেউ নেই'**
+  String get dutyRotaNobody;
+
+  /// No description provided for @dutyRotaRange.
+  ///
+  /// In bn, this message translates to:
+  /// **'{start} থেকে {end}'**
+  String dutyRotaRange(String start, String end);
+
+  /// No description provided for @dutyRotaCellLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'{range}: {name}'**
+  String dutyRotaCellLabel(String range, String name);
+
+  /// No description provided for @dutyRotaCellLabelCover.
+  ///
+  /// In bn, this message translates to:
+  /// **'{range}: {name}, কভার লাগবে'**
+  String dutyRotaCellLabelCover(String range, String name);
+
+  /// No description provided for @dutyNeedsCover.
+  ///
+  /// In bn, this message translates to:
+  /// **'কভার লাগবে'**
+  String get dutyNeedsCover;
+
+  /// No description provided for @dutyMemberGone.
+  ///
+  /// In bn, this message translates to:
+  /// **'আর সক্রিয় নন, তাই পালায় কভার লাগবে'**
+  String get dutyMemberGone;
+
+  /// No description provided for @dutyRosterTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বর্তমান সদস্য'**
+  String get dutyRosterTitle;
+
+  /// No description provided for @dutyChangeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'রোটেশন বদলান'**
+  String get dutyChangeTitle;
+
+  /// No description provided for @dutyChangeAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য যোগ করুন'**
+  String get dutyChangeAdd;
+
+  /// No description provided for @dutyChangeRemove.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য সরান'**
+  String get dutyChangeRemove;
+
+  /// No description provided for @dutyChangeReorder.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্রম বদলান'**
+  String get dutyChangeReorder;
+
+  /// No description provided for @dutyChangeFrom.
+  ///
+  /// In bn, this message translates to:
+  /// **'কার্যকর হবে'**
+  String get dutyChangeFrom;
+
+  /// No description provided for @dutyChangeNothingBefore.
+  ///
+  /// In bn, this message translates to:
+  /// **'{date}-এর আগের কিছুই বদলাবে না।'**
+  String dutyChangeNothingBefore(String date);
+
+  /// No description provided for @dutyChangeApply.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবর্তন প্রয়োগ করুন'**
+  String get dutyChangeApply;
+
+  /// No description provided for @dutyChangeAfter.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবর্তনের পর'**
+  String get dutyChangeAfter;
+
+  /// No description provided for @dutyChangePickMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'একজন সদস্য বেছে নিন'**
+  String get dutyChangePickMember;
+
+  /// No description provided for @dutyPlanFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংরক্ষিত হয়েছে, কিন্তু তারিখ সাজাতে ব্যর্থ হয়েছে।'**
+  String get dutyPlanFailed;
+
+  /// No description provided for @dutyPlanning.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখ সাজানো হচ্ছে…'**
+  String get dutyPlanning;
+
+  /// No description provided for @dutyChoresTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই গ্রুপের কাজ'**
+  String get dutyChoresTitle;
+
+  /// No description provided for @dutyChoresEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই গ্রুপে এখনও কোনো কাজ নেই।'**
+  String get dutyChoresEmpty;
+
+  /// No description provided for @dutyChoreAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই গ্রুপে কাজ যোগ করুন'**
+  String get dutyChoreAdd;
+
+  /// No description provided for @dutyChoreAddNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব কাজ ইতিমধ্যে এই গ্রুপে আছে।'**
+  String get dutyChoreAddNone;
+
+  /// No description provided for @dutyChoreAddNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'যে আসন্ন কাজ শুরু হয়নি তা এই রোটায় চলে আসবে।'**
+  String get dutyChoreAddNote;
+
+  /// No description provided for @dutyChoreAdded.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজটি গ্রুপে যোগ হয়েছে'**
+  String get dutyChoreAdded;
 }
 
 class _AppLocalizationsDelegate

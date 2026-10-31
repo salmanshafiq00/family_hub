@@ -71,4 +71,13 @@ final List<ChoresEntry> choresEntries = <ChoresEntry>[
     gate: canVerifyAnyProvider,
     badge: verifyQueueCountProvider,
   ),
+  // P3-18. No `requires`: every member may READ the groups; the screens hide
+  // the controls a member may not use.
+  ChoresEntry(
+    id: 'dutyGroups',
+    icon: Icons.groups_outlined,
+    title: (l10n) => l10n.dutyGroupsTitle,
+    subtitle: (l10n) => l10n.dutyGroupsSubtitle,
+    route: AppRoutes.choresDutyGroups,
+  ),
 ];

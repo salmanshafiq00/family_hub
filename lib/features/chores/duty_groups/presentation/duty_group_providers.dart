@@ -8,6 +8,7 @@ import 'package:family_hub/features/chores/duty_groups/domain/usecases/create_du
 import 'package:family_hub/features/chores/duty_groups/domain/usecases/update_duty_group.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
+import 'package:family_hub/features/family/domain/member.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,9 +21,12 @@ final dutyGroupRepositoryProvider = Provider<DutyGroupRepository>(
 
 /// The live `dutyGroups` list, in `sortOrder` order.
 ///
+/// Public so a screen can tell "still loading" and "failed" from "no groups"
+/// (CLAUDE.md rule 48); everything else reads [dutyGroupsProvider].
+///
 /// ONE listener for the whole feature (D-P3-8 discipline): the rota board, the
 /// group editor and the manage hub all read this list and filter in memory.
-final _dutyGroupsStreamProvider = StreamProvider<List<DutyGroup>>((ref) {
+final dutyGroupsStreamProvider = StreamProvider<List<DutyGroup>>((ref) {
   final familyId = ref.watch(currentFamilyIdProvider);
   if (familyId == null) return Stream.value(const <DutyGroup>[]);
   return ref.watch(dutyGroupRepositoryProvider).watch(familyId);
@@ -30,7 +34,7 @@ final _dutyGroupsStreamProvider = StreamProvider<List<DutyGroup>>((ref) {
 
 /// Every group (including the inactive ones), synchronously.
 final dutyGroupsProvider = Provider<List<DutyGroup>>(
-  (ref) => ref.watch(_dutyGroupsStreamProvider).value ?? const <DutyGroup>[],
+  (ref) => ref.watch(dutyGroupsStreamProvider).value ?? const <DutyGroup>[],
 );
 
 /// True when the listener hit [kMaxDutyGroups]: the list is incomplete and a
@@ -86,6 +90,24 @@ final groupOnDutyProvider = Provider.family<String?, String>((ref, groupId) {
   final today = ref.watch(familyDateKeysProvider).today();
   return RotationEngine.planned(group.rotation, today);
 });
+
+/// The family's ACTIVE members, in the order the family repository lists them:
+/// who a duty group can add.
+final dutyRosterProvider = Provider<List<Member>>(
+  (ref) => <Member>[
+    for (final member in ref.watch(membersProvider).value ?? const <Member>[])
+      if (member.isActive) member,
+  ],
+);
+
+/// `uid -> member` for EVERY member (also the ones who left), so a rota never
+/// shows a raw id for somebody who is no longer active.
+final dutyMemberIndexProvider = Provider<Map<String, Member>>(
+  (ref) => <String, Member>{
+    for (final member in ref.watch(membersProvider).value ?? const <Member>[])
+      member.uid: member,
+  },
+);
 
 // ── Use cases ─────────────────────────────────────────────────────────────────
 

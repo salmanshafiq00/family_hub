@@ -1,14 +1,16 @@
 import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
+import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_editor_screen.dart';
+import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_list_screen.dart';
 import 'package:family_hub/features/chores/presentation/chores_home_screen.dart';
 import 'package:family_hub/features/chores/presentation/chores_manage_screen.dart';
 import 'package:family_hub/features/chores/presentation/occurrence_detail_screen.dart';
 import 'package:family_hub/features/chores/presentation/today_screen.dart';
 import 'package:family_hub/features/chores/presentation/verify_queue_screen.dart';
-import 'package:family_hub/features/chores/settings/presentation/screens/chore_settings_screen.dart';
 import 'package:family_hub/modules/family_module.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 /// The Chores module.  Routes nest under [AppRoutes.chores]; every later
 /// Phase 3 screen is added as a child route (roadmap 3.10).
 class ChoresModule extends FamilyModule {
@@ -52,6 +54,23 @@ class ChoresModule extends FamilyModule {
         GoRoute(
           path: 'verify',
           builder: (context, state) => const VerifyQueueScreen(),
+        ),
+        GoRoute(
+          path: 'duty-groups',
+          builder: (context, state) => const DutyGroupListScreen(),
+          routes: [
+            // `new` BEFORE `:id`, or it would be read as a group id.
+            GoRoute(
+              path: 'new',
+              builder: (context, state) => const DutyGroupEditorScreen(),
+            ),
+            GoRoute(
+              path: ':id',
+              builder: (context, state) => DutyGroupEditorScreen(
+                groupId: state.pathParameters['id'],
+              ),
+            ),
+          ],
         ),
         // Declared AFTER the fixed paths above so `today`/`verify` are never
         // captured by the id pattern.

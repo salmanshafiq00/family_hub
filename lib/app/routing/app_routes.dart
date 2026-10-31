@@ -46,6 +46,9 @@ abstract final class AppRoutes {
   static String choresTemplateEdit(String id) => '/chores/templates/$id';
   static const String choresSettings = '/chores/settings';
   static const String choresDutyGroups = '/chores/duty-groups';
+
+  /// P3-18. Registered BEFORE [choresDutyGroupPattern].
+  static const String choresDutyGroupNew = '/chores/duty-groups/new';
   static const String choresDutyGroupPattern = '/chores/duty-groups/:id';
   static String choresDutyGroup(String id) => '/chores/duty-groups/$id';
   static const String choresStarterPack = '/chores/starter-pack';

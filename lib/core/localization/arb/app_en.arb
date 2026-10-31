@@ -3117,5 +3117,208 @@
   "choresSettingsNotAllowed": "You do not have permission to manage chore settings.",
   "@choresSettingsNotAllowed": {},
   "choresSettingsPickIcon": "Choose icon",
-  "@choresSettingsPickIcon": {}
+  "@choresSettingsPickIcon": {},
+  "dutyGroupsTitle": "Duty groups",
+  "@dutyGroupsTitle": {},
+  "dutyGroupsSubtitle": "Who is on duty and the rota",
+  "@dutyGroupsSubtitle": {},
+  "dutyGroupsEmptyTitle": "No duty groups yet",
+  "@dutyGroupsEmptyTitle": {},
+  "dutyGroupsEmptyMessage": "A duty group shares a set of chores among a few people, turn by turn.",
+  "@dutyGroupsEmptyMessage": {},
+  "dutyGroupNew": "New duty group",
+  "@dutyGroupNew": {},
+  "dutyGroupsTruncated": "Only the first {count} groups are shown.",
+  "@dutyGroupsTruncated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyGroupOnDutyNow": "On duty now: {name}",
+  "@dutyGroupOnDutyNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyGroupNobodyOnDuty": "Nobody is on duty yet",
+  "@dutyGroupNobodyOnDuty": {},
+  "dutyGroupChoreCount": "Chores: {count}",
+  "@dutyGroupChoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyGroupMemberCount": "Members: {count}",
+  "@dutyGroupMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyGroupSwitchedOff": "Switched off",
+  "@dutyGroupSwitchedOff": {},
+  "dutyGroupEditTitle": "Edit duty group",
+  "@dutyGroupEditTitle": {},
+  "dutyGroupNameBn": "Name (Bangla)",
+  "@dutyGroupNameBn": {},
+  "dutyGroupNameEn": "Name (English, optional)",
+  "@dutyGroupNameEn": {},
+  "dutyGroupActive": "Active",
+  "@dutyGroupActive": {},
+  "dutyGroupActiveSubtitle": "A switched-off group stays in the history.",
+  "@dutyGroupActiveSubtitle": {},
+  "dutyGroupSave": "Save group",
+  "@dutyGroupSave": {},
+  "dutyGroupSaved": "Group saved",
+  "@dutyGroupSaved": {},
+  "dutyGroupReadOnly": "Only people who manage chores can change duty groups.",
+  "@dutyGroupReadOnly": {},
+  "dutyGroupNotFound": "This duty group no longer exists.",
+  "@dutyGroupNotFound": {},
+  "dutyGroupDeactivateTitle": "Switch off this group?",
+  "@dutyGroupDeactivateTitle": {},
+  "dutyGroupDeactivateMessage": "Chores still use this group. They keep pointing at it until you move them.",
+  "@dutyGroupDeactivateMessage": {},
+  "dutyGroupDeactivateConfirm": "Switch off",
+  "@dutyGroupDeactivateConfirm": {},
+  "dutyRotationMembers": "Members in turn order",
+  "@dutyRotationMembers": {},
+  "dutyRotationNeedTwo": "Add at least two members.",
+  "@dutyRotationNeedTwo": {},
+  "dutyRotationAddMember": "Add a member",
+  "@dutyRotationAddMember": {},
+  "dutyRotationNoCandidates": "Every active member is already in the group.",
+  "@dutyRotationNoCandidates": {},
+  "dutyRotationRemoveMember": "Remove {name}",
+  "@dutyRotationRemoveMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyRotationMoveMember": "Drag to move {name}",
+  "@dutyRotationMoveMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyRotationCycleUnit": "The turn changes every",
+  "@dutyRotationCycleUnit": {},
+  "dutyRotationUnitDay": "Day",
+  "@dutyRotationUnitDay": {},
+  "dutyRotationUnitWeek": "Week",
+  "@dutyRotationUnitWeek": {},
+  "dutyRotationUnitMonth": "Month",
+  "@dutyRotationUnitMonth": {},
+  "dutyRotationUnitOccurrence": "Chore day",
+  "@dutyRotationUnitOccurrence": {},
+  "dutyRotationWeekStart": "Weeks start on {day}",
+  "@dutyRotationWeekStart": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyRotationStartsWith": "Starts with",
+  "@dutyRotationStartsWith": {},
+  "dutyRotationStartsOn": "Starts on",
+  "@dutyRotationStartsOn": {},
+  "dutyRotationPickDate": "Pick a date",
+  "@dutyRotationPickDate": {},
+  "dutyRotaTitle": "Next turns",
+  "@dutyRotaTitle": {},
+  "dutyRotaNeedsSchedule": "This rota counts chore days, so it needs a schedule to preview.",
+  "@dutyRotaNeedsSchedule": {},
+  "dutyRotaNobody": "Nobody yet",
+  "@dutyRotaNobody": {},
+  "dutyRotaRange": "{start} to {end}",
+  "@dutyRotaRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyRotaCellLabel": "{range}: {name}",
+  "@dutyRotaCellLabel": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyRotaCellLabelCover": "{range}: {name}, needs a cover",
+  "@dutyRotaCellLabelCover": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyNeedsCover": "Needs a cover",
+  "@dutyNeedsCover": {},
+  "dutyMemberGone": "No longer active, so turns need a cover",
+  "@dutyMemberGone": {},
+  "dutyRosterTitle": "Current members",
+  "@dutyRosterTitle": {},
+  "dutyChangeTitle": "Change the rotation",
+  "@dutyChangeTitle": {},
+  "dutyChangeAdd": "Add a member",
+  "@dutyChangeAdd": {},
+  "dutyChangeRemove": "Remove a member",
+  "@dutyChangeRemove": {},
+  "dutyChangeReorder": "Change the order",
+  "@dutyChangeReorder": {},
+  "dutyChangeFrom": "Takes effect on",
+  "@dutyChangeFrom": {},
+  "dutyChangeNothingBefore": "Nothing before {date} changes.",
+  "@dutyChangeNothingBefore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyChangeApply": "Apply change",
+  "@dutyChangeApply": {},
+  "dutyChangeAfter": "After the change",
+  "@dutyChangeAfter": {},
+  "dutyChangePickMember": "Choose a member",
+  "@dutyChangePickMember": {},
+  "dutyPlanFailed": "Saved, but planning the dates failed.",
+  "@dutyPlanFailed": {},
+  "dutyPlanning": "Planning the dates…",
+  "@dutyPlanning": {},
+  "dutyChoresTitle": "Chores in this group",
+  "@dutyChoresTitle": {},
+  "dutyChoresEmpty": "No chores in this group yet.",
+  "@dutyChoresEmpty": {},
+  "dutyChoreAdd": "Add chore to this group",
+  "@dutyChoreAdd": {},
+  "dutyChoreAddNone": "Every chore is already in this group.",
+  "@dutyChoreAddNone": {},
+  "dutyChoreAddNote": "Upcoming chores that have not started move to this rota.",
+  "@dutyChoreAddNote": {},
+  "dutyChoreAdded": "Chore added to the group",
+  "@dutyChoreAdded": {}
 }

@@ -1486,3 +1486,40 @@ Written without an SDK: **nothing was compiled or run, and the rules test was no
 - Restore and soft delete are NOT in the parity table: they are driven by `RegenerateRange`, which has no single-step use-case call shaped like the rules write. Add them when P3-21/22 expose one.
 - The first-slice test builds `ReplanOccurrences` by hand because the template editor (P3-16) does not exist yet; switch it to the editor's controller then. Starter-pack wizard steps (E.2 items 1-2) are not covered until P3-19.
 - If a parity step fails, decide whether the RULE or the USE CASE is wrong and fix that side; never edit the table to match.
+
+## Phase 3 - P3-18 (duty-group screens) and the P3-17 verification
+
+Written without an SDK: **nothing was compiled or run, and the rules suite was not run.** Run `dart format .`, `flutter gen-l10n` (must show no functional diff), `flutter analyze`, `flutter test --exclude-tags golden`. P3-18 adds no collection, field, index or rule, so the emulator suite and `check_indexes` are unaffected.
+
+### P3-17 verification: NOT done (only the supporting parts exist)
+| Part of the P3-17 card | State in the zip |
+| --- | --- |
+| `chore_settings_providers.dart`, `UpdateChoreSettings`, `UpdateRotationPolicy`, mappers, validator | present |
+| ~62 `choresSettings*` / `choresPolicy*` / `choresGroup*` / `choresPreset*` ARB keys (bn, en, generated) | present and consistent (bn/en parity, all in the three generated files) |
+| `chore_settings_screen.dart` + controller, the five section widgets | **missing** (`settings/presentation/` holds only the providers file) |
+| route `choresSettings` in `chores_module.dart`, `choresEntries` tile, Family-settings tile | **missing** (`AppRoutes.choresSettings` constant only) |
+| widget tests (custom group appears in the editor picker, member cannot open, policy radio) | **missing** |
+
+P3-17 therefore stays open. The same is true of P3-16: only `template_editor_controller/state/providers` and `recurrence_picker_sheet`, `recurrence_summary_text`, `next_dates_preview`, `draft_text_field`, `field_error_text` exist; the list/editor screens, `slots_editor`, `subtasks_editor`, `assignee_editor`, `instructions_editor`, `icon_key_picker` and the template routes do not. Nothing in P3-18 depends on the missing P3-17 screens.
+
+### P3-18 delivered
+| Item | Change | Tests |
+| --- | --- | --- |
+| Domain | `rota_preview.dart` (`RotaPreview.build`: next N turns from the cycle containing a day, never spanning a version boundary, `needsCover` for an inactive member, `needsSchedule` for the `occurrence` unit), `rotation_draft.dart` (`RotationDraft`: add/remove/move members, first member, `toRotation()` -> first version), `rotation_change_request.dart` (the add/remove/reorder inputs of `ChangeRotation` + `preview()` through `RotationBuilder`), `group_planning.dart` (`planningRange`) | `domain/rota_preview_test.dart`, `domain/rotation_draft_test.dart` |
+| Controller | `duty_group_controller.dart` + `duty_group_form_state.dart`: create, update (with `last_group_in_use` confirm), `changeRotation` (stores, then `RegenerateRange` per generating chore of the group from the boundary), `addTemplate` (edits the template's `assignee.dutyGroupId` via `UpdateTemplate`, scope includeUpcoming, then regenerate + replan), `retryPlanning`. A planning failure never undoes the stored change. | screens test |
+| Providers | `dutyGroupsStreamProvider` is public (loading/error vs empty); new `dutyRosterProvider` (active members) and `dutyMemberIndexProvider` (all members) | screens test |
+| Screens | `DutyGroupListScreen`, `DutyGroupEditorScreen` (new + stored), widgets `DutyGroupCard`, `RotationEditor` (+ `RotationMemberRow`), `RotaPreviewView`, `ChangeRotationSheet` (+ `ChangeRotationFields`), `GroupTemplatesSection`, `GroupRosterView`, `DutyGroupFields`, `DutyGroupStatusBanner` | `presentation/duty_group_screens_test.dart` |
+| Routes / hub | `/chores/duty-groups`, `/new` (before `:id`), `/:id`; `AppRoutes.choresDutyGroupNew`; a "Duty groups" tile on the Manage hub (no `requires`: every member may read) | - |
+| ARB | 64 `duty*` keys hand-added to both ARBs and the three generated files | - |
+
+### Decisions and deviations (please review)
+- **`assignee_editor.dart` "own rotation" hook NOT added**: that file belongs to P3-16 and does not exist. `RotationEditor` + `RotationDraft` are written to be reused by it.
+- **Inactive-member chip text** is "No longer active, so turns need a cover" (`dutyMemberGone`) and "Needs a cover" (`dutyNeedsCover`) instead of the card's literal "না থাকলে কভার লাগবে", which reads as "needs cover if absent".
+- **New groups offer day/week/month only**; a stored `occurrence` rotation is displayed and previewed using the first chore's recurrence (or says it needs a schedule). `ChangeRotation` passes no `weekStartDay`, so a new version keeps the snapshot of the current one (C-18).
+- **Adding a chore to a group** always re-plans unstarted upcoming days (`ReplanScope.includeUpcoming`) and says so in the picker; there is no scope dialog.
+- Planning after a change runs `RegenerateRange` per generating chore from the boundary to the marker (or today + horizon); it is skipped when the boundary is after everything generated (`planningRange` returns null).
+
+### Known limits / open
+- The "preview before the boundary is unchanged" rule is proven in `rota_preview_test` (pure) and the sheet shows the post-change preview, but the widget test only asserts the stored versions.
+- No goldens for the new screens. The reorder drag itself is not exercised by a widget test (`RotationDraft.moved` is).
+- `duty_group_providers_test.dart` was not changed; the provider rename (`_dutyGroupsStreamProvider` -> public) has no other users.

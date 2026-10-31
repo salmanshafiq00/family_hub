@@ -3373,4 +3373,218 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get choresSettingsPickIcon => 'আইকন বেছে নিন';
+
+  @override
+  String get dutyGroupsTitle => 'ডিউটি গ্রুপ';
+
+  @override
+  String get dutyGroupsSubtitle => 'কে ডিউটিতে আছেন আর রোটা কেমন';
+
+  @override
+  String get dutyGroupsEmptyTitle => 'এখনও কোনো ডিউটি গ্রুপ নেই';
+
+  @override
+  String get dutyGroupsEmptyMessage => 'একটি ডিউটি গ্রুপ কয়েকজনের মধ্যে একসেট কাজ পালা করে ভাগ করে দেয়।';
+
+  @override
+  String get dutyGroupNew => 'নতুন ডিউটি গ্রুপ';
+
+  @override
+  String dutyGroupsTruncated(String count) {
+    return 'প্রথম ${count}টি গ্রুপ দেখানো হচ্ছে।';
+  }
+
+  @override
+  String dutyGroupOnDutyNow(String name) {
+    return 'এখন ডিউটিতে: ${name}';
+  }
+
+  @override
+  String get dutyGroupNobodyOnDuty => 'এখনও কেউ ডিউটিতে নেই';
+
+  @override
+  String dutyGroupChoreCount(String count) {
+    return 'কাজ: ${count}';
+  }
+
+  @override
+  String dutyGroupMemberCount(String count) {
+    return 'সদস্য: ${count}';
+  }
+
+  @override
+  String get dutyGroupSwitchedOff => 'বন্ধ আছে';
+
+  @override
+  String get dutyGroupEditTitle => 'ডিউটি গ্রুপ সম্পাদনা';
+
+  @override
+  String get dutyGroupNameBn => 'নাম (বাংলা)';
+
+  @override
+  String get dutyGroupNameEn => 'নাম (ইংরেজি, ঐচ্ছিক)';
+
+  @override
+  String get dutyGroupActive => 'সক্রিয়';
+
+  @override
+  String get dutyGroupActiveSubtitle => 'বন্ধ করা গ্রুপ ইতিহাসে থেকে যায়।';
+
+  @override
+  String get dutyGroupSave => 'গ্রুপ সংরক্ষণ করুন';
+
+  @override
+  String get dutyGroupSaved => 'গ্রুপ সংরক্ষিত হয়েছে';
+
+  @override
+  String get dutyGroupReadOnly => 'যারা কাজ পরিচালনা করেন শুধু তারাই ডিউটি গ্রুপ বদলাতে পারেন।';
+
+  @override
+  String get dutyGroupNotFound => 'এই ডিউটি গ্রুপটি আর নেই।';
+
+  @override
+  String get dutyGroupDeactivateTitle => 'এই গ্রুপ বন্ধ করবেন?';
+
+  @override
+  String get dutyGroupDeactivateMessage => 'কিছু কাজ এখনও এই গ্রুপ ব্যবহার করছে। আপনি না সরানো পর্যন্ত সেগুলো এটিকেই দেখাবে।';
+
+  @override
+  String get dutyGroupDeactivateConfirm => 'বন্ধ করুন';
+
+  @override
+  String get dutyRotationMembers => 'পালার ক্রমে সদস্য';
+
+  @override
+  String get dutyRotationNeedTwo => 'কমপক্ষে দুইজন সদস্য যোগ করুন।';
+
+  @override
+  String get dutyRotationAddMember => 'সদস্য যোগ করুন';
+
+  @override
+  String get dutyRotationNoCandidates => 'সব সক্রিয় সদস্য ইতিমধ্যে গ্রুপে আছেন।';
+
+  @override
+  String dutyRotationRemoveMember(String name) {
+    return '${name}-কে সরান';
+  }
+
+  @override
+  String dutyRotationMoveMember(String name) {
+    return '${name}-কে সরাতে টানুন';
+  }
+
+  @override
+  String get dutyRotationCycleUnit => 'কতদিন পরপর পালা বদলাবে';
+
+  @override
+  String get dutyRotationUnitDay => 'দিন';
+
+  @override
+  String get dutyRotationUnitWeek => 'সপ্তাহ';
+
+  @override
+  String get dutyRotationUnitMonth => 'মাস';
+
+  @override
+  String get dutyRotationUnitOccurrence => 'কাজের দিন';
+
+  @override
+  String dutyRotationWeekStart(String day) {
+    return 'সপ্তাহ শুরু হয় ${day}';
+  }
+
+  @override
+  String get dutyRotationStartsWith => 'প্রথম পালা';
+
+  @override
+  String get dutyRotationStartsOn => 'শুরুর তারিখ';
+
+  @override
+  String get dutyRotationPickDate => 'তারিখ বেছে নিন';
+
+  @override
+  String get dutyRotaTitle => 'পরের পালাগুলো';
+
+  @override
+  String get dutyRotaNeedsSchedule => 'এই রোটা কাজের দিন গুনে চলে, তাই দেখাতে একটি সময়সূচি লাগবে।';
+
+  @override
+  String get dutyRotaNobody => 'এখনও কেউ নেই';
+
+  @override
+  String dutyRotaRange(String start, String end) {
+    return '${start} থেকে ${end}';
+  }
+
+  @override
+  String dutyRotaCellLabel(String range, String name) {
+    return '${range}: ${name}';
+  }
+
+  @override
+  String dutyRotaCellLabelCover(String range, String name) {
+    return '${range}: ${name}, কভার লাগবে';
+  }
+
+  @override
+  String get dutyNeedsCover => 'কভার লাগবে';
+
+  @override
+  String get dutyMemberGone => 'আর সক্রিয় নন, তাই পালায় কভার লাগবে';
+
+  @override
+  String get dutyRosterTitle => 'বর্তমান সদস্য';
+
+  @override
+  String get dutyChangeTitle => 'রোটেশন বদলান';
+
+  @override
+  String get dutyChangeAdd => 'সদস্য যোগ করুন';
+
+  @override
+  String get dutyChangeRemove => 'সদস্য সরান';
+
+  @override
+  String get dutyChangeReorder => 'ক্রম বদলান';
+
+  @override
+  String get dutyChangeFrom => 'কার্যকর হবে';
+
+  @override
+  String dutyChangeNothingBefore(String date) {
+    return '${date}-এর আগের কিছুই বদলাবে না।';
+  }
+
+  @override
+  String get dutyChangeApply => 'পরিবর্তন প্রয়োগ করুন';
+
+  @override
+  String get dutyChangeAfter => 'পরিবর্তনের পর';
+
+  @override
+  String get dutyChangePickMember => 'একজন সদস্য বেছে নিন';
+
+  @override
+  String get dutyPlanFailed => 'সংরক্ষিত হয়েছে, কিন্তু তারিখ সাজাতে ব্যর্থ হয়েছে।';
+
+  @override
+  String get dutyPlanning => 'তারিখ সাজানো হচ্ছে…';
+
+  @override
+  String get dutyChoresTitle => 'এই গ্রুপের কাজ';
+
+  @override
+  String get dutyChoresEmpty => 'এই গ্রুপে এখনও কোনো কাজ নেই।';
+
+  @override
+  String get dutyChoreAdd => 'এই গ্রুপে কাজ যোগ করুন';
+
+  @override
+  String get dutyChoreAddNone => 'সব কাজ ইতিমধ্যে এই গ্রুপে আছে।';
+
+  @override
+  String get dutyChoreAddNote => 'যে আসন্ন কাজ শুরু হয়নি তা এই রোটায় চলে আসবে।';
+
+  @override
+  String get dutyChoreAdded => 'কাজটি গ্রুপে যোগ হয়েছে';
 }

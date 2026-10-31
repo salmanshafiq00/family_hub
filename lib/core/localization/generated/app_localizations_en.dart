@@ -3393,4 +3393,218 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choresSettingsPickIcon => 'Choose icon';
+
+  @override
+  String get dutyGroupsTitle => 'Duty groups';
+
+  @override
+  String get dutyGroupsSubtitle => 'Who is on duty and the rota';
+
+  @override
+  String get dutyGroupsEmptyTitle => 'No duty groups yet';
+
+  @override
+  String get dutyGroupsEmptyMessage => 'A duty group shares a set of chores among a few people, turn by turn.';
+
+  @override
+  String get dutyGroupNew => 'New duty group';
+
+  @override
+  String dutyGroupsTruncated(String count) {
+    return 'Only the first ${count} groups are shown.';
+  }
+
+  @override
+  String dutyGroupOnDutyNow(String name) {
+    return 'On duty now: ${name}';
+  }
+
+  @override
+  String get dutyGroupNobodyOnDuty => 'Nobody is on duty yet';
+
+  @override
+  String dutyGroupChoreCount(String count) {
+    return 'Chores: ${count}';
+  }
+
+  @override
+  String dutyGroupMemberCount(String count) {
+    return 'Members: ${count}';
+  }
+
+  @override
+  String get dutyGroupSwitchedOff => 'Switched off';
+
+  @override
+  String get dutyGroupEditTitle => 'Edit duty group';
+
+  @override
+  String get dutyGroupNameBn => 'Name (Bangla)';
+
+  @override
+  String get dutyGroupNameEn => 'Name (English, optional)';
+
+  @override
+  String get dutyGroupActive => 'Active';
+
+  @override
+  String get dutyGroupActiveSubtitle => 'A switched-off group stays in the history.';
+
+  @override
+  String get dutyGroupSave => 'Save group';
+
+  @override
+  String get dutyGroupSaved => 'Group saved';
+
+  @override
+  String get dutyGroupReadOnly => 'Only people who manage chores can change duty groups.';
+
+  @override
+  String get dutyGroupNotFound => 'This duty group no longer exists.';
+
+  @override
+  String get dutyGroupDeactivateTitle => 'Switch off this group?';
+
+  @override
+  String get dutyGroupDeactivateMessage => 'Chores still use this group. They keep pointing at it until you move them.';
+
+  @override
+  String get dutyGroupDeactivateConfirm => 'Switch off';
+
+  @override
+  String get dutyRotationMembers => 'Members in turn order';
+
+  @override
+  String get dutyRotationNeedTwo => 'Add at least two members.';
+
+  @override
+  String get dutyRotationAddMember => 'Add a member';
+
+  @override
+  String get dutyRotationNoCandidates => 'Every active member is already in the group.';
+
+  @override
+  String dutyRotationRemoveMember(String name) {
+    return 'Remove ${name}';
+  }
+
+  @override
+  String dutyRotationMoveMember(String name) {
+    return 'Drag to move ${name}';
+  }
+
+  @override
+  String get dutyRotationCycleUnit => 'The turn changes every';
+
+  @override
+  String get dutyRotationUnitDay => 'Day';
+
+  @override
+  String get dutyRotationUnitWeek => 'Week';
+
+  @override
+  String get dutyRotationUnitMonth => 'Month';
+
+  @override
+  String get dutyRotationUnitOccurrence => 'Chore day';
+
+  @override
+  String dutyRotationWeekStart(String day) {
+    return 'Weeks start on ${day}';
+  }
+
+  @override
+  String get dutyRotationStartsWith => 'Starts with';
+
+  @override
+  String get dutyRotationStartsOn => 'Starts on';
+
+  @override
+  String get dutyRotationPickDate => 'Pick a date';
+
+  @override
+  String get dutyRotaTitle => 'Next turns';
+
+  @override
+  String get dutyRotaNeedsSchedule => 'This rota counts chore days, so it needs a schedule to preview.';
+
+  @override
+  String get dutyRotaNobody => 'Nobody yet';
+
+  @override
+  String dutyRotaRange(String start, String end) {
+    return '${start} to ${end}';
+  }
+
+  @override
+  String dutyRotaCellLabel(String range, String name) {
+    return '${range}: ${name}';
+  }
+
+  @override
+  String dutyRotaCellLabelCover(String range, String name) {
+    return '${range}: ${name}, needs a cover';
+  }
+
+  @override
+  String get dutyNeedsCover => 'Needs a cover';
+
+  @override
+  String get dutyMemberGone => 'No longer active, so turns need a cover';
+
+  @override
+  String get dutyRosterTitle => 'Current members';
+
+  @override
+  String get dutyChangeTitle => 'Change the rotation';
+
+  @override
+  String get dutyChangeAdd => 'Add a member';
+
+  @override
+  String get dutyChangeRemove => 'Remove a member';
+
+  @override
+  String get dutyChangeReorder => 'Change the order';
+
+  @override
+  String get dutyChangeFrom => 'Takes effect on';
+
+  @override
+  String dutyChangeNothingBefore(String date) {
+    return 'Nothing before ${date} changes.';
+  }
+
+  @override
+  String get dutyChangeApply => 'Apply change';
+
+  @override
+  String get dutyChangeAfter => 'After the change';
+
+  @override
+  String get dutyChangePickMember => 'Choose a member';
+
+  @override
+  String get dutyPlanFailed => 'Saved, but planning the dates failed.';
+
+  @override
+  String get dutyPlanning => 'Planning the dates…';
+
+  @override
+  String get dutyChoresTitle => 'Chores in this group';
+
+  @override
+  String get dutyChoresEmpty => 'No chores in this group yet.';
+
+  @override
+  String get dutyChoreAdd => 'Add chore to this group';
+
+  @override
+  String get dutyChoreAddNone => 'Every chore is already in this group.';
+
+  @override
+  String get dutyChoreAddNote => 'Upcoming chores that have not started move to this rota.';
+
+  @override
+  String get dutyChoreAdded => 'Chore added to the group';
 }
