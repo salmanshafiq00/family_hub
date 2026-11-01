@@ -3672,5 +3672,176 @@
     }
   },
   "recurrenceSummaryLastDay": "On the last day of every month",
-  "@recurrenceSummaryLastDay": {}
+  "@recurrenceSummaryLastDay": {},
+  "starterPackTitle": "Starter pack",
+  "@starterPackTitle": {},
+  "starterPackSubtitle": "Add the family's usual chores in one go",
+  "@starterPackSubtitle": {},
+  "starterPackManagersOnly": "Only a Household Manager can add a starter pack.",
+  "@starterPackManagersOnly": {},
+  "starterPackPickBody": "Pick a pack. Every line becomes one of your family's own chores; nothing is locked.",
+  "@starterPackPickBody": {},
+  "starterPackFamilyPdfTitle": "Our family chore list (PDF)",
+  "@starterPackFamilyPdfTitle": {},
+  "starterPackFamilyPdfDescription": "The daily, weekly and monthly chores from the family's handwritten list.",
+  "@starterPackFamilyPdfDescription": {},
+  "starterPackTemplateCount": "{count} chores",
+  "@starterPackTemplateCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountHigh": "{count} high confidence",
+  "@starterPackCountHigh": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountMedium": "{count} medium confidence",
+  "@starterPackCountMedium": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountLow": "{count} low confidence",
+  "@starterPackCountLow": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackPickHint": "High lines are ticked already. You will confirm the rest in the next step.",
+  "@starterPackPickHint": {},
+  "starterPackReviewBody": "Untick anything you do not want. Medium and Low lines need your confirmation.",
+  "@starterPackReviewBody": {},
+  "starterPackConfidenceHigh": "High",
+  "@starterPackConfidenceHigh": {},
+  "starterPackConfidenceMedium": "Medium",
+  "@starterPackConfidenceMedium": {},
+  "starterPackConfidenceLow": "Low",
+  "@starterPackConfidenceLow": {},
+  "starterPackConfidenceLegend": "Confidence:",
+  "@starterPackConfidenceLegend": {},
+  "starterPackPleaseConfirm": "please confirm",
+  "@starterPackPleaseConfirm": {},
+  "starterPackDetailsTitle": "Chore details",
+  "@starterPackDetailsTitle": {},
+  "starterPackDetailsSchedule": "Schedule",
+  "@starterPackDetailsSchedule": {},
+  "starterPackDetailsNotes": "Notes",
+  "@starterPackDetailsNotes": {},
+  "starterPackDetailsSteps": "Steps",
+  "@starterPackDetailsSteps": {},
+  "starterPackEndOfDay": "Any time",
+  "@starterPackEndOfDay": {},
+  "starterPackHouseRulesTitle": "House rules",
+  "@starterPackHouseRulesTitle": {},
+  "starterPackHouseRulesHint": "These are saved in Chore settings and shown on the Manage hub.",
+  "@starterPackHouseRulesHint": {},
+  "starterPackHouseRulesSwitch": "Add the house rules from the list",
+  "@starterPackHouseRulesSwitch": {},
+  "starterPackWhoBody": "Choose who shares the daily duty, who goes first and how often the turn changes. Or leave the chores unassigned and decide later.",
+  "@starterPackWhoBody": {},
+  "starterPackRotationSwitch": "Share these chores by rotation",
+  "@starterPackRotationSwitch": {},
+  "starterPackRotationNeedsTwo": "A rotation needs at least two active members.",
+  "@starterPackRotationNeedsTwo": {},
+  "starterPackNoRotationInfo": "The chores will have no assignee. You can assign them one by one later.",
+  "@starterPackNoRotationInfo": {},
+  "starterPackMembersTitle": "Members in the rotation",
+  "@starterPackMembersTitle": {},
+  "starterPackFirstMemberTitle": "Who goes first",
+  "@starterPackFirstMemberTitle": {},
+  "starterPackCycleTitle": "Turn changes every",
+  "@starterPackCycleTitle": {},
+  "starterPackNoMembers": "There are no active members to rotate yet. You can assign the chores later.",
+  "@starterPackNoMembers": {},
+  "starterPackApply": "Add these chores",
+  "@starterPackApply": {},
+  "starterPackApplying": "Adding chores…",
+  "@starterPackApplying": {},
+  "starterPackOpenToday": "Open Today",
+  "@starterPackOpenToday": {},
+  "starterPackResultTitle": "Starter pack added",
+  "@starterPackResultTitle": {},
+  "starterPackResultTemplates": "{count} chores added",
+  "@starterPackResultTemplates": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultSkipped": "{count} already existed",
+  "@starterPackResultSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultGroups": "{count} chore groups added",
+  "@starterPackResultGroups": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultPresets": "{count} due-time presets added",
+  "@starterPackResultPresets": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultDutyGroups": "{count} duty groups added",
+  "@starterPackResultDutyGroups": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultRules": "House rules added",
+  "@starterPackResultRules": {},
+  "starterPackResultGenerated": "{count} chores prepared for today",
+  "@starterPackResultGenerated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultGenerationFailed": "The chores were saved, but today's tasks could not be prepared. Open Today and try again.",
+  "@starterPackResultGenerationFailed": {},
+  "starterPackStepOf": "Step {current} of {total}",
+  "@starterPackStepOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackStepPick": "Pick a pack",
+  "@starterPackStepPick": {},
+  "starterPackStepReview": "Review",
+  "@starterPackStepReview": {},
+  "starterPackStepWho": "Who does what",
+  "@starterPackStepWho": {},
+  "calendarTruncatedBanner": "This month has many chores - not all of them are shown",
+  "@calendarTruncatedBanner": {},
+  "calendarTruncatedBannerAction": "Open filters",
+  "@calendarTruncatedBannerAction": {}
 }

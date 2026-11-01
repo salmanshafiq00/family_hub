@@ -1532,3 +1532,78 @@ P3-17 therefore stays open. The same is true of P3-16: only `template_editor_con
 - ARB: 134 keys added in app_en/app_bn + the 3 generated files (the existing recurrence widgets used ~35 keys that did not exist). Four settings placeholders (`choresSettingsHorizon`, `OverdueGrace`, `SwapBuffer`, `ProjectedMonths`) changed from `int` to `String` because the widgets pass formatted (Bangla-digit) text.
 - Known limits: an own rotation edited in the template replaces the stored versions (use a duty group for versioned rota changes); reminders are stored only; `rotation_editor.dart` and `change_rotation_fields.dart` still use the deprecated `ReorderableListView.onReorder` (the new subtask editor uses `onReorderItem`).
 - Test harness: `pumpP3Screen` got a `languageCode` parameter.
+
+## Phase 3 - P3-20 Calendar domain (pure)
+
+Written without an SDK: **nothing was compiled or run** (no Dart/Flutter here). Run `dart format .`, `flutter gen-l10n` (no diff expected: no ARB change), `flutter analyze`, `flutter test --exclude-tags golden`. P3-20 adds no collection, field, rule or index, so the emulator suite and `check_indexes` are unaffected.
+
+### Verification of the base (what I checked before building)
+- P3-11 (`ChoreItem`, `ChoreStatus`, `effectiveStatus`), P3-12 (generator, drafts), P3-06 (`ChoreSettings`, `CalendarViewKind` / `CalendarScopeKind`), P3-02 (`MonthMatrix`, `DateKey.addDays/isoWeekday/daysUntil`, `DateKeyRange`) and the empty `AvailabilityIndex` are present in the zip and match what P3-20 needs. Not re-run: the gate rows for P3-09..P3-15 in "Wave R0" are still blank (nobody pasted them), so the base is **unverified by a compiler**, as before.
+- The starter-pack files (P3-19) are in the tree but PROGRESS.md has no P3-19 section; I did not verify them (P3-20 does not depend on them).
+
+### Delivered
+| File | What |
+| --- | --- |
+| `calendar/domain/calendar_enums.dart` | `CalendarView` / `CalendarScope` (typedefs of the settings enums, so the stored default and the live value are one type), `HeatMode`, `Density`, `MarkerStyle` (each with a stable `id` + tolerant `fromId`, ready for the P3-21 local prefs) |
+| `calendar/domain/calendar_filters.dart` | `CalendarFilters {groupIds, statuses, memberIds, onlyNeedsAttention, query}` with `matches/apply/activeCount/isEmpty`, `inScope(scope, viewerId, item)` |
+| `calendar/domain/search_text.dart` | `normalizeBn` (lower-case, strips ZWJ/ZWNJ/BOM, collapses spaces). The roadmap lists it under P3-23; the filter needs it now, P3-23 only has to use it |
+| `calendar/domain/marker_policy.dart` | `MarkerPolicy.pick` -> `MarkerPick {markers <= 3, extra}`; urgency overdue > in progress > scheduled > completed > verified > skipped |
+| `calendar/domain/heat_calculator.dart` | difficulty weights 1/2/3, `workloadOf`, `levels` (0 = no load; 1..4 by the share of busy days at most as busy) |
+| `calendar/domain/unavailability_overlay.dart` | members away on a day, narrowed by scope and member filter |
+| `calendar/domain/day_summary.dart`, `day_summary_builder.dart` | `DaySummary` (counts, markers, mineCount, heat, flags) and the ONE builder that month and week share |
+| `calendar/domain/calendar_month_model.dart` | `CalendarMonthModel.build(...)` -> 4-6 weeks of 7 `DaySummary`, `truncated` passed through, `summaryOf`, `totalInMonth` |
+| `calendar/domain/week_model.dart` | `WeekModel` (7 `WeekDay`: summary, items by deadline, items by day part), `sortByDeadline` |
+| `calendar/domain/agenda_model.dart` | `AgendaModel` sealed entries: `AgendaOverdue` (cap 100 + total), `AgendaDay`, `AgendaFreeDays`; `indexOfDay`; range capped at 400 days |
+| `occurrences/domain/day_part.dart` (NEW, moved) | `ChoreDayPart`, `dayPartOf`, `groupByDayPart` moved out of `presentation/widgets/day_part_section.dart`, which now re-exports them, so no importer changes |
+
+Tests: `test/features/chores/calendar/domain/{calendar_filters,marker_policy,heat_calculator,unavailability_overlay,calendar_month_model,week_model,agenda_model}_test.dart`, `calendar_test_support.dart` (`aChoreItem`), `occurrences/domain/day_part_test.dart`.
+
+### Decisions and deviations (please review)
+1. **One marker per chore, not per distinct status.** The card says "<= 3 markers by urgency, then +N" and also "collapse the least urgent into +N if more than 3 distinct statuses". I took the first reading: a day with seven open chores shows three rings and "+4" instead of one ring that hides the load.
+2. **Overdue is NOT derived in the models.** They trust `item.status` (the P3-21 `monthItemsProvider` applies the clock, like `dayItemsProvider` does today). One exception, on purpose: the agenda's Overdue block also takes any still-open chore of a day BEFORE today (inside the grace window after midnight), so an undone chore can never vanish from the list. A chore overdue TODAY stays in today's section.
+3. **Filters first, then scope; `mineCount` is after filters, before scope**, so the "mine" ring still marks my days in Family scope.
+4. **Heat levels**: `ceil(4 * days-with-load<=mine / busy-days)`. Equal loads share a level; the busiest day is always 4; if every busy day is alike they are all 4. The card only said "quantiles, stable for equal values".
+5. **Unavailability overlay lists members only.** The card says "with reason ids", but `AvailabilitySpan` has no absence type yet; P3-26 should add one and the overlay can then return it.
+6. **`settings` is not a parameter of `CalendarMonthModel.build`** (the card lists it): `showProjected` is applied by the P3-21 provider (the person's pref overrides the family default), and heat is an explicit `heatMode`. `truncated` is an input from the month listener (the model cannot see the 900 cap, which lives in `core/firebase`).
+7. `calendar/data/` was not touched (the folder keeps its `.gitkeep`; the roadmap says the calendar has no data layer). Only `calendar/domain/.gitkeep` was removed (deleted file, see below).
+
+### Known limits / open
+- The "900 items under 30 ms" test is a wall-clock check (best of 10 runs in the JIT test VM). If it flakes on a slow CI machine, loosen the bound rather than the model; the work is O(items).
+- Not covered yet (belongs to later steps): `HeatMode` ramps/painters (P3-24), providers and prefs persistence (P3-21), widgets (P3-22..24).
+- `day_part.dart`'s boundaries (06/10/14/17/20) differ from `AppFormatters.dayPartKey` (05/12/15/18/20) on purpose: one words a clock time, the other groups a list. Both already existed.
+
+
+## Phase 3 - P3-21 Calendar providers and local preferences
+
+Written without an SDK: **nothing was compiled or run**. Run `dart format .`, `flutter gen-l10n` (2 ARB keys were hand-added to both ARBs and the three generated files; no functional diff expected), `flutter analyze`, `flutter test --exclude-tags golden`. P3-21 adds no collection, field, rule or index, so the emulator suite and `check_indexes` are unaffected.
+
+### Delivered
+| File | What |
+| --- | --- |
+| `calendar/presentation/calendar_prefs.dart` | `CalendarPrefs` (view, scope, showProjected, density, markerStyle, heatMode, filters without free text), tolerant JSON `decode`, `calendarPrefsKey(familyId)`, `calendarPrefsProvider` (`CalendarPrefsController`: `setView`, `setScope`, `toggleScope`, `setFilters`, `clearFilters`, `setDensity`, `setMarkerStyle`, `setHeatMode`, `setShowProjected`, `useFamilyDefaults`), `calendarUsesFamilyDefaultsProvider` |
+| `calendar/presentation/calendar_focus.dart` | ONE `CalendarFocus {month, day}` notifier; `focusedMonthProvider` / `selectedDayProvider` are read-only views of it; `selectDay`, `showMonth`, `shiftMonth`, `goToToday` |
+| `calendar/presentation/month_items.dart` | `MonthItems` (value equality), `compareChoreItems`, `withDisplayStatus`, `mapAsync`, `combineMonths` |
+| `calendar/presentation/calendar_items_providers.dart` | `todayKeyProvider`, `projectedItemsProvider(month)`, `projectedItemProvider(id)`, `monthItemsProvider(month)` (merge + overdue + 60 s retention), `monthRetentionProvider`, `occurrenceMonthOf` |
+| `calendar/presentation/calendar_providers.dart` | pref views (`calendarViewProvider`, `...Scope...`, `...Density...`, `...MarkerStyle...`, `...HeatMode...`), `calendarQueryProvider`, `calendarFiltersProvider`, `calendarMonthModelProvider(month)`, `weekModelProvider(anchor)`, `agendaModelProvider(weeks)`; re-exports the other four files |
+| `calendar/presentation/widgets/truncated_banner.dart` | `TruncatedBanner(onOpenFilters)` |
+| `availability/presentation/availability_index_provider.dart` | `availabilityIndexProvider` = empty until P3-26 replaces the body |
+| ARB | `calendarTruncatedBanner`, `calendarTruncatedBannerAction` |
+
+Tests: `test/features/chores/calendar/presentation/{calendar_prefs,calendar_providers,truncated_banner}_test.dart`.
+
+### Decisions and deviations (please review)
+1. **Prefs follow the family until the first change.** An untouched device shows `settings/chores` live; the FIRST change stores a complete snapshot, and from then on a later settings change never overwrites it (only "Use family defaults" does). Reason: `choreSettingsProvider` returns defaults until its stream fires, so seeding on first read could freeze the wrong values.
+2. **Screens receive `AsyncValue`** (`monthItemsProvider`, the three model providers) instead of bare lists/models, so rule 48 (loading only while there is no value, error with Retry) is possible.
+3. **`focusedMonthProvider` / `selectedDayProvider` are read-only**; change them through `calendarFocusProvider.notifier`. One value keeps "select a day in another month moves the page" true by construction. `showMonth` moves the selected day to today (if inside) else the 1st.
+4. **Search text is session-only** (`calendarQueryProvider`); the other filters persist.
+5. **Projection** = `OccurrenceGenerator.drafts` from today to the END of the month `projectedMonthsAhead` ahead, merged by id (stored wins). The generation marker is not an input: "after the marker or without a document" reduces to "without a stored document". A soft-deleted document is filtered by `MonthOccurrences`, so its day is projected again only if the template still fires that day. While templates, duty groups or members are still loading the projection is empty (no flash of "needs cover").
+6. **Retention (60 s)** lives in `monthItemsProvider`, not in `monthOccurrencesProvider`, so the D-01 tests (a left month is cancelled at once for Today) stay valid. `occurrence_providers.dart` is unchanged: its `truncated` flag already existed.
+7. **`nowTickProvider` already existed** (P3-13); it is reused. `monthItemsProvider` watches the clock (overdue) but its value is `==`-filtered, and `todayKeyProvider` uses `select`, so the models rebuild only when a chore or the day really changes.
+8. **Agenda** is `agendaModelProvider(weeks)`: today for `weeks` weeks plus the PREVIOUS month for the Overdue block (older overdue chores are out of reach: one listener each).
+9. **U-03 fallback not switched on.** `projectedItemProvider(id)` is ready; `occurrenceItemProvider` still returns null for a planned chore because the detail actions bar has no projected guard yet. Wire it in P3-22/23 together with that guard.
+10. Today (`dayItemsProvider`) is unchanged; it already shares the month listener.
+
+### Known limits / open
+- If the "tick that changes nothing does not rebuild the model" test fails, check that this Riverpod version filters provider updates by `==` (Riverpod 3 does); the fix would be `select` in `calendarMonthModelProvider`.
+- The retention test uses real 150 ms timers; loosen the waits if CI is slow.
+- Not covered (later steps): widgets and the screen (P3-22..24), swipe/pager, heat painters.

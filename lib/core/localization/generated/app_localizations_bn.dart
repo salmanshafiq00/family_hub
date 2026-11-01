@@ -4015,4 +4015,190 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get recurrenceSummaryLastDay => 'প্রতি মাসের শেষ দিনে';
+
+  @override
+  String get starterPackTitle => 'স্টার্টার প্যাক';
+
+  @override
+  String get starterPackSubtitle => 'পরিবারের নিয়মিত কাজগুলো একবারে যোগ করুন';
+
+  @override
+  String get starterPackManagersOnly =>
+      'শুধু হাউসহোল্ড ম্যানেজার স্টার্টার প্যাক যোগ করতে পারেন।';
+
+  @override
+  String get starterPackPickBody =>
+      'একটি প্যাক বাছুন। প্রতিটি কাজ আপনার পরিবারের নিজের তালিকায় যোগ হবে; কোনো কিছু লক থাকবে না।';
+
+  @override
+  String get starterPackFamilyPdfTitle => 'পরিবারের কাজের তালিকা (PDF)';
+
+  @override
+  String get starterPackFamilyPdfDescription =>
+      'পরিবারের হাতে লেখা তালিকা থেকে দৈনিক, সাপ্তাহিক ও মাসিক কাজ।';
+
+  @override
+  String starterPackTemplateCount(String count) {
+    return '$countটি কাজ';
+  }
+
+  @override
+  String starterPackCountHigh(String count) {
+    return '$countটি নিশ্চিত';
+  }
+
+  @override
+  String starterPackCountMedium(String count) {
+    return '$countটি মাঝারি নিশ্চিত';
+  }
+
+  @override
+  String starterPackCountLow(String count) {
+    return '$countটি কম নিশ্চিত';
+  }
+
+  @override
+  String get starterPackPickHint =>
+      'নিশ্চিত কাজগুলো আগে থেকেই টিক দেওয়া আছে। বাকিগুলো পরের ধাপে আপনি নিশ্চিত করবেন।';
+
+  @override
+  String get starterPackReviewBody =>
+      'যা না চান তা টিক তুলে দিন। মাঝারি ও কম নিশ্চিত কাজগুলোর জন্য আপনার নিশ্চিতকরণ দরকার।';
+
+  @override
+  String get starterPackConfidenceHigh => 'নিশ্চিত';
+
+  @override
+  String get starterPackConfidenceMedium => 'মাঝারি';
+
+  @override
+  String get starterPackConfidenceLow => 'কম নিশ্চিত';
+
+  @override
+  String get starterPackConfidenceLegend => 'নিশ্চয়তা:';
+
+  @override
+  String get starterPackPleaseConfirm => 'নিশ্চিত করুন';
+
+  @override
+  String get starterPackDetailsTitle => 'কাজের বিবরণ';
+
+  @override
+  String get starterPackDetailsSchedule => 'সময়সূচি';
+
+  @override
+  String get starterPackDetailsNotes => 'নোট';
+
+  @override
+  String get starterPackDetailsSteps => 'ধাপ';
+
+  @override
+  String get starterPackEndOfDay => 'যখনই সুবিধা';
+
+  @override
+  String get starterPackHouseRulesTitle => 'ঘরের নিয়ম';
+
+  @override
+  String get starterPackHouseRulesHint =>
+      'এগুলো কাজের সেটিংসে সংরক্ষিত হবে এবং কাজের ম্যানেজ পেজে দেখা যাবে।';
+
+  @override
+  String get starterPackHouseRulesSwitch => 'তালিকার ঘরের নিয়মগুলো যোগ করুন';
+
+  @override
+  String get starterPackWhoBody =>
+      'দৈনিক কাজ কে কে ভাগ করবেন, প্রথমে কে করবেন এবং কত দিন পর পর পালা বদলাবে তা বাছুন। অথবা এখন কাউকে না দিয়ে পরে ঠিক করুন।';
+
+  @override
+  String get starterPackRotationSwitch => 'এই কাজগুলো পালা করে ভাগ করুন';
+
+  @override
+  String get starterPackRotationNeedsTwo =>
+      'পালার জন্য অন্তত দুইজন সক্রিয় সদস্য দরকার।';
+
+  @override
+  String get starterPackNoRotationInfo =>
+      'কাজগুলোতে এখনই কাউকে দেওয়া হবে না। পরে একে একে দায়িত্ব দিতে পারবেন।';
+
+  @override
+  String get starterPackMembersTitle => 'পালায় যারা থাকবেন';
+
+  @override
+  String get starterPackFirstMemberTitle => 'প্রথমে কে';
+
+  @override
+  String get starterPackCycleTitle => 'পালা বদলাবে প্রতি';
+
+  @override
+  String get starterPackNoMembers =>
+      'পালা করার মতো সক্রিয় সদস্য এখন নেই। কাজগুলো পরে দায়িত্ব দিতে পারবেন।';
+
+  @override
+  String get starterPackApply => 'এই কাজগুলো যোগ করুন';
+
+  @override
+  String get starterPackApplying => 'কাজ যোগ হচ্ছে…';
+
+  @override
+  String get starterPackOpenToday => 'আজকের কাজ দেখুন';
+
+  @override
+  String get starterPackResultTitle => 'স্টার্টার প্যাক যোগ হয়েছে';
+
+  @override
+  String starterPackResultTemplates(String count) {
+    return '$countটি কাজ যোগ হয়েছে';
+  }
+
+  @override
+  String starterPackResultSkipped(String count) {
+    return '$countটি আগে থেকেই ছিল';
+  }
+
+  @override
+  String starterPackResultGroups(String count) {
+    return '$countটি কাজের গ্রুপ যোগ হয়েছে';
+  }
+
+  @override
+  String starterPackResultPresets(String count) {
+    return '$countটি সময়ের প্রিসেট যোগ হয়েছে';
+  }
+
+  @override
+  String starterPackResultDutyGroups(String count) {
+    return '$countটি ডিউটি গ্রুপ যোগ হয়েছে';
+  }
+
+  @override
+  String get starterPackResultRules => 'ঘরের নিয়ম যোগ হয়েছে';
+
+  @override
+  String starterPackResultGenerated(String count) {
+    return 'আজকের জন্য $countটি কাজ তৈরি হয়েছে';
+  }
+
+  @override
+  String get starterPackResultGenerationFailed =>
+      'কাজগুলো সংরক্ষণ হয়েছে, কিন্তু আজকের কাজ তৈরি করা যায়নি। আজকের পেজ খুলে আবার চেষ্টা করুন।';
+
+  @override
+  String starterPackStepOf(String current, String total) {
+    return 'ধাপ $current/$total';
+  }
+
+  @override
+  String get starterPackStepPick => 'প্যাক বাছুন';
+
+  @override
+  String get starterPackStepReview => 'পর্যালোচনা';
+
+  @override
+  String get starterPackStepWho => 'কে কী করবেন';
+
+  @override
+  String get calendarTruncatedBanner => 'এই মাসে অনেক কাজ — সব দেখানো যাচ্ছে না';
+
+  @override
+  String get calendarTruncatedBannerAction => 'ফিল্টার দেখুন';
 }

@@ -7077,6 +7077,312 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'প্রতি মাসের শেষ দিনে'**
   String get recurrenceSummaryLastDay;
+
+  /// No description provided for @starterPackTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্টার্টার প্যাক'**
+  String get starterPackTitle;
+
+  /// No description provided for @starterPackSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারের নিয়মিত কাজগুলো একবারে যোগ করুন'**
+  String get starterPackSubtitle;
+
+  /// No description provided for @starterPackManagersOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু হাউসহোল্ড ম্যানেজার স্টার্টার প্যাক যোগ করতে পারেন।'**
+  String get starterPackManagersOnly;
+
+  /// No description provided for @starterPackPickBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'একটি প্যাক বাছুন। প্রতিটি কাজ আপনার পরিবারের নিজের তালিকায় যোগ হবে; কোনো কিছু লক থাকবে না।'**
+  String get starterPackPickBody;
+
+  /// No description provided for @starterPackFamilyPdfTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারের কাজের তালিকা (PDF)'**
+  String get starterPackFamilyPdfTitle;
+
+  /// No description provided for @starterPackFamilyPdfDescription.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারের হাতে লেখা তালিকা থেকে দৈনিক, সাপ্তাহিক ও মাসিক কাজ।'**
+  String get starterPackFamilyPdfDescription;
+
+  /// No description provided for @starterPackTemplateCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি কাজ'**
+  String starterPackTemplateCount(String count);
+
+  /// No description provided for @starterPackCountHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি নিশ্চিত'**
+  String starterPackCountHigh(String count);
+
+  /// No description provided for @starterPackCountMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি মাঝারি নিশ্চিত'**
+  String starterPackCountMedium(String count);
+
+  /// No description provided for @starterPackCountLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি কম নিশ্চিত'**
+  String starterPackCountLow(String count);
+
+  /// No description provided for @starterPackPickHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চিত কাজগুলো আগে থেকেই টিক দেওয়া আছে। বাকিগুলো পরের ধাপে আপনি নিশ্চিত করবেন।'**
+  String get starterPackPickHint;
+
+  /// No description provided for @starterPackReviewBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'যা না চান তা টিক তুলে দিন। মাঝারি ও কম নিশ্চিত কাজগুলোর জন্য আপনার নিশ্চিতকরণ দরকার।'**
+  String get starterPackReviewBody;
+
+  /// No description provided for @starterPackConfidenceHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চিত'**
+  String get starterPackConfidenceHigh;
+
+  /// No description provided for @starterPackConfidenceMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get starterPackConfidenceMedium;
+
+  /// No description provided for @starterPackConfidenceLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কম নিশ্চিত'**
+  String get starterPackConfidenceLow;
+
+  /// No description provided for @starterPackConfidenceLegend.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চয়তা:'**
+  String get starterPackConfidenceLegend;
+
+  /// No description provided for @starterPackPleaseConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চিত করুন'**
+  String get starterPackPleaseConfirm;
+
+  /// No description provided for @starterPackDetailsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের বিবরণ'**
+  String get starterPackDetailsTitle;
+
+  /// No description provided for @starterPackDetailsSchedule.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময়সূচি'**
+  String get starterPackDetailsSchedule;
+
+  /// No description provided for @starterPackDetailsNotes.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট'**
+  String get starterPackDetailsNotes;
+
+  /// No description provided for @starterPackDetailsSteps.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপ'**
+  String get starterPackDetailsSteps;
+
+  /// No description provided for @starterPackEndOfDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'যখনই সুবিধা'**
+  String get starterPackEndOfDay;
+
+  /// No description provided for @starterPackHouseRulesTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের নিয়ম'**
+  String get starterPackHouseRulesTitle;
+
+  /// No description provided for @starterPackHouseRulesHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'এগুলো কাজের সেটিংসে সংরক্ষিত হবে এবং কাজের ম্যানেজ পেজে দেখা যাবে।'**
+  String get starterPackHouseRulesHint;
+
+  /// No description provided for @starterPackHouseRulesSwitch.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকার ঘরের নিয়মগুলো যোগ করুন'**
+  String get starterPackHouseRulesSwitch;
+
+  /// No description provided for @starterPackWhoBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক কাজ কে কে ভাগ করবেন, প্রথমে কে করবেন এবং কত দিন পর পর পালা বদলাবে তা বাছুন। অথবা এখন কাউকে না দিয়ে পরে ঠিক করুন।'**
+  String get starterPackWhoBody;
+
+  /// No description provided for @starterPackRotationSwitch.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই কাজগুলো পালা করে ভাগ করুন'**
+  String get starterPackRotationSwitch;
+
+  /// No description provided for @starterPackRotationNeedsTwo.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালার জন্য অন্তত দুইজন সক্রিয় সদস্য দরকার।'**
+  String get starterPackRotationNeedsTwo;
+
+  /// No description provided for @starterPackNoRotationInfo.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজগুলোতে এখনই কাউকে দেওয়া হবে না। পরে একে একে দায়িত্ব দিতে পারবেন।'**
+  String get starterPackNoRotationInfo;
+
+  /// No description provided for @starterPackMembersTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালায় যারা থাকবেন'**
+  String get starterPackMembersTitle;
+
+  /// No description provided for @starterPackFirstMemberTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রথমে কে'**
+  String get starterPackFirstMemberTitle;
+
+  /// No description provided for @starterPackCycleTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালা বদলাবে প্রতি'**
+  String get starterPackCycleTitle;
+
+  /// No description provided for @starterPackNoMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালা করার মতো সক্রিয় সদস্য এখন নেই। কাজগুলো পরে দায়িত্ব দিতে পারবেন।'**
+  String get starterPackNoMembers;
+
+  /// No description provided for @starterPackApply.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই কাজগুলো যোগ করুন'**
+  String get starterPackApply;
+
+  /// No description provided for @starterPackApplying.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজ যোগ হচ্ছে…'**
+  String get starterPackApplying;
+
+  /// No description provided for @starterPackOpenToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের কাজ দেখুন'**
+  String get starterPackOpenToday;
+
+  /// No description provided for @starterPackResultTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্টার্টার প্যাক যোগ হয়েছে'**
+  String get starterPackResultTitle;
+
+  /// No description provided for @starterPackResultTemplates.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি কাজ যোগ হয়েছে'**
+  String starterPackResultTemplates(String count);
+
+  /// No description provided for @starterPackResultSkipped.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি আগে থেকেই ছিল'**
+  String starterPackResultSkipped(String count);
+
+  /// No description provided for @starterPackResultGroups.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি কাজের গ্রুপ যোগ হয়েছে'**
+  String starterPackResultGroups(String count);
+
+  /// No description provided for @starterPackResultPresets.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি সময়ের প্রিসেট যোগ হয়েছে'**
+  String starterPackResultPresets(String count);
+
+  /// No description provided for @starterPackResultDutyGroups.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি ডিউটি গ্রুপ যোগ হয়েছে'**
+  String starterPackResultDutyGroups(String count);
+
+  /// No description provided for @starterPackResultRules.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের নিয়ম যোগ হয়েছে'**
+  String get starterPackResultRules;
+
+  /// No description provided for @starterPackResultGenerated.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের জন্য {count}টি কাজ তৈরি হয়েছে'**
+  String starterPackResultGenerated(String count);
+
+  /// No description provided for @starterPackResultGenerationFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজগুলো সংরক্ষণ হয়েছে, কিন্তু আজকের কাজ তৈরি করা যায়নি। আজকের পেজ খুলে আবার চেষ্টা করুন।'**
+  String get starterPackResultGenerationFailed;
+
+  /// No description provided for @starterPackStepOf.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপ {current}/{total}'**
+  String starterPackStepOf(String current, String total);
+
+  /// No description provided for @starterPackStepPick.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্যাক বাছুন'**
+  String get starterPackStepPick;
+
+  /// No description provided for @starterPackStepReview.
+  ///
+  /// In bn, this message translates to:
+  /// **'পর্যালোচনা'**
+  String get starterPackStepReview;
+
+  /// No description provided for @starterPackStepWho.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কী করবেন'**
+  String get starterPackStepWho;
+
+  /// No description provided for @calendarTruncatedBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে অনেক কাজ — সব দেখানো যাচ্ছে না'**
+  String get calendarTruncatedBanner;
+
+  /// No description provided for @calendarTruncatedBannerAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিল্টার দেখুন'**
+  String get calendarTruncatedBannerAction;
 }
 
 class _AppLocalizationsDelegate

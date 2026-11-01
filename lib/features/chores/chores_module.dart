@@ -8,6 +8,7 @@ import 'package:family_hub/features/chores/presentation/occurrence_detail_screen
 import 'package:family_hub/features/chores/presentation/today_screen.dart';
 import 'package:family_hub/features/chores/presentation/verify_queue_screen.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_screen.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_wizard_screen.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_editor_screen.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_list_screen.dart';
 import 'package:family_hub/modules/family_module.dart';
@@ -78,6 +79,12 @@ class ChoresModule extends FamilyModule {
         GoRoute(
           path: 'settings',
           builder: (context, state) => const ChoreSettingsScreen(),
+        ),
+        // P3-19. Reachable from Manage at any time; the use case skips what
+        // already exists, so opening it again never duplicates a chore.
+        GoRoute(
+          path: 'starter-pack',
+          builder: (context, state) => const StarterPackWizardScreen(),
         ),
         GoRoute(
           path: 'duty-groups',
