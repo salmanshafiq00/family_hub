@@ -4215,4 +4215,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get starterPackStepWho => 'Who does what';
+
+  @override
+  String get calendarTruncatedBanner => 'This month has many chores - not all of them are shown';
+
+  @override
+  String get calendarTruncatedBannerAction => 'Open filters';
 }

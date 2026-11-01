@@ -3839,5 +3839,9 @@
   "starterPackStepReview": "Review",
   "@starterPackStepReview": {},
   "starterPackStepWho": "Who does what",
-  "@starterPackStepWho": {}
+  "@starterPackStepWho": {},
+  "calendarTruncatedBanner": "This month has many chores - not all of them are shown",
+  "@calendarTruncatedBanner": {},
+  "calendarTruncatedBannerAction": "Open filters",
+  "@calendarTruncatedBannerAction": {}
 }

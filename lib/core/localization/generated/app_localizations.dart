@@ -7371,6 +7371,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কে কী করবেন'**
   String get starterPackStepWho;
+
+  /// No description provided for @calendarTruncatedBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে অনেক কাজ — সব দেখানো যাচ্ছে না'**
+  String get calendarTruncatedBanner;
+
+  /// No description provided for @calendarTruncatedBannerAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিল্টার দেখুন'**
+  String get calendarTruncatedBannerAction;
 }
 
 class _AppLocalizationsDelegate

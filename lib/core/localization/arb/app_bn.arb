@@ -3838,5 +3838,9 @@
   "starterPackStepReview": "পর্যালোচনা",
   "@starterPackStepReview": {},
   "starterPackStepWho": "কে কী করবেন",
-  "@starterPackStepWho": {}
+  "@starterPackStepWho": {},
+  "calendarTruncatedBanner": "এই মাসে অনেক কাজ — সব দেখানো যাচ্ছে না",
+  "@calendarTruncatedBanner": {},
+  "calendarTruncatedBannerAction": "ফিল্টার দেখুন",
+  "@calendarTruncatedBannerAction": {}
 }

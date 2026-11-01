@@ -4195,4 +4195,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get starterPackStepWho => 'কে কী করবেন';
+
+  @override
+  String get calendarTruncatedBanner => 'এই মাসে অনেক কাজ — সব দেখানো যাচ্ছে না';
+
+  @override
+  String get calendarTruncatedBannerAction => 'ফিল্টার দেখুন';
 }
