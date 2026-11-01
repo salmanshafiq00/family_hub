@@ -99,4 +99,14 @@ final List<ChoresEntry> choresEntries = <ChoresEntry>[
     subtitle: (l10n) => l10n.dutyGroupsSubtitle,
     route: AppRoutes.choresDutyGroups,
   ),
+  // P3-19. Managers add the family's PDF list; shown at any time so missing
+  // lines can be added later (a second apply skips what already exists).
+  ChoresEntry(
+    id: 'starterPack',
+    icon: Icons.auto_awesome_outlined,
+    title: (l10n) => l10n.starterPackTitle,
+    subtitle: (l10n) => l10n.starterPackSubtitle,
+    route: AppRoutes.choresStarterPack,
+    requires: Permission.manageChoreTemplates,
+  ),
 ];

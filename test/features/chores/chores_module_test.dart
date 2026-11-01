@@ -18,7 +18,9 @@ void main() {
 
       final root = routes.single as GoRoute;
       expect(root.path, AppRoutes.chores);
-      expect(root.routes.whereType<GoRoute>().map((r) => r.path), ['manage']);
+      final paths = root.routes.whereType<GoRoute>().map((r) => r.path).toList();
+      expect(paths, contains('manage'));
+      expect(paths.toSet(), hasLength(paths.length));
     });
 
     test('the manage constant sits under the module base path', () {

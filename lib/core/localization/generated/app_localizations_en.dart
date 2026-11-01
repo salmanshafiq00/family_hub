@@ -4035,4 +4035,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurrenceSummaryLastDay => 'On the last day of every month';
+
+  @override
+  String get starterPackTitle => 'Starter pack';
+
+  @override
+  String get starterPackSubtitle => 'Add the family\'s usual chores in one go';
+
+  @override
+  String get starterPackManagersOnly =>
+      'Only a Household Manager can add a starter pack.';
+
+  @override
+  String get starterPackPickBody =>
+      'Pick a pack. Every line becomes one of your family\'s own chores; nothing is locked.';
+
+  @override
+  String get starterPackFamilyPdfTitle => 'Our family chore list (PDF)';
+
+  @override
+  String get starterPackFamilyPdfDescription =>
+      'The daily, weekly and monthly chores from the family\'s handwritten list.';
+
+  @override
+  String starterPackTemplateCount(String count) {
+    return '$count chores';
+  }
+
+  @override
+  String starterPackCountHigh(String count) {
+    return '$count high confidence';
+  }
+
+  @override
+  String starterPackCountMedium(String count) {
+    return '$count medium confidence';
+  }
+
+  @override
+  String starterPackCountLow(String count) {
+    return '$count low confidence';
+  }
+
+  @override
+  String get starterPackPickHint =>
+      'High lines are ticked already. You will confirm the rest in the next step.';
+
+  @override
+  String get starterPackReviewBody =>
+      'Untick anything you do not want. Medium and Low lines need your confirmation.';
+
+  @override
+  String get starterPackConfidenceHigh => 'High';
+
+  @override
+  String get starterPackConfidenceMedium => 'Medium';
+
+  @override
+  String get starterPackConfidenceLow => 'Low';
+
+  @override
+  String get starterPackConfidenceLegend => 'Confidence:';
+
+  @override
+  String get starterPackPleaseConfirm => 'please confirm';
+
+  @override
+  String get starterPackDetailsTitle => 'Chore details';
+
+  @override
+  String get starterPackDetailsSchedule => 'Schedule';
+
+  @override
+  String get starterPackDetailsNotes => 'Notes';
+
+  @override
+  String get starterPackDetailsSteps => 'Steps';
+
+  @override
+  String get starterPackEndOfDay => 'Any time';
+
+  @override
+  String get starterPackHouseRulesTitle => 'House rules';
+
+  @override
+  String get starterPackHouseRulesHint =>
+      'These are saved in Chore settings and shown on the Manage hub.';
+
+  @override
+  String get starterPackHouseRulesSwitch => 'Add the house rules from the list';
+
+  @override
+  String get starterPackWhoBody =>
+      'Choose who shares the daily duty, who goes first and how often the turn changes. Or leave the chores unassigned and decide later.';
+
+  @override
+  String get starterPackRotationSwitch => 'Share these chores by rotation';
+
+  @override
+  String get starterPackRotationNeedsTwo =>
+      'A rotation needs at least two active members.';
+
+  @override
+  String get starterPackNoRotationInfo =>
+      'The chores will have no assignee. You can assign them one by one later.';
+
+  @override
+  String get starterPackMembersTitle => 'Members in the rotation';
+
+  @override
+  String get starterPackFirstMemberTitle => 'Who goes first';
+
+  @override
+  String get starterPackCycleTitle => 'Turn changes every';
+
+  @override
+  String get starterPackNoMembers =>
+      'There are no active members to rotate yet. You can assign the chores later.';
+
+  @override
+  String get starterPackApply => 'Add these chores';
+
+  @override
+  String get starterPackApplying => 'Adding chores…';
+
+  @override
+  String get starterPackOpenToday => 'Open Today';
+
+  @override
+  String get starterPackResultTitle => 'Starter pack added';
+
+  @override
+  String starterPackResultTemplates(String count) {
+    return '$count chores added';
+  }
+
+  @override
+  String starterPackResultSkipped(String count) {
+    return '$count already existed';
+  }
+
+  @override
+  String starterPackResultGroups(String count) {
+    return '$count chore groups added';
+  }
+
+  @override
+  String starterPackResultPresets(String count) {
+    return '$count due-time presets added';
+  }
+
+  @override
+  String starterPackResultDutyGroups(String count) {
+    return '$count duty groups added';
+  }
+
+  @override
+  String get starterPackResultRules => 'House rules added';
+
+  @override
+  String starterPackResultGenerated(String count) {
+    return '$count chores prepared for today';
+  }
+
+  @override
+  String get starterPackResultGenerationFailed =>
+      'The chores were saved, but today\'s tasks could not be prepared. Open Today and try again.';
+
+  @override
+  String starterPackStepOf(String current, String total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get starterPackStepPick => 'Pick a pack';
+
+  @override
+  String get starterPackStepReview => 'Review';
+
+  @override
+  String get starterPackStepWho => 'Who does what';
 }

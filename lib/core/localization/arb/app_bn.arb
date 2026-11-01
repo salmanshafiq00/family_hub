@@ -3671,5 +3671,172 @@
     }
   },
   "recurrenceSummaryLastDay": "প্রতি মাসের শেষ দিনে",
-  "@recurrenceSummaryLastDay": {}
+  "@recurrenceSummaryLastDay": {},
+  "starterPackTitle": "স্টার্টার প্যাক",
+  "@starterPackTitle": {},
+  "starterPackSubtitle": "পরিবারের নিয়মিত কাজগুলো একবারে যোগ করুন",
+  "@starterPackSubtitle": {},
+  "starterPackManagersOnly": "শুধু হাউসহোল্ড ম্যানেজার স্টার্টার প্যাক যোগ করতে পারেন।",
+  "@starterPackManagersOnly": {},
+  "starterPackPickBody": "একটি প্যাক বাছুন। প্রতিটি কাজ আপনার পরিবারের নিজের তালিকায় যোগ হবে; কোনো কিছু লক থাকবে না।",
+  "@starterPackPickBody": {},
+  "starterPackFamilyPdfTitle": "পরিবারের কাজের তালিকা (PDF)",
+  "@starterPackFamilyPdfTitle": {},
+  "starterPackFamilyPdfDescription": "পরিবারের হাতে লেখা তালিকা থেকে দৈনিক, সাপ্তাহিক ও মাসিক কাজ।",
+  "@starterPackFamilyPdfDescription": {},
+  "starterPackTemplateCount": "{count}টি কাজ",
+  "@starterPackTemplateCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountHigh": "{count}টি নিশ্চিত",
+  "@starterPackCountHigh": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountMedium": "{count}টি মাঝারি নিশ্চিত",
+  "@starterPackCountMedium": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackCountLow": "{count}টি কম নিশ্চিত",
+  "@starterPackCountLow": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackPickHint": "নিশ্চিত কাজগুলো আগে থেকেই টিক দেওয়া আছে। বাকিগুলো পরের ধাপে আপনি নিশ্চিত করবেন।",
+  "@starterPackPickHint": {},
+  "starterPackReviewBody": "যা না চান তা টিক তুলে দিন। মাঝারি ও কম নিশ্চিত কাজগুলোর জন্য আপনার নিশ্চিতকরণ দরকার।",
+  "@starterPackReviewBody": {},
+  "starterPackConfidenceHigh": "নিশ্চিত",
+  "@starterPackConfidenceHigh": {},
+  "starterPackConfidenceMedium": "মাঝারি",
+  "@starterPackConfidenceMedium": {},
+  "starterPackConfidenceLow": "কম নিশ্চিত",
+  "@starterPackConfidenceLow": {},
+  "starterPackConfidenceLegend": "নিশ্চয়তা:",
+  "@starterPackConfidenceLegend": {},
+  "starterPackPleaseConfirm": "নিশ্চিত করুন",
+  "@starterPackPleaseConfirm": {},
+  "starterPackDetailsTitle": "কাজের বিবরণ",
+  "@starterPackDetailsTitle": {},
+  "starterPackDetailsSchedule": "সময়সূচি",
+  "@starterPackDetailsSchedule": {},
+  "starterPackDetailsNotes": "নোট",
+  "@starterPackDetailsNotes": {},
+  "starterPackDetailsSteps": "ধাপ",
+  "@starterPackDetailsSteps": {},
+  "starterPackEndOfDay": "যখনই সুবিধা",
+  "@starterPackEndOfDay": {},
+  "starterPackHouseRulesTitle": "ঘরের নিয়ম",
+  "@starterPackHouseRulesTitle": {},
+  "starterPackHouseRulesHint": "এগুলো কাজের সেটিংসে সংরক্ষিত হবে এবং কাজের ম্যানেজ পেজে দেখা যাবে।",
+  "@starterPackHouseRulesHint": {},
+  "starterPackHouseRulesSwitch": "তালিকার ঘরের নিয়মগুলো যোগ করুন",
+  "@starterPackHouseRulesSwitch": {},
+  "starterPackWhoBody": "দৈনিক কাজ কে কে ভাগ করবেন, প্রথমে কে করবেন এবং কত দিন পর পর পালা বদলাবে তা বাছুন। অথবা এখন কাউকে না দিয়ে পরে ঠিক করুন।",
+  "@starterPackWhoBody": {},
+  "starterPackRotationSwitch": "এই কাজগুলো পালা করে ভাগ করুন",
+  "@starterPackRotationSwitch": {},
+  "starterPackRotationNeedsTwo": "পালার জন্য অন্তত দুইজন সক্রিয় সদস্য দরকার।",
+  "@starterPackRotationNeedsTwo": {},
+  "starterPackNoRotationInfo": "কাজগুলোতে এখনই কাউকে দেওয়া হবে না। পরে একে একে দায়িত্ব দিতে পারবেন।",
+  "@starterPackNoRotationInfo": {},
+  "starterPackMembersTitle": "পালায় যারা থাকবেন",
+  "@starterPackMembersTitle": {},
+  "starterPackFirstMemberTitle": "প্রথমে কে",
+  "@starterPackFirstMemberTitle": {},
+  "starterPackCycleTitle": "পালা বদলাবে প্রতি",
+  "@starterPackCycleTitle": {},
+  "starterPackNoMembers": "পালা করার মতো সক্রিয় সদস্য এখন নেই। কাজগুলো পরে দায়িত্ব দিতে পারবেন।",
+  "@starterPackNoMembers": {},
+  "starterPackApply": "এই কাজগুলো যোগ করুন",
+  "@starterPackApply": {},
+  "starterPackApplying": "কাজ যোগ হচ্ছে…",
+  "@starterPackApplying": {},
+  "starterPackOpenToday": "আজকের কাজ দেখুন",
+  "@starterPackOpenToday": {},
+  "starterPackResultTitle": "স্টার্টার প্যাক যোগ হয়েছে",
+  "@starterPackResultTitle": {},
+  "starterPackResultTemplates": "{count}টি কাজ যোগ হয়েছে",
+  "@starterPackResultTemplates": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultSkipped": "{count}টি আগে থেকেই ছিল",
+  "@starterPackResultSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultGroups": "{count}টি কাজের গ্রুপ যোগ হয়েছে",
+  "@starterPackResultGroups": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultPresets": "{count}টি সময়ের প্রিসেট যোগ হয়েছে",
+  "@starterPackResultPresets": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultDutyGroups": "{count}টি ডিউটি গ্রুপ যোগ হয়েছে",
+  "@starterPackResultDutyGroups": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultRules": "ঘরের নিয়ম যোগ হয়েছে",
+  "@starterPackResultRules": {},
+  "starterPackResultGenerated": "আজকের জন্য {count}টি কাজ তৈরি হয়েছে",
+  "@starterPackResultGenerated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackResultGenerationFailed": "কাজগুলো সংরক্ষণ হয়েছে, কিন্তু আজকের কাজ তৈরি করা যায়নি। আজকের পেজ খুলে আবার চেষ্টা করুন।",
+  "@starterPackResultGenerationFailed": {},
+  "starterPackStepOf": "ধাপ {current}/{total}",
+  "@starterPackStepOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "starterPackStepPick": "প্যাক বাছুন",
+  "@starterPackStepPick": {},
+  "starterPackStepReview": "পর্যালোচনা",
+  "@starterPackStepReview": {},
+  "starterPackStepWho": "কে কী করবেন",
+  "@starterPackStepWho": {}
 }
