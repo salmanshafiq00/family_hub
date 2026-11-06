@@ -12,6 +12,7 @@ const int kQuietStaleAfterDueHours = 6;
 enum PlannableChoreStatus {
   scheduled,
   inProgress,
+  overdue,
   completed,
   verified,
   skipped,

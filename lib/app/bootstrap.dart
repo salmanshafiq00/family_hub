@@ -45,6 +45,8 @@ import 'package:family_hub/features/notifications/presentation/inbox_providers.d
 import 'package:family_hub/features/notifications/data/firestore_delivery_repository.dart';
 import 'package:family_hub/features/notifications/data/firestore_notification_defaults_repository.dart';
 import 'package:family_hub/features/notifications/presentation/notification_providers.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_providers.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_diagnostics.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/occurrences/data/firestore_occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
@@ -210,6 +212,9 @@ Future<void> bootstrap(Flavor flavor) async {
           ),
           notificationPreferenceSyncProvider.overrideWithValue(
             notificationPrefsSync,
+          ),
+          reminderSchedulerProvider.overrideWithValue(
+            const UnavailableReminderScheduler(),
           ),
           dashboardPolicyRepositoryProvider.overrideWithValue(
             dashboardPolicies,

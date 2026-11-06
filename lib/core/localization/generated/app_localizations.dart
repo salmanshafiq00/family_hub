@@ -8854,6 +8854,90 @@ abstract class AppLocalizations {
   /// **'এই বিজ্ঞপ্তিটি খুঁজে পাওয়া যায়নি।'**
   String get notificationFailure_inboxItem;
 
+  /// No description provided for @reminderDueTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{choreName} করার সময় হয়েছে'**
+  String reminderDueTitle(String choreName);
+
+  /// No description provided for @reminderDueBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{choreName} কাজটি {time}-এর মধ্যে করুন।'**
+  String reminderDueBody(String choreName, String time);
+
+  /// No description provided for @reminderBeforeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{choreName} কাজটির কথা মনে করিয়ে দিচ্ছি'**
+  String reminderBeforeTitle(String choreName);
+
+  /// No description provided for @reminderBeforeBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{choreName} কাজটি {minutes} মিনিট পরে, {time}-এ করতে হবে।'**
+  String reminderBeforeBody(String choreName, String minutes, String time);
+
+  /// No description provided for @reminderOverdueTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাকি আছে: {choreName}'**
+  String reminderOverdueTitle(String choreName);
+
+  /// No description provided for @reminderOverdueBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{choreName} কাজটি এখনো সম্পন্ন হয়নি।'**
+  String reminderOverdueBody(String choreName);
+
+  /// No description provided for @reminderNudgeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের কাজের কথা'**
+  String get reminderNudgeTitle;
+
+  /// No description provided for @reminderNudgeBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ আরও {count}টি কাজ বাকি আছে।'**
+  String reminderNudgeBody(String count);
+
+  /// No description provided for @reminderSummaryTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের কাজ'**
+  String get reminderSummaryTitle;
+
+  /// No description provided for @reminderSummaryBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ আপনার {count}টি কাজ আছে।'**
+  String reminderSummaryBody(String count);
+
+  /// No description provided for @reminderContributionDueTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসিক জমার কথা'**
+  String get reminderContributionDueTitle;
+
+  /// No description provided for @reminderContributionDueBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার এই মাসের জমা দেওয়ার সময় হয়েছে।'**
+  String get reminderContributionDueBody;
+
+  /// No description provided for @reminderMonthEndTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস শেষের হিসাব'**
+  String get reminderMonthEndTitle;
+
+  /// No description provided for @reminderMonthEndBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের বাজারের হিসাব বন্ধ করার সময় হয়েছে।'**
+  String get reminderMonthEndBody;
+
   /// No description provided for @engagementFailure_invalid_levels.
   ///
   /// In bn, this message translates to:

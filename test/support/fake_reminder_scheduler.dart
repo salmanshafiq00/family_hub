@@ -7,6 +7,9 @@ final class FakeReminderScheduler implements ReminderScheduler {
   final List<PlannedNotification> scheduled = <PlannedNotification>[];
   final List<int> cancelledIds = <int>[];
   final List<NotificationCategory?> cancelledAll = <NotificationCategory?>[];
+  int pendingCalls = 0;
+  bool failOnPending = false;
+  Future<void> Function()? beforePending;
   NotificationPermissionState permissionState =
       const NotificationPermissionState(
         granted: true,
@@ -14,8 +17,12 @@ final class FakeReminderScheduler implements ReminderScheduler {
       );
 
   @override
-  Future<List<PlannedNotification>> pending() async =>
-      List<PlannedNotification>.unmodifiable(_pending.values);
+  Future<List<PlannedNotification>> pending() async {
+    pendingCalls++;
+    await beforePending?.call();
+    if (failOnPending) throw StateError('pending failed');
+    return List<PlannedNotification>.unmodifiable(_pending.values);
+  }
 
   @override
   Future<void> schedule(PlannedNotification notification) async {

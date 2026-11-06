@@ -5097,6 +5097,66 @@ class AppLocalizationsEn extends AppLocalizations {
       'This notification could not be found.';
 
   @override
+  String reminderDueTitle(String choreName) {
+    return 'Time for $choreName';
+  }
+
+  @override
+  String reminderDueBody(String choreName, String time) {
+    return 'It is time to do $choreName, due at $time.';
+  }
+
+  @override
+  String reminderBeforeTitle(String choreName) {
+    return 'Coming up: $choreName';
+  }
+
+  @override
+  String reminderBeforeBody(String choreName, String minutes, String time) {
+    return '$choreName is due in $minutes minutes, at $time.';
+  }
+
+  @override
+  String reminderOverdueTitle(String choreName) {
+    return 'Still open: $choreName';
+  }
+
+  @override
+  String reminderOverdueBody(String choreName) {
+    return '$choreName is not complete yet.';
+  }
+
+  @override
+  String get reminderNudgeTitle => 'A reminder for today';
+
+  @override
+  String reminderNudgeBody(String count) {
+    return '$count more chores are still open today.';
+  }
+
+  @override
+  String get reminderSummaryTitle => 'Today\'s chores';
+
+  @override
+  String reminderSummaryBody(String count) {
+    return 'You have $count chores today.';
+  }
+
+  @override
+  String get reminderContributionDueTitle => 'Monthly contribution reminder';
+
+  @override
+  String get reminderContributionDueBody =>
+      'Your contribution for this month is due.';
+
+  @override
+  String get reminderMonthEndTitle => 'Month-end bazar reminder';
+
+  @override
+  String get reminderMonthEndBody =>
+      'It is time to close this month\'s bazar books.';
+
+  @override
   String get engagementFailure_invalid_levels => 'The level list is not valid.';
 
   @override

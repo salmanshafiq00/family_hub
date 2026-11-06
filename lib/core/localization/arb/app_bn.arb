@@ -4699,6 +4699,91 @@
   "@notificationFailure_push_unavailable": {},
   "notificationFailure_inboxItem": "এই বিজ্ঞপ্তিটি খুঁজে পাওয়া যায়নি।",
   "@notificationFailure_inboxItem": {},
+  "reminderDueTitle": "{choreName} করার সময় হয়েছে",
+  "@reminderDueTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDueBody": "{choreName} কাজটি {time}-এর মধ্যে করুন।",
+  "@reminderDueBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderBeforeTitle": "{choreName} কাজটির কথা মনে করিয়ে দিচ্ছি",
+  "@reminderBeforeTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderBeforeBody": "{choreName} কাজটি {minutes} মিনিট পরে, {time}-এ করতে হবে।",
+  "@reminderBeforeBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOverdueTitle": "বাকি আছে: {choreName}",
+  "@reminderOverdueTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOverdueBody": "{choreName} কাজটি এখনো সম্পন্ন হয়নি।",
+  "@reminderOverdueBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderNudgeTitle": "আজকের কাজের কথা",
+  "@reminderNudgeTitle": {},
+  "reminderNudgeBody": "আজ আরও {count}টি কাজ বাকি আছে।",
+  "@reminderNudgeBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSummaryTitle": "আজকের কাজ",
+  "@reminderSummaryTitle": {},
+  "reminderSummaryBody": "আজ আপনার {count}টি কাজ আছে।",
+  "@reminderSummaryBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderContributionDueTitle": "মাসিক জমার কথা",
+  "@reminderContributionDueTitle": {},
+  "reminderContributionDueBody": "আপনার এই মাসের জমা দেওয়ার সময় হয়েছে।",
+  "@reminderContributionDueBody": {},
+  "reminderMonthEndTitle": "মাস শেষের হিসাব",
+  "@reminderMonthEndTitle": {},
+  "reminderMonthEndBody": "এই মাসের বাজারের হিসাব বন্ধ করার সময় হয়েছে।",
+  "@reminderMonthEndBody": {},
   "engagementFailure_invalid_levels": "লেভেলের তালিকা সঠিক নয়।",
   "@engagementFailure_invalid_levels": {},
   "engagementFailure_levels_not_ascending": "প্রতিটি লেভেলে আগেরটির চেয়ে বেশি পয়েন্ট লাগবে।",

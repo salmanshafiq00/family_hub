@@ -5073,6 +5073,66 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই বিজ্ঞপ্তিটি খুঁজে পাওয়া যায়নি।';
 
   @override
+  String reminderDueTitle(String choreName) {
+    return '$choreName করার সময় হয়েছে';
+  }
+
+  @override
+  String reminderDueBody(String choreName, String time) {
+    return '$choreName কাজটি $time-এর মধ্যে করুন।';
+  }
+
+  @override
+  String reminderBeforeTitle(String choreName) {
+    return '$choreName কাজটির কথা মনে করিয়ে দিচ্ছি';
+  }
+
+  @override
+  String reminderBeforeBody(String choreName, String minutes, String time) {
+    return '$choreName কাজটি $minutes মিনিট পরে, $time-এ করতে হবে।';
+  }
+
+  @override
+  String reminderOverdueTitle(String choreName) {
+    return 'বাকি আছে: $choreName';
+  }
+
+  @override
+  String reminderOverdueBody(String choreName) {
+    return '$choreName কাজটি এখনো সম্পন্ন হয়নি।';
+  }
+
+  @override
+  String get reminderNudgeTitle => 'আজকের কাজের কথা';
+
+  @override
+  String reminderNudgeBody(String count) {
+    return 'আজ আরও $countটি কাজ বাকি আছে।';
+  }
+
+  @override
+  String get reminderSummaryTitle => 'আজকের কাজ';
+
+  @override
+  String reminderSummaryBody(String count) {
+    return 'আজ আপনার $countটি কাজ আছে।';
+  }
+
+  @override
+  String get reminderContributionDueTitle => 'মাসিক জমার কথা';
+
+  @override
+  String get reminderContributionDueBody =>
+      'আপনার এই মাসের জমা দেওয়ার সময় হয়েছে।';
+
+  @override
+  String get reminderMonthEndTitle => 'মাস শেষের হিসাব';
+
+  @override
+  String get reminderMonthEndBody =>
+      'এই মাসের বাজারের হিসাব বন্ধ করার সময় হয়েছে।';
+
+  @override
   String get engagementFailure_invalid_levels => 'লেভেলের তালিকা সঠিক নয়।';
 
   @override
