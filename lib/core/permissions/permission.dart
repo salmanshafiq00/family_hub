@@ -62,7 +62,10 @@ enum Permission {
 
   /// Which dashboard cards each role sees (D-P4-28): admin, or a Household
   /// Manager while `moderatorManagesFinance` is on.
-  manageDashboardLayout(PermissionModule.family);
+  manageDashboardLayout(PermissionModule.family),
+
+  /// Family-wide reminder defaults (P4-11): admin or Household Manager.
+  manageNotificationDefaults(PermissionModule.family);
 
   const Permission(this.module);
 

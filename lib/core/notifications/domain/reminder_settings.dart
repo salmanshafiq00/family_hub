@@ -135,10 +135,23 @@ final class ReminderSettings {
   bool get familyEnabled => _familyEnabled ?? true;
   List<int> get defaultOffsetsMinutes =>
       _defaultOffsetsMinutes ?? recommendedOffsetsMinutes;
+  bool? get globalEnabledOverride => _globalEnabled;
+  bool? get choresEnabledOverride => _choresEnabled;
+  bool? get bazarEnabledOverride => _bazarEnabled;
+  bool? get familyEnabledOverride => _familyEnabled;
+  List<int>? get defaultOffsetsMinutesOverride => _defaultOffsetsMinutes;
   bool get atDue => _atDue ?? true;
+  bool? get atDueOverride => _atDue;
   bool get overdueEnabled => _overdueEnabled ?? false;
+  bool? get overdueEnabledOverride => _overdueEnabled;
   int get overdueAfterMinutes =>
       _overdueAfterMinutes ?? defaultOverdueAfterMinutes;
+  int? get overdueAfterMinutesOverride => _overdueAfterMinutes;
+  bool? get morningSummaryEnabledOverride => _morningSummaryEnabled;
+  int? get morningSummaryMinutesOverride => _morningSummaryMinutes;
+  bool? get quietEnabledOverride => _quietEnabled;
+  int? get quietStartMinutesOverride => _quietStartMinutes;
+  int? get quietEndMinutesOverride => _quietEndMinutes;
 
   MorningSummary get morningSummary => MorningSummary(
     enabled: _morningSummaryEnabled ?? true,
@@ -194,19 +207,19 @@ final class ReminderSettings {
     int? quietStartMinutes,
     int? quietEndMinutes,
   }) => ReminderSettings(
-    globalEnabled: globalEnabled ?? this.globalEnabled,
-    choresEnabled: choresEnabled ?? this.choresEnabled,
-    bazarEnabled: bazarEnabled ?? this.bazarEnabled,
-    familyEnabled: familyEnabled ?? this.familyEnabled,
-    defaultOffsetsMinutes: defaultOffsetsMinutes ?? this.defaultOffsetsMinutes,
-    atDue: atDue ?? this.atDue,
-    overdueEnabled: overdueEnabled ?? this.overdueEnabled,
-    overdueAfterMinutes: overdueAfterMinutes ?? this.overdueAfterMinutes,
-    morningSummaryEnabled: morningSummaryEnabled ?? morningSummary.enabled,
-    morningSummaryMinutes: morningSummaryMinutes ?? morningSummary.minutes,
-    quietEnabled: quietEnabled ?? quiet.enabled,
-    quietStartMinutes: quietStartMinutes ?? quiet.startMinutes,
-    quietEndMinutes: quietEndMinutes ?? quiet.endMinutes,
+    globalEnabled: globalEnabled ?? _globalEnabled,
+    choresEnabled: choresEnabled ?? _choresEnabled,
+    bazarEnabled: bazarEnabled ?? _bazarEnabled,
+    familyEnabled: familyEnabled ?? _familyEnabled,
+    defaultOffsetsMinutes: defaultOffsetsMinutes ?? _defaultOffsetsMinutes,
+    atDue: atDue ?? _atDue,
+    overdueEnabled: overdueEnabled ?? _overdueEnabled,
+    overdueAfterMinutes: overdueAfterMinutes ?? _overdueAfterMinutes,
+    morningSummaryEnabled: morningSummaryEnabled ?? _morningSummaryEnabled,
+    morningSummaryMinutes: morningSummaryMinutes ?? _morningSummaryMinutes,
+    quietEnabled: quietEnabled ?? _quietEnabled,
+    quietStartMinutes: quietStartMinutes ?? _quietStartMinutes,
+    quietEndMinutes: quietEndMinutes ?? _quietEndMinutes,
   );
 
   @override
