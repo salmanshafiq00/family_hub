@@ -39,7 +39,14 @@ import 'package:family_hub/features/chores/presentation/chores_inbox_port.dart';
 import 'package:family_hub/features/chores/swaps/data/firestore_swap_repository.dart';
 import 'package:family_hub/features/chores/swaps/presentation/swap_providers.dart';
 import 'package:family_hub/features/notifications/data/firestore_inbox_repository.dart';
+import 'package:family_hub/features/notifications/data/firestore_notification_pref_sync.dart';
+import 'package:family_hub/features/notifications/data/local_notification_prefs_store.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_providers.dart';
+import 'package:family_hub/features/notifications/data/firestore_delivery_repository.dart';
+import 'package:family_hub/features/notifications/data/firestore_notification_defaults_repository.dart';
+import 'package:family_hub/features/notifications/presentation/notification_providers.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_providers.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_diagnostics.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/occurrences/data/firestore_occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
@@ -138,6 +145,16 @@ Future<void> bootstrap(Flavor flavor) async {
     final swaps = FirestoreSwapRepository(tx: tx);
     final inbox = FirestoreInboxRepository(tx: tx);
     final activity = FirestoreActivityRepository();
+    final notificationDelivery = FirestoreDeliveryRepository(
+      tx: tx,
+      clock: clock,
+    );
+    final notificationDefaults = FirestoreNotificationDefaultsRepository(
+      tx: tx,
+      clock: clock,
+    );
+    final notificationPrefsStore = LocalNotificationPrefsStore(prefs);
+    final notificationPrefsSync = FirestoreNotificationPrefSync();
     final dashboardPolicies = FirestoreDashboardPolicyRepository(
       tx: tx,
       clock: clock,
@@ -184,6 +201,21 @@ Future<void> bootstrap(Flavor flavor) async {
           swapRepositoryProvider.overrideWithValue(swaps),
           inboxRepositoryProvider.overrideWithValue(inbox),
           activityRepositoryProvider.overrideWithValue(activity),
+          notificationDeliveryRepositoryProvider.overrideWithValue(
+            notificationDelivery,
+          ),
+          notificationDefaultsRepositoryProvider.overrideWithValue(
+            notificationDefaults,
+          ),
+          memberNotificationPrefsStoreProvider.overrideWithValue(
+            notificationPrefsStore,
+          ),
+          notificationPreferenceSyncProvider.overrideWithValue(
+            notificationPrefsSync,
+          ),
+          reminderSchedulerProvider.overrideWithValue(
+            const UnavailableReminderScheduler(),
+          ),
           dashboardPolicyRepositoryProvider.overrideWithValue(
             dashboardPolicies,
           ),

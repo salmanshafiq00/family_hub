@@ -4700,6 +4700,91 @@
   "@notificationFailure_push_unavailable": {},
   "notificationFailure_inboxItem": "This notification could not be found.",
   "@notificationFailure_inboxItem": {},
+  "reminderDueTitle": "Time for {choreName}",
+  "@reminderDueTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDueBody": "It is time to do {choreName}, due at {time}.",
+  "@reminderDueBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderBeforeTitle": "Coming up: {choreName}",
+  "@reminderBeforeTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderBeforeBody": "{choreName} is due in {minutes} minutes, at {time}.",
+  "@reminderBeforeBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOverdueTitle": "Still open: {choreName}",
+  "@reminderOverdueTitle": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderOverdueBody": "{choreName} is not complete yet.",
+  "@reminderOverdueBody": {
+    "placeholders": {
+      "choreName": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderNudgeTitle": "A reminder for today",
+  "@reminderNudgeTitle": {},
+  "reminderNudgeBody": "{count} more chores are still open today.",
+  "@reminderNudgeBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSummaryTitle": "Today's chores",
+  "@reminderSummaryTitle": {},
+  "reminderSummaryBody": "You have {count} chores today.",
+  "@reminderSummaryBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderContributionDueTitle": "Monthly contribution reminder",
+  "@reminderContributionDueTitle": {},
+  "reminderContributionDueBody": "Your contribution for this month is due.",
+  "@reminderContributionDueBody": {},
+  "reminderMonthEndTitle": "Month-end bazar reminder",
+  "@reminderMonthEndTitle": {},
+  "reminderMonthEndBody": "It is time to close this month's bazar books.",
+  "@reminderMonthEndBody": {},
   "engagementFailure_invalid_levels": "The level list is not valid.",
   "@engagementFailure_invalid_levels": {},
   "engagementFailure_levels_not_ascending": "Each level needs more points than the one before it.",

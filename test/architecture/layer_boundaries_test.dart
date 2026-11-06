@@ -110,11 +110,36 @@ void main() {
     if (featureDomain.hasMatch(f)) return true;
     if (f.startsWith('lib/core/permissions/') ||
         f.startsWith('lib/core/errors/') ||
-        f.startsWith('lib/core/audit/')) {
+        f.startsWith('lib/core/audit/') ||
+        f.startsWith('lib/core/notifications/domain/')) {
       return true;
     }
     return f.startsWith('lib/core/utils/') &&
         !f.endsWith('/clock_provider.dart');
+  }
+
+  List<String> featureReach(
+    Map<String, ({List<String> internal, List<String> packages})> graph,
+    String rootPrefix,
+  ) {
+    final found = <String>[];
+    for (final root in graph.keys.where(
+      (file) => file.startsWith(rootPrefix),
+    )) {
+      final visited = <String>{root};
+      final stack = <String>[root];
+      while (stack.isNotEmpty) {
+        final current = stack.removeLast();
+        for (final next in graph[current]?.internal ?? const <String>[]) {
+          if (next.startsWith('lib/features/')) {
+            found.add('$root reaches feature code through $next');
+          } else if (visited.add(next)) {
+            stack.add(next);
+          }
+        }
+      }
+    }
+    return found;
   }
 
   Map<String, List<String>> readLib() => {
@@ -181,6 +206,21 @@ void main() {
       });
       expect(forbiddenReach(clean, isPure), isEmpty);
     });
+
+    test('core notifications cannot reach feature code', () {
+      final bad = featureReach(
+        buildGraph({
+          'lib/core/notifications/domain/a.dart': [
+            "import 'package:family_hub/core/notifications/helper.dart';",
+          ],
+          'lib/core/notifications/helper.dart': [
+            "import 'package:family_hub/features/x/domain/model.dart';",
+          ],
+        }),
+        'lib/core/notifications/domain/',
+      );
+      expect(bad, hasLength(1));
+    });
   });
 
   // ── The real tree ──────────────────────────────────────────────────────────
@@ -193,6 +233,10 @@ void main() {
       expect(forbiddenReach(graph, isPure), isEmpty);
     },
   );
+
+  test('core notifications domain does not import feature code', () {
+    expect(featureReach(graph, 'lib/core/notifications/domain/'), isEmpty);
+  });
 
   test(
     'b) presentation/, shared/ and modules/ never touch Firebase or data/',

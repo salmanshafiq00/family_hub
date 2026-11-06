@@ -174,6 +174,44 @@ export const dashboardPolicyDoc = (uid, {
     ...extra,
   });
 
+/** `NotificationDefaultsMappers.toMap` shape (P4-11). */
+export const notificationDefaultsDoc = (uid, extra = {}) =>
+  baseDoc(uid, {
+    enabled: true,
+    chores: true,
+    bazar: true,
+    family: true,
+    defaultOffsetsMinutes: [30],
+    overdueEnabled: false,
+    overdueAfterMinutes: 60,
+    morningSummaryEnabled: true,
+    morningSummaryMinutes: 420,
+    quietEnabled: true,
+    quietStartMinutes: 1380,
+    quietEndMinutes: 360,
+    ...extra,
+  });
+
+/** `DeliveryMappers.toMap` shape (P4-11). */
+export const notificationDeliveryDoc = (uid, extra = {}) =>
+  baseDoc(uid, {
+    pushEnabled: false,
+    modes: {
+      swap_request: 'push',
+      swap_result: 'push',
+      needs_cover: 'push',
+      chore_assigned: 'push',
+      chore_reopened: 'push',
+      comment_attention: 'normal',
+      verification_needed: 'normal',
+      absence_decision: 'normal',
+      member_join_request: 'push',
+      member_approved: 'push',
+    },
+    quietRespectedByPush: true,
+    ...extra,
+  });
+
 /** `BazarSettingsMappers.toMap` shape (P2-07). */
 export const bazarSettingsDoc = (uid, extra = {}) =>
   baseDoc(uid, {

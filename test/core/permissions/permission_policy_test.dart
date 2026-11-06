@@ -40,6 +40,7 @@ const List<(Permission, bool, bool, bool)> _matrix =
       // Phase 4 (road map 3.3).
       (Permission.manageEngagement, true, true, false),
       (Permission.manageDashboardLayout, true, true, false),
+      (Permission.manageNotificationDefaults, true, true, false),
     ];
 
 /// A context where only the role can make the answer false.
@@ -620,6 +621,7 @@ void main() {
         'moderateChoreComments',
         'manageEngagement',
         'manageDashboardLayout',
+        'manageNotificationDefaults',
       });
     });
   });

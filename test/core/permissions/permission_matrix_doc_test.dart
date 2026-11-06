@@ -145,6 +145,7 @@ _rows = <(Permission, String, String, String?)>[
     '(not in spec section 6)',
     null,
   ),
+  (Permission.manageNotificationDefaults, '-', '(not in spec section 6)', null),
 ];
 
 const PermissionSettings _defaults = PermissionSettings.defaults;

@@ -113,17 +113,77 @@ service cloud.firestore {
         || data.gender == null
         || data.gender in ['male', 'female', 'other'];
     }
+    function optionalBool(d, key) {
+      return !(key in d.keys()) || d[key] is bool;
+    }
+    function optionalMinute(d, key, min, max) {
+      return !(key in d.keys())
+        || (d[key] is int && d[key] >= min && d[key] <= max);
+    }
+    function notificationOffsetsOk(offsets) {
+      return offsets is list
+        && offsets.size() <= 5
+        && (offsets.size() < 1
+            || (offsets[0] is int && offsets[0] >= 1 && offsets[0] <= 1440))
+        && (offsets.size() < 2
+            || (offsets[1] is int && offsets[1] >= 1 && offsets[1] <= 1440
+                && offsets[0] != offsets[1]))
+        && (offsets.size() < 3
+            || (offsets[2] is int && offsets[2] >= 1 && offsets[2] <= 1440
+                && offsets[0] != offsets[2] && offsets[1] != offsets[2]))
+        && (offsets.size() < 4
+            || (offsets[3] is int && offsets[3] >= 1 && offsets[3] <= 1440
+                && offsets[0] != offsets[3] && offsets[1] != offsets[3]
+                && offsets[2] != offsets[3]))
+        && (offsets.size() < 5
+            || (offsets[4] is int && offsets[4] >= 1 && offsets[4] <= 1440
+                && offsets[0] != offsets[4] && offsets[1] != offsets[4]
+                && offsets[2] != offsets[4] && offsets[3] != offsets[4]));
+    }
+    function notificationPrefsOk(value) {
+      return value is map
+        && value.keys().hasOnly([
+          'pushEnabled', 'enabled', 'chores', 'bazar', 'family',
+          'defaultOffsetsMinutes', 'overdueEnabled', 'overdueAfterMinutes',
+          'morningSummaryEnabled', 'morningSummaryMinutes', 'quietEnabled',
+          'quietStartMinutes', 'quietEndMinutes', 'updatedAt'
+        ])
+        && optionalBool(value, 'pushEnabled')
+        && optionalBool(value, 'enabled')
+        && optionalBool(value, 'chores')
+        && optionalBool(value, 'bazar')
+        && optionalBool(value, 'family')
+        && (!('defaultOffsetsMinutes' in value.keys())
+            || notificationOffsetsOk(value.defaultOffsetsMinutes))
+        && optionalBool(value, 'overdueEnabled')
+        && optionalMinute(value, 'overdueAfterMinutes', 1, 1440)
+        && optionalBool(value, 'morningSummaryEnabled')
+        && optionalMinute(value, 'morningSummaryMinutes', 0, 1439)
+        && optionalBool(value, 'quietEnabled')
+        && optionalMinute(value, 'quietStartMinutes', 0, 1439)
+        && optionalMinute(value, 'quietEndMinutes', 0, 1439)
+        && (!('quietStartMinutes' in value.keys())
+            || !('quietEndMinutes' in value.keys())
+            || value.quietStartMinutes != value.quietEndMinutes)
+        && (!('updatedAt' in value.keys()) || value.updatedAt is timestamp);
+    }
     // users/{uid}.preferences {themeId, themeMode, language, banglaDigits}.
     function preferencesOk(data) {
       return !('preferences' in data.keys())
         || (
           data.preferences is map
+          && data.preferences.keys().hasOnly([
+            'themeId', 'themeMode', 'language', 'banglaDigits',
+            'dashboard', 'notifications'
+          ])
           && data.preferences.get('themeId', '') is string
           && data.preferences.get('themeMode', 'system') in ['system', 'light', 'dark']
           && data.preferences.get('language', 'bn') in ['bn', 'en']
           && data.preferences.get('banglaDigits', false) is bool
           && (!('dashboard' in data.preferences.keys())
               || dashboardPrefsOk(data.preferences.dashboard))
+          && (!('notifications' in data.preferences.keys())
+              || notificationPrefsOk(data.preferences.notifications))
         );
     }
     function dashboardPrefsListOk(value) {
@@ -228,8 +288,71 @@ service cloud.firestore {
               'throughEpochDay',
               // P4-06: settings/dashboard.
               'roles', 'version',
+              // P4-11: notification defaults and delivery policy.
+              'chores', 'bazar', 'family', 'defaultOffsetsMinutes',
+              'overdueEnabled', 'overdueAfterMinutes',
+              'morningSummaryEnabled', 'morningSummaryMinutes',
+              'quietEnabled', 'quietStartMinutes', 'quietEndMinutes',
+              'pushEnabled', 'modes', 'quietRespectedByPush',
               'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
               'schemaVersion', 'deletedAt', 'deletedBy'];
+    }
+    function notificationDefaultsKeys() {
+      return ['enabled', 'chores', 'bazar', 'family',
+              'defaultOffsetsMinutes', 'overdueEnabled',
+              'overdueAfterMinutes', 'morningSummaryEnabled',
+              'morningSummaryMinutes', 'quietEnabled', 'quietStartMinutes',
+              'quietEndMinutes', 'createdAt', 'createdBy', 'updatedAt',
+              'updatedBy', 'schemaVersion', 'deletedAt', 'deletedBy'];
+    }
+    function notificationDeliveryKeys() {
+      return ['pushEnabled', 'modes', 'quietRespectedByPush',
+              'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
+              'schemaVersion', 'deletedAt', 'deletedBy'];
+    }
+    function notificationDefaultsOk(d) {
+      return d.keys().hasOnly(notificationDefaultsKeys())
+        && optionalBool(d, 'enabled')
+        && optionalBool(d, 'chores')
+        && optionalBool(d, 'bazar')
+        && optionalBool(d, 'family')
+        && (!('defaultOffsetsMinutes' in d.keys())
+            || notificationOffsetsOk(d.defaultOffsetsMinutes))
+        && optionalBool(d, 'overdueEnabled')
+        && optionalMinute(d, 'overdueAfterMinutes', 1, 1440)
+        && optionalBool(d, 'morningSummaryEnabled')
+        && optionalMinute(d, 'morningSummaryMinutes', 0, 1439)
+        && optionalBool(d, 'quietEnabled')
+        && optionalMinute(d, 'quietStartMinutes', 0, 1439)
+        && optionalMinute(d, 'quietEndMinutes', 0, 1439)
+        && (!('quietStartMinutes' in d.keys())
+            || !('quietEndMinutes' in d.keys())
+            || d.quietStartMinutes != d.quietEndMinutes);
+    }
+    function notificationDeliveryModesOk(modes) {
+      return modes is map
+        && modes.size() <= 20
+        && modes.keys().hasOnly([
+          'swap_request', 'swap_result', 'needs_cover', 'chore_assigned',
+          'chore_reopened', 'comment_attention', 'verification_needed',
+          'absence_decision', 'member_join_request', 'member_approved'
+        ])
+        && (!('swap_request' in modes.keys()) || modes.swap_request in ['push', 'normal'])
+        && (!('swap_result' in modes.keys()) || modes.swap_result in ['push', 'normal'])
+        && (!('needs_cover' in modes.keys()) || modes.needs_cover in ['push', 'normal'])
+        && (!('chore_assigned' in modes.keys()) || modes.chore_assigned in ['push', 'normal'])
+        && (!('chore_reopened' in modes.keys()) || modes.chore_reopened in ['push', 'normal'])
+        && (!('comment_attention' in modes.keys()) || modes.comment_attention in ['push', 'normal'])
+        && (!('verification_needed' in modes.keys()) || modes.verification_needed in ['push', 'normal'])
+        && (!('absence_decision' in modes.keys()) || modes.absence_decision in ['push', 'normal'])
+        && (!('member_join_request' in modes.keys()) || modes.member_join_request in ['push', 'normal'])
+        && (!('member_approved' in modes.keys()) || modes.member_approved in ['push', 'normal']);
+    }
+    function notificationDeliveryOk(d) {
+      return d.keys().hasOnly(notificationDeliveryKeys())
+        && optionalBool(d, 'pushEnabled')
+        && (!('modes' in d.keys()) || notificationDeliveryModesOk(d.modes))
+        && optionalBool(d, 'quietRespectedByPush');
     }
     function dashboardPolicyKeys() {
       return ['roles', 'version', 'createdAt', 'createdBy', 'updatedAt',
@@ -2162,20 +2285,52 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // ── settings/{s} — general, modules, rotationPolicy, notificationDefaults
+      // ── settings/{s} — shared, closed-key settings documents
       match /settings/{s} {
         allow read: if isActiveMember(f);
         allow create: if s != 'dashboard'
+          && s != 'notificationDelivery'
+          && s != 'notificationDefaults'
           && verified()
           && (isAdmin(f) || (s == 'bazar' && financeManager(f))
               || creatingFamily(f))
           && createsAsSelf()
           && settingsOk(request.resource.data);
         allow update: if s != 'dashboard'
+          && s != 'notificationDelivery'
+          && s != 'notificationDefaults'
           && verified()
           && (isAdmin(f) || (s == 'bazar' && financeManager(f)))
           && writesAsSelf()
           && settingsOk(request.resource.data);
+        allow delete: if false;
+      }
+
+      // ── settings/notificationDelivery — admin-only Push/Normal policy (P4-11)
+      match /settings/notificationDelivery {
+        allow read: if isActiveMember(f);
+        allow create: if verified()
+          && isAdmin(f)
+          && createsAsSelf()
+          && notificationDeliveryOk(request.resource.data);
+        allow update: if verified()
+          && isAdmin(f)
+          && writesAsSelf()
+          && notificationDeliveryOk(request.resource.data);
+        allow delete: if false;
+      }
+
+      // ── settings/notificationDefaults — family reminder defaults (P4-11)
+      match /settings/notificationDefaults {
+        allow read: if isActiveMember(f);
+        allow create: if verified()
+          && (isManager(f) || creatingFamily(f))
+          && createsAsSelf()
+          && notificationDefaultsOk(request.resource.data);
+        allow update: if verified()
+          && isManager(f)
+          && writesAsSelf()
+          && notificationDefaultsOk(request.resource.data);
         allow delete: if false;
       }
 

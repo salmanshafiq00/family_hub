@@ -41,6 +41,10 @@ import 'package:family_hub/features/family/domain/relationship_catalog.dart';
 import 'package:family_hub/features/dashboard/domain/card_access.dart';
 import 'package:family_hub/features/dashboard/data/dashboard_policy_mappers.dart';
 import 'package:family_hub/features/dashboard/domain/dashboard_policy.dart';
+import 'package:family_hub/features/notifications/data/delivery_mappers.dart';
+import 'package:family_hub/features/notifications/data/notification_defaults_mappers.dart';
+import 'package:family_hub/features/notifications/domain/notification_defaults.dart';
+import 'package:family_hub/features/notifications/domain/notification_delivery_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/rules_source.dart';
@@ -104,6 +108,14 @@ void main() {
       ).keys,
       ...FamilyMappers.rotationPolicyMap(meta).keys,
       ...FamilyMappers.notificationDefaultsMap(meta).keys,
+      ...NotificationDefaultsMappers.toMap(
+        NotificationDefaults.defaults,
+        meta,
+      ).keys,
+      ...DeliveryMappers.toMap(
+        NotificationDeliverySettings.defaults(),
+        meta,
+      ).keys,
       ...BazarSettingsMappers.toMap(BazarSettings.defaults, meta).keys,
       // P3-06: settings/chores and settings/choreGeneration.
       ...ChoreSettingsMappers.toMap(ChoreSettings.defaults, meta).keys,
@@ -120,6 +132,26 @@ void main() {
       ).keys,
     };
     expect(produced, rulesList('settingsKeys'));
+  });
+
+  test('notification defaults mapper keys == notificationDefaultsKeys()', () {
+    expect(
+      NotificationDefaultsMappers.toMap(
+        NotificationDefaults.defaults,
+        meta,
+      ).keys.toSet(),
+      rulesList('notificationDefaultsKeys'),
+    );
+  });
+
+  test('delivery mapper keys == notificationDeliveryKeys()', () {
+    expect(
+      DeliveryMappers.toMap(
+        NotificationDeliverySettings.defaults(),
+        meta,
+      ).keys.toSet(),
+      rulesList('notificationDeliveryKeys'),
+    );
   });
 
   test('eventMap keys == eventKeys()', () {
