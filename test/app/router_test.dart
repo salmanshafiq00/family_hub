@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:family_hub/features/settings/presentation/language_settings_screen.dart';
 import 'package:family_hub/features/settings/presentation/theme_settings_screen.dart';
 import 'package:family_hub/app/app.dart';
@@ -21,9 +23,16 @@ import 'package:family_hub/features/family/presentation/membership_providers.dar
 import 'package:family_hub/features/family/presentation/permission_providers.dart'
     show permissionSettingsProvider;
 import 'package:family_hub/features/onboarding/presentation/profile_providers.dart';
+import 'package:family_hub/features/notifications/domain/virtual_inbox.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_providers.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_screen.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_tile.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_providers.dart'
+    show notificationTapRouterProvider;
 import 'package:family_hub/modules/module_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,6 +69,7 @@ Future<_Harness> _pumpApp(
   MemberRole? role,
   Flavor flavor = Flavor.dev,
   Size size = const Size(400, 800),
+  List<Override> overrides = const [],
 }) async {
   tester.view
     ..physicalSize = size
@@ -98,6 +108,7 @@ Future<_Harness> _pumpApp(
         profileRepositoryProvider.overrideWithValue(session),
         membershipRepositoryProvider.overrideWithValue(session),
         moduleFlagsRepositoryProvider.overrideWithValue(session),
+        ...overrides,
       ],
       child: appTestSideEffectScope(child: const FamilyHubApp()),
     ),
@@ -346,6 +357,77 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AppShell), findsNothing);
       expect(find.byType(FilledButton), findsOneWidget);
+    });
+  });
+
+  group('notification navigation', () {
+    testWidgets('a warm tap opens the inbox', (tester) async {
+      final h = await _pumpApp(
+        tester,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+      );
+      expect(h.path(tester), '/home');
+
+      h.container(tester).read(notificationTapRouterProvider).route('/inbox');
+      await tester.pumpAndSettle();
+
+      expect(h.path(tester), AppRoutes.inbox);
+      expect(find.byType(InboxScreen), findsOneWidget);
+    });
+
+    testWidgets('a tap that opened the app is kept until the session is '
+        'ready', (tester) async {
+      final h = await _pumpApp(tester, user: _verified);
+      expect(h.path(tester), '/profile-setup');
+
+      h.container(tester).read(notificationTapRouterProvider).route('/inbox');
+      await tester.pumpAndSettle();
+      // Onboarding still owns the screen; the tap is held, not dropped.
+      expect(h.path(tester), '/profile-setup');
+
+      h.session
+        ..addProfile('u1')
+        ..setMembership('u1', MembershipStatus.active);
+      await tester.pumpAndSettle();
+
+      expect(h.path(tester), AppRoutes.inbox);
+    });
+
+    testWidgets('an inbox row opening a tab route does not duplicate the '
+        'shell page', (tester) async {
+      final joinRequest = VirtualInbox.build(
+        monthKey: '2026-11',
+        viewerId: 'u1',
+        now: DateTime.utc(2026, 11, 14),
+        acknowledgedIds: const {},
+        pendingJoinRequests: 1,
+      ).single;
+      final h = await _pumpApp(
+        tester,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        overrides: [
+          virtualInboxProvider.overrideWithValue([joinRequest]),
+        ],
+      );
+      unawaited(h.router(tester).push(AppRoutes.inbox));
+      await tester.pumpAndSettle();
+      expect(find.byType(InboxScreen), findsOneWidget);
+
+      await tester.tap(find.byType(InboxTile));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(h.path(tester), AppRoutes.familyMembers);
+      h.router(tester).pop();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(InboxScreen), findsNothing);
+      expect(h.path(tester), AppRoutes.family);
+      expect(find.byType(AppShell), findsOneWidget);
     });
   });
 

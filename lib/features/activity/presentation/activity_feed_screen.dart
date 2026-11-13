@@ -143,7 +143,9 @@ class ActivityFeedScreen extends ConsumerWidget {
                           members: members,
                           onTap: _targetFor(entry) == null
                               ? null
-                              : () => context.push(_targetFor(entry)!.location),
+                              // The feed is a page above the shell: pushing a
+                              // tab route would duplicate the shell page key.
+                              : () => context.go(_targetFor(entry)!.location),
                         );
                       },
                     );

@@ -2,6 +2,8 @@ import 'package:family_hub/app/flavor.dart';
 import 'package:family_hub/app/preference_sync.dart';
 import 'package:family_hub/app/push_hook.dart';
 import 'package:family_hub/app/router.dart';
+import 'package:family_hub/app/routing/session_phase.dart';
+import 'package:family_hub/app/routing/session_providers.dart';
 import 'package:family_hub/app/theme/theme_builder.dart';
 import 'package:family_hub/app/theme/theme_controller.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
@@ -33,18 +35,26 @@ class FamilyHubApp extends ConsumerWidget {
     final localePrefs = ref.watch(localeControllerProvider);
     final specs = resolveThemeSpecs(prefs);
     final router = ref.watch(routerProvider);
+    final phase = ref.watch(sessionPhaseProvider);
     final moduleFlags = ref.watch(moduleFlagsProvider);
-    ref
-        .watch(notificationTapRouterProvider)
-        .attach(
-          navigate: (route) {
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => router.go(route),
-            );
-          },
-          choresEnabled: moduleFlags.isEnabled('chores'),
-          bazarEnabled: moduleFlags.isEnabled('bazar'),
-        );
+    // A pending tap is replayed when the tap router attaches; doing that before
+    // the session is ready would send it into a redirect gate and lose it.
+    if (phase == SessionPhase.active) {
+      ref
+          .watch(notificationTapRouterProvider)
+          .attach(
+            navigate: (route) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => router.go(route),
+              );
+              // A tap arrives between frames; without this the callback above
+              // waits for some unrelated frame to happen (or forever).
+              WidgetsBinding.instance.ensureVisualUpdate();
+            },
+            choresEnabled: moduleFlags.isEnabled('chores'),
+            bazarEnabled: moduleFlags.isEnabled('bazar'),
+          );
+    }
     // Side effect only: sync theme/language with the account.
     ref.watch(preferenceSyncProvider);
     ref.watch(dashboardPreferenceSyncProvider);

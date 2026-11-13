@@ -57,30 +57,33 @@ class InboxScreen extends ConsumerWidget {
     }
     if (!context.mounted) return;
 
+    // The inbox is a page above the shell. Pushing a tab route on top of it
+    // gives the shell a second page with the same key and the Navigator
+    // assertion fails, so a row opens its target by replacing the stack.
     switch (item.type) {
       case VirtualInboxType.budgetAlert:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.bazarBudget));
+          context.go(AppRoutes.bazarBudget);
         }
         return;
       case VirtualInboxType.pendingJoinRequests:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.familyMembers));
+          context.go(AppRoutes.familyMembers);
         }
         return;
       case VirtualInboxType.pendingContributionRequests:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.bazarFundPending));
+          context.go(AppRoutes.bazarFundPending);
         }
         return;
       case VirtualInboxType.contributionDue:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.bazarFund));
+          context.go(AppRoutes.bazarFund);
         }
         return;
       case VirtualInboxType.awaitingVerification:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.choresVerify));
+          context.go(AppRoutes.choresVerify);
         }
         return;
     }
@@ -95,15 +98,15 @@ class InboxScreen extends ConsumerWidget {
         }
       case AuditRefType.availability:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.choresAvailability));
+          context.go(AppRoutes.choresAvailability);
         }
       case AuditRefType.occurrence:
         if (context.mounted) {
-          unawaited(context.push(AppRoutes.choresOccurrence(item.refId)));
+          context.go(AppRoutes.choresOccurrence(item.refId));
         }
       case AuditRefType.member:
         if (item.type == InboxType.memberApproved) {
-          unawaited(context.push(AppRoutes.home));
+          context.go(AppRoutes.home);
         }
         return;
     }
