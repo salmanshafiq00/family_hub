@@ -3428,6 +3428,18 @@
   "@choreEditorSectionInstructions": {},
   "choreEditorSectionOptions": "অন্যান্য",
   "@choreEditorSectionOptions": {},
+  "choreEditorStepOf": "ধাপ {current}/{total}",
+  "@choreEditorStepOf": {
+    "description": "Progress label of the multi-step chore editor.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "choreEditorNameBn": "নাম (বাংলা)",
   "@choreEditorNameBn": {},
   "choreEditorNameEn": "নাম (ইংরেজি, ঐচ্ছিক)",
@@ -3436,6 +3448,20 @@
   "@choreEditorGroup": {},
   "choreEditorIcon": "আইকন",
   "@choreEditorIcon": {},
+  "choreIconRecent": "পূর্বে ব্যবহৃত আইকন",
+  "@choreIconRecent": {
+    "description": "Heading above the quick icon row."
+  },
+  "choreIconMore": "আরও আইকন",
+  "@choreIconMore": {
+    "description": "Button that opens the searchable icon catalog."
+  },
+  "choreIconPickTitle": "আইকন বেছে নিন",
+  "@choreIconPickTitle": {},
+  "choreIconSearchHint": "আইকন খুঁজুন",
+  "@choreIconSearchHint": {},
+  "choreIconNoMatches": "এই নামে কোনো আইকন পাওয়া যায়নি।",
+  "@choreIconNoMatches": {},
   "choreEditorColor": "রঙ",
   "@choreEditorColor": {},
   "choreEditorRepeat": "পুনরাবৃত্তি",

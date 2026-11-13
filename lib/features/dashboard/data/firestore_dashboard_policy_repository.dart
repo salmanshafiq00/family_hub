@@ -27,9 +27,10 @@ final class FirestoreDashboardPolicyRepository
   final FirebaseFirestore _db;
 
   @override
-  Stream<DashboardPolicy> watchPolicy(String familyId) =>
-      watchKnownDoc(_db.doc(FirestorePaths.dashboardSettingsDoc(familyId)))
-          .map(DashboardPolicyMappers.policyFromMap);
+  Stream<DashboardPolicy> watchPolicy(String familyId) => guardStream(
+    watchKnownDoc(_db.doc(FirestorePaths.dashboardSettingsDoc(familyId)))
+        .map(DashboardPolicyMappers.policyFromMap),
+  );
 
   @override
   Future<Result<DashboardPolicy>> savePolicy(

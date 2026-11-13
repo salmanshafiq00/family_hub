@@ -19,6 +19,17 @@ Future<Result<T>> guardFirestore<T>(Future<T> Function() call) async {
   }
 }
 
+/// Converts a stream's failures into [AppFailure], so a screen can show a
+/// specific message instead of the generic one. Values pass through untouched.
+Stream<T> guardStream<T>(Stream<T> source) => source.handleError(
+  (Object error) => throw switch (error) {
+    AppFailure() => error,
+    FirebaseException(:final code) => mapFirestoreCode(code),
+    TimeoutException() => const Network(),
+    _ => Unknown(error),
+  },
+);
+
 /// Firestore error code -> failure.
 AppFailure mapFirestoreCode(String code) => switch (code) {
   'permission-denied' || 'unauthenticated' => const PermissionDenied(),

@@ -41,7 +41,11 @@ class HomeScreen extends ConsumerWidget {
       },
     );
     if (!context.mounted || failure == null) return;
-    final message = failure is Network ? l10n.errorNetwork : l10n.errorUnknown;
+    final message = switch (failure) {
+      Network() => l10n.errorNetwork,
+      PermissionDenied() => l10n.errorPermissionDenied,
+      _ => l10n.errorUnknown,
+    };
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
@@ -79,9 +83,11 @@ class HomeScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverToBoxAdapter(
                       child: ErrorView(
-                        message: failure is Network
-                            ? l10n.errorNetwork
-                            : l10n.errorUnknown,
+                        message: switch (failure) {
+                          Network() => l10n.errorNetwork,
+                          PermissionDenied() => l10n.errorPermissionDenied,
+                          _ => l10n.errorUnknown,
+                        },
                         onRetry: () => ref.invalidate(dashboardCardsProvider),
                       ),
                     ),

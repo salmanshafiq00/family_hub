@@ -55,6 +55,18 @@ void main() {
     await tester.pump();
   }
 
+  Future<void> next(WidgetTester tester) async {
+    await tester.tap(find.byKey(const ValueKey<String>('editor_next')));
+    await tester.pumpAndSettle();
+  }
+
+  /// Walks the wizard to [step] (0 = Basics, 3 = the last one).
+  Future<void> goToStep(WidgetTester tester, int step) async {
+    for (var i = 0; i < step; i++) {
+      await next(tester);
+    }
+  }
+
   Future<ChoreTemplate> seed(
     ChoresFixture fixture, {
     TemplateDraft? draft,
@@ -74,6 +86,13 @@ void main() {
   }
 
   Future<void> tapSave(WidgetTester tester) async {
+    // Save lives on the last step; walk forward until it is reached.
+    while (find
+        .byKey(const ValueKey<String>('editor_next'))
+        .evaluate()
+        .isNotEmpty) {
+      await next(tester);
+    }
     // enterText does not pump, and an unchanged draft keeps the button
     // disabled: without this frame the tap lands on a dead button.
     await tester.pump();
@@ -92,6 +111,34 @@ void main() {
     expect(find.byKey(const ValueKey<String>('editor_save')), findsNothing);
   });
 
+  testWidgets('the wizard moves between steps and keeps typed values', (
+    tester,
+  ) async {
+    await pumpP3Screen(tester, role: Role.admin, uid: 'alice', home: pushed());
+    await open(tester);
+    final en = AppLocalizationsEn();
+
+    expect(find.text(en.choreEditorStepOf('1', '4')), findsOneWidget);
+    expect(find.text(en.choreEditorSectionBasics), findsOneWidget);
+    expect(find.text(en.choreEditorSectionSchedule), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const ValueKey<String>('name_bn')),
+      'জল দেওয়া',
+    );
+    await next(tester);
+
+    expect(find.text(en.choreEditorStepOf('2', '4')), findsOneWidget);
+    expect(find.text(en.choreEditorSectionSchedule), findsOneWidget);
+    expect(find.text(en.choreEditorSectionBasics), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey<String>('editor_back')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(en.choreEditorStepOf('1', '4')), findsOneWidget);
+    expect(find.text('জল দেওয়া'), findsOneWidget);
+  });
+
   testWidgets('creates a daily chore with three times a day', (tester) async {
     final fixture = await pumpP3Screen(
       tester,
@@ -105,6 +152,7 @@ void main() {
       find.byKey(const ValueKey<String>('name_bn')),
       'ওষুধ খাওয়ানো',
     );
+    await goToStep(tester, 1);
     final add = find.byKey(const ValueKey<String>('slot_add'));
     final label2 = find.byKey(const ValueKey<String>('slot_label_s2'));
     final label3 = find.byKey(const ValueKey<String>('slot_label_s3'));
@@ -226,11 +274,14 @@ void main() {
   testWidgets('the 31st step cannot be added', (tester) async {
     await pumpP3Screen(tester, role: Role.admin, uid: 'alice', home: pushed());
     await open(tester);
+    await goToStep(tester, 2);
 
     final add = find.byKey(const ValueKey<String>('subtask_add'));
     await scrollTo(tester, add);
     for (var i = 0; i < TemplateLimits.maxSubtasks + 1; i++) {
       await tester.ensureVisible(add);
+      // The scroll offset only reaches the paint transform after a frame.
+      await tester.pump();
       await tester.tap(add, warnIfMissed: false);
       await tester.pump();
     }
@@ -267,6 +318,7 @@ void main() {
     );
     await open(tester);
 
+    // The chore-group chooser is part of the Basics step.
     expect(find.byKey(ValueKey<String>('group_${group.id}')), findsOneWidget);
   });
 
@@ -326,10 +378,13 @@ void main() {
         );
         await open(tester);
 
-        final list = find.byType(Scrollable).first;
-        for (var i = 0; i < 25; i++) {
-          await tester.drag(list, const Offset(0, -400));
-          await tester.pump();
+        for (var step = 0; step < 4; step++) {
+          final list = find.byType(Scrollable).first;
+          for (var i = 0; i < 12; i++) {
+            await tester.drag(list, const Offset(0, -400));
+            await tester.pump();
+          }
+          if (step < 3) await next(tester);
         }
         expect(tester.takeException(), isNull);
       });

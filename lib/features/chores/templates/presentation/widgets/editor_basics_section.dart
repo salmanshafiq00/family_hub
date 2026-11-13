@@ -4,6 +4,7 @@ import 'package:family_hub/features/chores/settings/presentation/chore_settings_
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_editor_controller.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_labels.dart';
+import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/features/chores/templates/presentation/widgets/draft_text_field.dart';
 import 'package:family_hub/features/chores/templates/presentation/widgets/icon_key_picker.dart';
 import 'package:family_hub/shared/widgets/choice_wrap.dart';
@@ -38,6 +39,11 @@ class EditorBasicsSection extends ConsumerWidget {
     final groups = <ChoreGroup>[
       for (final g in catalogs.groups)
         if (g.active || g.id == current.id) g,
+    ];
+    final recentIcons = <String>[
+      for (final record in ref.watch(templatesProvider))
+        ?record.template.draft.iconKey,
+      for (final group in catalogs.groups) group.iconKey,
     ];
     final label = Theme.of(context).textTheme.labelLarge;
 
@@ -83,6 +89,7 @@ class EditorBasicsSection extends ConsumerWidget {
         const SizedBox(height: 8),
         IconKeyPicker(
           selected: draft.iconKey ?? current.iconKey,
+          recentKeys: recentIcons,
           enabled: enabled,
           onChanged: controller.setIconKey,
         ),

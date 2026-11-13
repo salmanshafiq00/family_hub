@@ -6562,6 +6562,12 @@ abstract class AppLocalizations {
   /// **'অন্যান্য'**
   String get choreEditorSectionOptions;
 
+  /// Progress label of the multi-step chore editor.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপ {current}/{total}'**
+  String choreEditorStepOf(String current, String total);
+
   /// No description provided for @choreEditorNameBn.
   ///
   /// In bn, this message translates to:
@@ -6585,6 +6591,36 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আইকন'**
   String get choreEditorIcon;
+
+  /// Heading above the quick icon row.
+  ///
+  /// In bn, this message translates to:
+  /// **'পূর্বে ব্যবহৃত আইকন'**
+  String get choreIconRecent;
+
+  /// Button that opens the searchable icon catalog.
+  ///
+  /// In bn, this message translates to:
+  /// **'আরও আইকন'**
+  String get choreIconMore;
+
+  /// No description provided for @choreIconPickTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইকন বেছে নিন'**
+  String get choreIconPickTitle;
+
+  /// No description provided for @choreIconSearchHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইকন খুঁজুন'**
+  String get choreIconSearchHint;
+
+  /// No description provided for @choreIconNoMatches.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই নামে কোনো আইকন পাওয়া যায়নি।'**
+  String get choreIconNoMatches;
 
   /// No description provided for @choreEditorColor.
   ///

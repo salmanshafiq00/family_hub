@@ -10,16 +10,26 @@ Future<ChoreGroup?> showGroupEntryDialog(
   BuildContext context, {
   required ChoreGroup base,
   required bool isNew,
+  List<String> recentIconKeys = const <String>[],
 }) => showDialog<ChoreGroup>(
   context: context,
-  builder: (_) => _GroupEntryDialog(base: base, isNew: isNew),
+  builder: (_) => _GroupEntryDialog(
+    base: base,
+    isNew: isNew,
+    recentIconKeys: recentIconKeys,
+  ),
 );
 
 class _GroupEntryDialog extends StatefulWidget {
-  const _GroupEntryDialog({required this.base, required this.isNew});
+  const _GroupEntryDialog({
+    required this.base,
+    required this.isNew,
+    required this.recentIconKeys,
+  });
 
   final ChoreGroup base;
   final bool isNew;
+  final List<String> recentIconKeys;
 
   @override
   State<_GroupEntryDialog> createState() => _GroupEntryDialogState();
@@ -80,6 +90,7 @@ class _GroupEntryDialogState extends State<_GroupEntryDialog> {
           const SizedBox(height: 8),
           IconKeyPicker(
             selected: _icon,
+            recentKeys: widget.recentIconKeys,
             onChanged: (key) => setState(() => _icon = key),
           ),
         ],

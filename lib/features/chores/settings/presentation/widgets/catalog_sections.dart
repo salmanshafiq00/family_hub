@@ -34,10 +34,13 @@ class CatalogSections extends ConsumerWidget {
     final catalogs = ChoreCatalogs(draft);
     final usedGroupIds = <String>{
       for (final record in ref.watch(templatesProvider))
-        if (!record.template.isArchived &&
-            record.template.draft.groupId != null)
-          record.template.draft.groupId!,
+        if (!record.template.isArchived) ?record.template.draft.groupId,
     };
+    final recentIcons = <String>[
+      for (final group in catalogs.groups) group.iconKey,
+      for (final record in ref.watch(templatesProvider))
+        ?record.template.draft.iconKey,
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +52,7 @@ class CatalogSections extends ConsumerWidget {
           entries: [
             for (final g in catalogs.groups) CatalogMapping.groupEntry(g),
           ],
-          onEditEntry: (ctx, row) => _editGroup(ctx, row),
+          onEditEntry: (ctx, row) => _editGroup(ctx, row, recentIcons),
           onBeforeToggleActive: (ctx, row) =>
               _confirmGroupOff(ctx, row, usedGroupIds),
           onChanged: (rows) => onChanged(
@@ -102,6 +105,7 @@ class CatalogSections extends ConsumerWidget {
   Future<CatalogEntry?> _editGroup(
     BuildContext context,
     CatalogEntry? row,
+    List<String> recentIconKeys,
   ) async {
     final existing = row?.extra;
     final base = existing is ChoreGroup
@@ -115,6 +119,7 @@ class CatalogSections extends ConsumerWidget {
       context,
       base: base,
       isNew: row == null,
+      recentIconKeys: recentIconKeys,
     );
     return result == null ? null : CatalogMapping.groupEntry(result);
   }

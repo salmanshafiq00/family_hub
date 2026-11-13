@@ -65,10 +65,12 @@ class DayCell extends StatelessWidget {
             if (summary.hasProjectedOnly) HatchDirection.rising,
             if (summary.unavailableMemberIds.isNotEmpty) HatchDirection.falling,
           };
+    // The filled pill uses the theme's designed accent pair; the old
+    // accentSoft/accentStrong pair could read as one colour on some displays.
     final numberColour = outside
         ? ramp.outsideMonthText
         : selected
-        ? t.accentStrong
+        ? t.textOnAccent
         : t.textPrimary;
     final label = dayCellLabel(
       l10n: context.l10n,
@@ -205,12 +207,19 @@ class _NumberPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: selected
-              ? t.accentSoft
+              ? t.accent
               : opaque
               ? t.surface
               : null,
           borderRadius: BorderRadius.circular(t.radiusPill),
-          border: today ? Border.all(color: t.accent, width: 2) : null,
+          // Today keeps its ring; on the filled pill the ring switches to the
+          // on-accent ink so the two shapes stay distinguishable.
+          border: today
+              ? Border.all(
+                  color: selected ? t.textOnAccent : t.accent,
+                  width: 2,
+                )
+              : null,
         ),
         child: Text(
           day,

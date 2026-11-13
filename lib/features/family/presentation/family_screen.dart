@@ -118,6 +118,15 @@ class FamilyScreen extends ConsumerWidget {
                         ?.copyWith(color: t.textSecondary),
                   ),
                 ),
+                // The feed is otherwise reachable only from a dashboard card,
+                // which is off by default; admins need a stable entry to it.
+                FamilySettingsTile(
+                  key: const Key('family_activity'),
+                  icon: Icons.history_rounded,
+                  label: l10n.activityTitle,
+                  onTap: () => context.push(AppRoutes.activity),
+                ),
+                const SizedBox(height: 8),
                 FamilySettingsTile(
                   key: const Key('family_dashboard_customize'),
                   icon: Icons.dashboard_customize_outlined,

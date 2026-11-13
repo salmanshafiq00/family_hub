@@ -243,7 +243,7 @@ class _ColumnHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Material(
-        color: selected ? t.accentSoft : t.surfaceSunken,
+        color: selected ? t.accent : t.surfaceSunken,
         borderRadius: BorderRadius.circular(t.radiusMd),
         child: InkWell(
           borderRadius: BorderRadius.circular(t.radiusMd),
@@ -257,7 +257,11 @@ class _ColumnHeader extends StatelessWidget {
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: day.summary.isToday ? t.accentStrong : t.textPrimary,
+                  color: selected
+                      ? t.textOnAccent
+                      : day.summary.isToday
+                      ? t.accentStrong
+                      : t.textPrimary,
                   fontWeight: day.summary.isToday || selected
                       ? FontWeight.w700
                       : FontWeight.w500,

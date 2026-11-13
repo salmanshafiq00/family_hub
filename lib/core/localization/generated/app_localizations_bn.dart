@@ -3752,6 +3752,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get choreEditorSectionOptions => 'অন্যান্য';
 
   @override
+  String choreEditorStepOf(String current, String total) {
+    return 'ধাপ $current/$total';
+  }
+
+  @override
   String get choreEditorNameBn => 'নাম (বাংলা)';
 
   @override
@@ -3762,6 +3767,21 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get choreEditorIcon => 'আইকন';
+
+  @override
+  String get choreIconRecent => 'পূর্বে ব্যবহৃত আইকন';
+
+  @override
+  String get choreIconMore => 'আরও আইকন';
+
+  @override
+  String get choreIconPickTitle => 'আইকন বেছে নিন';
+
+  @override
+  String get choreIconSearchHint => 'আইকন খুঁজুন';
+
+  @override
+  String get choreIconNoMatches => 'এই নামে কোনো আইকন পাওয়া যায়নি।';
 
   @override
   String get choreEditorColor => 'রঙ';

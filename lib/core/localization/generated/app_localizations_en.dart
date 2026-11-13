@@ -3772,6 +3772,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choreEditorSectionOptions => 'Options';
 
   @override
+  String choreEditorStepOf(String current, String total) {
+    return 'Step $current of $total';
+  }
+
+  @override
   String get choreEditorNameBn => 'Name (Bangla)';
 
   @override
@@ -3782,6 +3787,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choreEditorIcon => 'Icon';
+
+  @override
+  String get choreIconRecent => 'Previously used icons';
+
+  @override
+  String get choreIconMore => 'More icons';
+
+  @override
+  String get choreIconPickTitle => 'Choose an icon';
+
+  @override
+  String get choreIconSearchHint => 'Search icons';
+
+  @override
+  String get choreIconNoMatches => 'No icon matches that name.';
 
   @override
   String get choreEditorColor => 'Color';

@@ -3429,6 +3429,18 @@
   "@choreEditorSectionInstructions": {},
   "choreEditorSectionOptions": "Options",
   "@choreEditorSectionOptions": {},
+  "choreEditorStepOf": "Step {current} of {total}",
+  "@choreEditorStepOf": {
+    "description": "Progress label of the multi-step chore editor.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "choreEditorNameBn": "Name (Bangla)",
   "@choreEditorNameBn": {},
   "choreEditorNameEn": "Name (English, optional)",
@@ -3437,6 +3449,20 @@
   "@choreEditorGroup": {},
   "choreEditorIcon": "Icon",
   "@choreEditorIcon": {},
+  "choreIconRecent": "Previously used icons",
+  "@choreIconRecent": {
+    "description": "Heading above the quick icon row."
+  },
+  "choreIconMore": "More icons",
+  "@choreIconMore": {
+    "description": "Button that opens the searchable icon catalog."
+  },
+  "choreIconPickTitle": "Choose an icon",
+  "@choreIconPickTitle": {},
+  "choreIconSearchHint": "Search icons",
+  "@choreIconSearchHint": {},
+  "choreIconNoMatches": "No icon matches that name.",
+  "@choreIconNoMatches": {},
   "choreEditorColor": "Color",
   "@choreEditorColor": {},
   "choreEditorRepeat": "Repeats",
