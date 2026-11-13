@@ -30,6 +30,29 @@ Build plan: `ROADMAP.md`; Phase 1 hardening plan: `PHASE1_HARDENING_ROADMAP.md`;
 There is no code generation step: models are hand-written immutable classes and
 localizations are checked in (`flutter gen-l10n` regenerates them after an ARB change).
 
+## Launcher icons
+Each flavor has its own launcher icon: teal for prod, orange for dev. The generated
+resources live in `android/app/src/prod/res/` and `android/app/src/dev/res/`
+(`mipmap-*` PNGs, `mipmap-anydpi-v26/ic_launcher.xml`, `drawable-*` foreground, and
+`values/colors.xml` with the adaptive background); `main/res` carries no launcher icon.
+
+```bash
+# Regenerate after changing an image in assets/icon/ (reads both flavor configs)
+flutter pub get
+dart run flutter_launcher_icons
+```
+
+The tool picks the flavor from the config file name
+(`flutter_launcher_icons-prod.yaml`, `flutter_launcher_icons-dev.yaml`). The images in
+`assets/icon/` are icon sources only and are not listed under `flutter: assets:`.
+Launchers cache icons, so uninstall the app before checking a new one.
+
+```bash
+# Run each flavor
+flutter run --flavor dev -t lib/main_dev.dart
+flutter run --flavor prod -t lib/main_prod.dart
+```
+
 ## Golden (image) tests
 Goldens are **only** generated on Linux, by the `Update goldens` GitHub workflow
 (Actions -> Update goldens -> Run workflow). Download the `linux-goldens` artifact, unzip it
