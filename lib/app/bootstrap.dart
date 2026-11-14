@@ -62,6 +62,8 @@ import 'package:family_hub/features/chores/occurrences/data/firestore_occurrence
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/templates/data/firestore_chore_template_repository.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
+import 'package:family_hub/features/chores/settings/data/firestore_chore_settings_repository.dart';
+import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
 import 'package:family_hub/core/firebase/sync_status.dart';
 import 'package:family_hub/core/firebase/tx_runner.dart';
 import 'package:family_hub/core/localization/locale_controller.dart';
@@ -162,6 +164,10 @@ Future<void> bootstrap(Flavor flavor) async {
       tx: tx,
       clock: clock,
     );
+    final choreSettings = FirestoreChoreSettingsRepository(
+      tx: tx,
+      clock: clock,
+    );
     final dutyGroups = FirestoreDutyGroupRepository(tx: tx, clock: clock);
     final occurrences = FirestoreOccurrenceRepository(tx: tx, clock: clock);
     final comments = FirestoreCommentRepository(tx: tx);
@@ -233,6 +239,7 @@ Future<void> bootstrap(Flavor flavor) async {
           advanceRepositoryProvider.overrideWithValue(advances),
           contributionRepositoryProvider.overrideWithValue(contributions),
           templateRepositoryProvider.overrideWithValue(choreTemplates),
+          choreSettingsRepositoryProvider.overrideWithValue(choreSettings),
           dutyGroupRepositoryProvider.overrideWithValue(dutyGroups),
           // One object serves both ports (occurrences + the generation marker).
           occurrenceRepositoryProvider.overrideWithValue(occurrences),
