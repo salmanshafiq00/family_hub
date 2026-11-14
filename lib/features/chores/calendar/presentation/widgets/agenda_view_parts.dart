@@ -24,17 +24,22 @@ class _DayHeaderDelegate extends SliverPersistentHeaderDelegate {
       oldDelegate.extent != extent || oldDelegate.child != child;
 }
 
-/// "Sunday, 25 October 2026 · Today · 3 chores". Tapping selects the day.
+/// "Sunday, 25 October 2026 · Today · 3 chores". Tapping selects the day and
+/// opens or closes its chores.
 class _DayHeader extends ConsumerWidget {
   const _DayHeader({
     required this.day,
     required this.formatters,
     required this.selected,
+    required this.expanded,
+    required this.onToggle,
   });
 
   final AgendaDay day;
   final AppFormatters formatters;
   final bool selected;
+  final bool expanded;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,7 +60,10 @@ class _DayHeader extends ConsumerWidget {
       color: t.background,
       child: InkWell(
         key: ValueKey<String>('calendar_agenda_day_$key'),
-        onTap: () => ref.read(calendarFocusProvider.notifier).selectDay(key),
+        onTap: () {
+          ref.read(calendarFocusProvider.notifier).selectDay(key);
+          onToggle();
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Align(
@@ -63,6 +71,8 @@ class _DayHeader extends ConsumerWidget {
             child: Semantics(
               header: true,
               selected: selected,
+              button: day.items.isNotEmpty,
+              expanded: day.items.isEmpty ? null : expanded,
               child: Row(
                 children: [
                   if (selected)
@@ -88,6 +98,16 @@ class _DayHeader extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  if (day.items.isNotEmpty)
+                    ExcludeSemantics(
+                      child: Icon(
+                        expanded
+                            ? Icons.expand_less_rounded
+                            : Icons.expand_more_rounded,
+                        size: 20,
+                        color: t.textSecondary,
+                      ),
+                    ),
                 ],
               ),
             ),

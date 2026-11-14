@@ -24,6 +24,7 @@ void main() {
     List<ChoreOccurrence> occurrences = const <ChoreOccurrence>[],
     CalendarView? view,
     double width = 360,
+    double height = 800,
     Role role = Role.member,
   }) {
     final fixture = ChoresFixture();
@@ -38,6 +39,7 @@ void main() {
       sharedFixture: fixture,
       occurrences: occurrences,
       width: width,
+      height: height,
       role: role,
     );
   }
@@ -125,6 +127,94 @@ void main() {
 
       expect(find.byKey(const Key('calendar_quick_complete')), findsOneWidget);
       expect(find.byKey(const Key('calendar_quick_details')), findsOneWidget);
+    });
+
+    group('folds the days around today', () {
+      // A past day keeps its own block only while its chores are done (an open
+      // one belongs to the Overdue block), and a chore without subtasks counts
+      // as done by `completedAt`.
+      List<ChoreOccurrence> done(DateKey day, int index) => <ChoreOccurrence>[
+        anOccurrence(
+          id: 'tpl_${index}_${day.compact}',
+          templateId: 'tpl_$index',
+          dateKey: day,
+          status: OccurrenceStatus.completed,
+          completedAt: DateTime.utc(day.year, day.month, day.day, 4),
+          completedBy: 'cara',
+        ),
+      ];
+
+      List<ChoreOccurrence> week() => <ChoreOccurrence>[
+        ...done(DateKey(2026, 10, 21), 1),
+        ...done(DateKey(2026, 10, 22), 2),
+        ...done(DateKey(2026, 10, 23), 3),
+        on(4, DateKey(2026, 10, 24)),
+        on(5, DateKey(2026, 10, 25)),
+        on(6, DateKey(2026, 10, 26)),
+        on(7, DateKey(2026, 10, 27)),
+      ];
+
+      Finder header(String day) =>
+          find.byKey(ValueKey<String>('calendar_agenda_day_$day'));
+
+      Finder icon(String day, IconData icon) =>
+          find.descendant(of: header(day), matching: find.byIcon(icon));
+
+      Future<void> tapDay(WidgetTester tester, String day) async {
+        await tester.tap(header(day));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('opens today ±2 days and folds the rest', (tester) async {
+        await pump(tester, height: 1200, occurrences: week());
+
+        expect(icon('2026-10-26', Icons.expand_less_rounded), findsOneWidget);
+        expect(icon('2026-10-27', Icons.expand_more_rounded), findsOneWidget);
+        // Today, 25 and 26 show their chores; 27 keeps its header only.
+        expect(find.byType(TodayRow), findsNWidgets(3));
+      });
+
+      testWidgets('opens a folded day on tap and folds it again', (
+        tester,
+      ) async {
+        await pump(tester, height: 1200, occurrences: week());
+
+        await tapDay(tester, '2026-10-27');
+        expect(icon('2026-10-27', Icons.expand_less_rounded), findsOneWidget);
+        expect(find.byType(TodayRow), findsNWidgets(4));
+
+        await tapDay(tester, '2026-10-27');
+        expect(find.byType(TodayRow), findsNWidgets(3));
+      });
+
+      testWidgets('the past days follow the same window', (tester) async {
+        await pump(
+          tester,
+          height: 1200,
+          occurrences: <ChoreOccurrence>[
+            ...done(DateKey(2026, 10, 21), 1),
+            ...done(DateKey(2026, 10, 22), 2),
+            ...done(DateKey(2026, 10, 23), 3),
+          ],
+        );
+        // The past scrolls upwards away from today's centre.
+        await tester.fling(
+          find.byType(CustomScrollView),
+          const Offset(0, 1500),
+          3000,
+        );
+        await tester.pumpAndSettle();
+
+        expect(icon('2026-10-22', Icons.expand_less_rounded), findsOneWidget);
+        expect(icon('2026-10-21', Icons.expand_more_rounded), findsOneWidget);
+        expect(find.byType(TodayRow), findsNWidgets(2));
+
+        await tapDay(tester, '2026-10-21');
+        expect(find.byType(TodayRow), findsNWidgets(3));
+
+        await tapDay(tester, '2026-10-22');
+        expect(find.byType(TodayRow), findsNWidgets(2));
+      });
     });
   });
 

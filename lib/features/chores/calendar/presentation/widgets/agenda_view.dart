@@ -18,12 +18,18 @@ part 'agenda_view_parts.dart';
 
 const double _kJumpTodayThreshold = 240;
 
+/// Days either side of today whose chores start open; every other day starts
+/// closed behind its header (the person taps the header to open or close it).
+const int _kOpenDaysAroundToday = 2;
+
 /// The Agenda (P3-23): a list that grows in both directions from today.
 ///
 /// * the Overdue block comes first, then today and the days after it, each day
 ///   under a sticky header;
 /// * days before today scroll upwards (`center` = today), without sticky
 ///   headers (a reversed sliver has none);
+/// * the chores of today ± [_kOpenDaysAroundToday] days start open, every
+///   other day starts closed to its header and opens on tap;
 /// * runs of days without chores collapse into one "N free days" chip;
 /// * the ends carry "Show earlier / later weeks" (the window grows by whole
 ///   weeks up to the model's limit);
@@ -38,6 +44,7 @@ class AgendaView extends ConsumerStatefulWidget {
 class _AgendaViewState extends ConsumerState<AgendaView> {
   final GlobalKey _centerKey = GlobalKey(debugLabel: 'agenda_center');
   final ScrollController _scroll = ScrollController();
+  final Set<DateKey> _toggledDays = <DateKey>{};
   AgendaWindow _window = const AgendaWindow();
   bool _away = false;
 
@@ -68,6 +75,15 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
       ..dispose();
     super.dispose();
   }
+
+  /// Open near today, closed further away, unless the person tapped the header.
+  bool _isOpen(DateKey day, DateKey today) =>
+      (today.daysUntil(day).abs() <= _kOpenDaysAroundToday) !=
+      _toggledDays.contains(day);
+
+  void _toggleDay(DateKey day) => setState(() {
+    if (!_toggledDays.remove(day)) _toggledDays.add(day);
+  });
 
   void _jumpToToday() {
     if (!_scroll.hasClients) return;
@@ -145,7 +161,7 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     // is built newest-first and its last child ("earlier weeks") is the top.
     final reversedRows = <Widget>[
       for (final entry in past.reversed)
-        ..._rowsOf(context, entry, formatters, selected).reversed,
+        ..._rowsOf(entry, formatters, selected, today).reversed,
       if (_window.canGoEarlier)
         _MoreButton(
           key: const Key('calendar_load_earlier'),
@@ -180,11 +196,7 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
                   pinned: true,
                   delegate: _DayHeaderDelegate(
                     extent: headerExtent,
-                    child: _DayHeader(
-                      day: day,
-                      formatters: formatters,
-                      selected: day.dateKey == selected,
-                    ),
+                    child: _headerOf(day, formatters, selected, today),
                   ),
                 ),
                 SliverList(
@@ -193,7 +205,9 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                       child: TodayRow(item: day.items[index]),
                     ),
-                    childCount: day.items.length,
+                    childCount: _isOpen(day.dateKey, today)
+                        ? day.items.length
+                        : 0,
                   ),
                 ),
               ],
@@ -216,24 +230,34 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     );
   }
 
+  _DayHeader _headerOf(
+    AgendaDay day,
+    AppFormatters formatters,
+    DateKey selected,
+    DateKey today,
+  ) => _DayHeader(
+    day: day,
+    formatters: formatters,
+    selected: day.dateKey == selected,
+    expanded: _isOpen(day.dateKey, today),
+    onToggle: () => _toggleDay(day.dateKey),
+  );
+
   /// The rows of one past entry in reading order (header first).
   List<Widget> _rowsOf(
-    BuildContext context,
     AgendaEntry entry,
     AppFormatters formatters,
     DateKey selected,
+    DateKey today,
   ) => switch (entry) {
     final AgendaDay day => <Widget>[
-      _DayHeader(
-        day: day,
-        formatters: formatters,
-        selected: day.dateKey == selected,
-      ),
-      for (final item in day.items)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          child: TodayRow(item: item),
-        ),
+      _headerOf(day, formatters, selected, today),
+      if (_isOpen(day.dateKey, today))
+        for (final item in day.items)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: TodayRow(item: item),
+          ),
     ],
     final AgendaFreeDays free => <Widget>[_FreeDaysChip(count: free.count)],
     AgendaOverdue() => const <Widget>[],
