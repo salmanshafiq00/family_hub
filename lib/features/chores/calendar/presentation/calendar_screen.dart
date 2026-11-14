@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:animations/animations.dart';
+import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
@@ -177,6 +178,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 FadeThroughTransition(
                   animation: animation,
                   secondaryAnimation: secondary,
+                  // Without an explicit fill the transition reads the theme
+                  // from `material_ui` (animations 3.0), which cannot see this
+                  // app's `flutter/material` theme and falls back to the light
+                  // M3 canvas — a white band behind the dark calendar.
+                  fillColor: context.tokens.background,
                   child: child,
                 ),
             child: KeyedSubtree(
