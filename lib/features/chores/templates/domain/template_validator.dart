@@ -66,7 +66,7 @@ abstract final class TemplateValidator {
     // the family can tell "সকাল" from "দুপুর" in the day panel.
     for (final slot in slots.skip(1)) {
       if ((slot.labelBn ?? '').trim().isEmpty) {
-        return const Validation('slots', 'required');
+        return const Validation('slots', 'slot_name_required');
       }
     }
 

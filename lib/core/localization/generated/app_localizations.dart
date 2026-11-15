@@ -4599,6 +4599,12 @@ abstract class AppLocalizations {
   /// **'এটি পূরণ করা জরুরি।'**
   String get choresFailure_required;
 
+  /// No description provided for @choresFailure_slot_name_required.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রথমটির পর প্রতিটি সময়ের একটি নাম দিন।'**
+  String get choresFailure_slot_name_required;
+
   /// No description provided for @choresFailure_too_long.
   ///
   /// In bn, this message translates to:
@@ -6855,6 +6861,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই সময়ের নাম (ঐচ্ছিক)'**
   String get choreSlotLabel;
+
+  /// No description provided for @choreSlotLabelRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই সময়ের নাম'**
+  String get choreSlotLabelRequired;
+
+  /// No description provided for @choreSlotLabelNeeded.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময়গুলো আলাদা বোঝার জন্য এর একটি নাম দিন।'**
+  String get choreSlotLabelNeeded;
 
   /// No description provided for @choreSlotDueTime.
   ///

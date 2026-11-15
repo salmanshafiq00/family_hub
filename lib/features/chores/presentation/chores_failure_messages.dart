@@ -29,6 +29,7 @@ extension ChoresFailureMessages on AppLocalizations {
 
   String _validation(String code) => switch (code) {
     'required' => choresFailure_required,
+    'slot_name_required' => choresFailure_slot_name_required,
     'too_long' => choresFailure_too_long,
     'invalid_time' => choresFailure_invalid_time,
     'invalid_recurrence' => choresFailure_invalid_recurrence,

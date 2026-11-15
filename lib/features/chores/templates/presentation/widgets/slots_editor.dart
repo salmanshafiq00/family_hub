@@ -162,7 +162,9 @@ class _SlotCard extends StatelessWidget {
           DraftTextField(
             key: ValueKey<String>('slot_label_${slot.key}'),
             value: slot.labelBn ?? '',
-            label: l10n.choreSlotLabel,
+            label: index == 0
+                ? l10n.choreSlotLabel
+                : l10n.choreSlotLabelRequired,
             maxLength: 30,
             enabled: enabled,
             onChanged: (text) => onChanged(
@@ -174,6 +176,16 @@ class _SlotCard extends StatelessWidget {
               ),
             ),
           ),
+          if (index > 0 && (slot.labelBn ?? '').trim().isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                l10n.choreSlotLabelNeeded,
+                key: ValueKey<String>('slot_label_needed_${slot.key}'),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: t.textSecondary),
+              ),
+            ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,

@@ -121,7 +121,7 @@ void main() {
             ],
           ),
         ),
-        'required',
+        'slot_name_required',
         reason: 'a second slot also needs a label',
       );
     });

@@ -2560,6 +2560,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choresFailure_required => 'This field is required.';
 
   @override
+  String get choresFailure_slot_name_required =>
+      'Give every time after the first a name.';
+
+  @override
   String get choresFailure_too_long => 'That text is too long.';
 
   @override
@@ -3933,6 +3937,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choreSlotLabel => 'Name of this time (optional)';
+
+  @override
+  String get choreSlotLabelRequired => 'Name of this time';
+
+  @override
+  String get choreSlotLabelNeeded =>
+      'Give this time a name so the family can tell the times apart.';
 
   @override
   String get choreSlotDueTime => 'Due time';

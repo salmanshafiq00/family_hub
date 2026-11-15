@@ -2553,6 +2553,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get choresFailure_required => 'এটি পূরণ করা জরুরি।';
 
   @override
+  String get choresFailure_slot_name_required =>
+      'প্রথমটির পর প্রতিটি সময়ের একটি নাম দিন।';
+
+  @override
   String get choresFailure_too_long => 'লেখাটি খুব বড় হয়ে গেছে।';
 
   @override
@@ -3914,6 +3918,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get choreSlotLabel => 'এই সময়ের নাম (ঐচ্ছিক)';
+
+  @override
+  String get choreSlotLabelRequired => 'এই সময়ের নাম';
+
+  @override
+  String get choreSlotLabelNeeded =>
+      'সময়গুলো আলাদা বোঝার জন্য এর একটি নাম দিন।';
 
   @override
   String get choreSlotDueTime => 'শেষ সময়';

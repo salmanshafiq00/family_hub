@@ -187,6 +187,47 @@ void main() {
     expect(stored.draft.slots.first.key, TemplateLimits.mainSlotKey);
   });
 
+  testWidgets('a new time asks for a name instead of saying optional', (
+    tester,
+  ) async {
+    await pumpP3Screen(tester, role: Role.admin, uid: 'alice', home: pushed());
+    await open(tester);
+    final en = AppLocalizationsEn();
+
+    await tester.enterText(
+      find.byKey(const ValueKey<String>('name_bn')),
+      'ওষুধ খাওয়ানো',
+    );
+    await goToStep(tester, 1);
+    final add = find.byKey(const ValueKey<String>('slot_add'));
+    await scrollTo(tester, add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+
+    // Saving with the new time unnamed sends the user back to step 2, where
+    // the field must say the name is needed.
+    await tapSave(tester);
+
+    expect(find.text(en.choreEditorStepOf('2', '4')), findsOneWidget);
+    expect(find.text(en.choresFailure_slot_name_required), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey<String>('slot_label_needed_s2')),
+      findsOneWidget,
+    );
+    expect(find.text(en.choreSlotLabel), findsOneWidget);
+
+    final label2 = find.byKey(const ValueKey<String>('slot_label_s2'));
+    await scrollTo(tester, label2);
+    await tester.enterText(label2, 'দুপুর');
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey<String>('slot_label_needed_s2')),
+      findsNothing,
+    );
+    expect(find.text(en.choreSlotLabelRequired), findsOneWidget);
+  });
+
   testWidgets('an empty name is refused with a localized message', (
     tester,
   ) async {
