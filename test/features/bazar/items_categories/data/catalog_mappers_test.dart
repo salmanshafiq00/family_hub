@@ -48,7 +48,7 @@ void main() {
       'active': 'yes',
       'sortOrder': 'first',
     });
-    expect(odd.colorIndex, 11);
+    expect(odd.colorIndex, 23);
     expect(odd.active, isTrue);
     expect(odd.sortOrder, 0);
   });

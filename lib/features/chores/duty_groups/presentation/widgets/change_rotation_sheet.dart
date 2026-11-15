@@ -2,7 +2,9 @@ import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
-import 'package:family_hub/features/chores/duty_groups/domain/rotation_builder.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/rotation.dart'
+    show CycleUnit;
+import 'package:family_hub/features/chores/duty_groups/domain/rotation_boundaries.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation_change_request.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation_engine.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/usecases/change_rotation.dart';
@@ -48,6 +50,7 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
   String? _memberId;
   late List<String> _order = List<String>.of(widget.group.members);
   String? _startsWith;
+  CycleUnit? _cycleUnit;
   DateKey? _effectiveFrom;
 
   DateKey _today() => ref.read(familyDateKeysProvider).today();
@@ -56,9 +59,7 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
   DateKey _defaultFrom() {
     final today = _today();
     final version = RotationEngine.versionFor(widget.group.rotation, today);
-    return version == null
-        ? today
-        : RotationBuilder.nextBoundary(version, today);
+    return version == null ? today : RotationBoundaries.next(version, today);
   }
 
   RotationChangeRequest _request() => RotationChangeRequest(
@@ -67,6 +68,7 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
     memberId: _memberId,
     members: _order,
     startsWith: _startsWith ?? (_order.isEmpty ? null : _order.first),
+    cycleUnit: _cycleUnit,
   );
 
   void _setMode(RotationChange mode) => setState(() {
@@ -74,6 +76,7 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
     _memberId = null;
     _order = List<String>.of(widget.group.members);
     _startsWith = null;
+    _cycleUnit = null;
   });
 
   @override
@@ -95,7 +98,10 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
     final candidate = result.valueOrNull;
     final failure = result.failureOrNull;
     final needsMember =
-        _mode != RotationChange.reorder && (_memberId ?? '').isEmpty;
+        (_mode == RotationChange.add || _mode == RotationChange.remove) &&
+        (_memberId ?? '').isEmpty;
+    final needsCycle = _mode == RotationChange.cycle && _cycleUnit == null;
+    final incomplete = needsMember || needsCycle;
     final boundary = candidate?.versions.last.from;
 
     return Padding(
@@ -127,6 +133,11 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
                   l10n.dutyChangeReorder,
                   key: const ValueKey<String>('mode_reorder'),
                 ),
+                ChoiceOption<RotationChange>(
+                  RotationChange.cycle,
+                  l10n.dutyChangeCycle,
+                  key: const ValueKey<String>('mode_cycle'),
+                ),
               ],
               selected: _mode,
               onChanged: _setMode,
@@ -138,9 +149,11 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
               memberId: _memberId,
               order: _order,
               startsWith: _startsWith,
+              cycleUnit: _cycleUnit,
               onMember: (id) => setState(() => _memberId = id),
               onOrder: (order) => setState(() => _order = order),
               onStartsWith: (id) => setState(() => _startsWith = id),
+              onCycleUnit: (unit) => setState(() => _cycleUnit = unit),
             ),
             const SizedBox(height: 16),
             Text(
@@ -163,12 +176,12 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
               ),
             ),
             const SizedBox(height: 8),
-            if (failure != null && !needsMember)
+            if (failure != null && !incomplete)
               Text(
                 l10n.choresFailureMessage(failure),
                 style: textTheme.bodyMedium?.copyWith(color: t.danger),
               )
-            else if (boundary != null && !needsMember) ...[
+            else if (boundary != null && !incomplete) ...[
               Text(
                 l10n.dutyChangeNothingBefore(
                   formatters.fullDate(dateOfKey(boundary)),
@@ -183,7 +196,9 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
               ),
             ] else
               Text(
-                l10n.dutyChangePickMember,
+                needsCycle
+                    ? l10n.dutyChangePickCycle
+                    : l10n.dutyChangePickMember,
                 style: textTheme.bodyMedium?.copyWith(color: t.textSecondary),
               ),
             const SizedBox(height: 16),
@@ -205,7 +220,7 @@ class _ChangeRotationSheetState extends ConsumerState<ChangeRotationSheet> {
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(48, 48),
                     ),
-                    onPressed: candidate == null || needsMember
+                    onPressed: candidate == null || incomplete
                         ? null
                         : () => Navigator.of(context).pop(request),
                     child: Text(l10n.dutyChangeApply),

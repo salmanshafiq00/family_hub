@@ -355,6 +355,39 @@ void main() {
       expect(RotationEngine.planned(updated.rotation, day(10, 24)), 'dave');
     });
 
+    test('cycle stores the new unit and keeps the boundary turn', () async {
+      final group = await seed();
+      final result = await change(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: group.id,
+        change: RotationChange.cycle,
+        effectiveFrom: day(10, 7),
+        cycleUnit: CycleUnit.day,
+      );
+      final updated = result.valueOrNull!;
+      expect(updated.rotation.versions.last.from, day(10, 10));
+      expect(updated.rotation.versions.last.cycleUnit, CycleUnit.day);
+      expect(RotationEngine.planned(updated.rotation, day(10, 10)), 'cara');
+      expect(RotationEngine.planned(updated.rotation, day(10, 11)), 'dave');
+      expect(fixture.chores.dutyGroups.rotationWrites, 1);
+      expect(fixture.chores.dutyGroups.events.last.params['change'], 'cycle');
+    });
+
+    test('a cycle change without a unit is refused before any read', () async {
+      final result = await change(
+        actorUid: 'bob',
+        familyId: familyId,
+        groupId: 'missing',
+        change: RotationChange.cycle,
+        effectiveFrom: day(10, 7),
+      );
+      expect(
+        result.failureOrNull,
+        const Validation('rotation', 'invalid_rotation'),
+      );
+    });
+
     test('a date before the first version is refused', () async {
       final group = await seed();
       final result = await change(

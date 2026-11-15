@@ -10,6 +10,9 @@ const int maxCatalogAliasLength = 40;
 const int maxCatalogEmojiLength = 8;
 const int maxCatalogImageDataLength = 24000;
 
+/// The last valid index into the theme's `placeholderPalette`.
+const int maxCatalogColorIndex = 23;
+
 /// Validation shared by the catalog use cases.
 ///
 /// Every function returns `null` when the value is acceptable, so a use case
@@ -32,7 +35,9 @@ AppFailure? validateNameEn(String? value) {
 }
 
 AppFailure? validateColorIndex(int value) {
-  if (value < 0 || value > 11) return const Validation('colorIndex', 'invalid');
+  if (value < 0 || value > maxCatalogColorIndex) {
+    return const Validation('colorIndex', 'invalid');
+  }
   return null;
 }
 

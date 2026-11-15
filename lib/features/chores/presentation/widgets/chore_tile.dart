@@ -7,6 +7,7 @@ import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart'
 import 'package:family_hub/features/chores/comments/presentation/comment_providers.dart';
 import 'package:family_hub/features/chores/presentation/chore_icons.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile_mapping.dart';
+import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
 import 'package:family_hub/features/family/domain/member.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/shared/widgets/app_avatar.dart';
@@ -70,6 +71,10 @@ class ChoreTile extends ConsumerWidget {
     final unread = ref.watch(
       hasUnreadCommentProvider((id: item.id, last: item.lastCommentAt)),
     );
+    final groupId = item.groupId;
+    final iconKey = groupId == null
+        ? null
+        : ref.watch(choreGroupIconKeyProvider(groupId));
     final radius = BorderRadius.circular(t.radiusMd);
 
     return Material(
@@ -97,7 +102,14 @@ class ChoreTile extends ConsumerWidget {
                       horizontal: 12,
                       vertical: 10,
                     ),
-                    child: _content(context, l10n, assignee, planned, unread),
+                    child: _content(
+                      context,
+                      l10n,
+                      assignee,
+                      planned,
+                      unread,
+                      iconKey,
+                    ),
                   ),
                 ),
               ),
@@ -119,11 +131,16 @@ class ChoreTile extends ConsumerWidget {
     Member? assignee,
     Member? planned,
     bool unread,
+    String? iconKey,
   ) {
     final t = context.tokens;
     return Row(
       children: [
-        Icon(choreIconFor(item), size: 20, color: t.accentStrong),
+        Icon(
+          choreIconFor(item, groupIconKey: iconKey),
+          size: 20,
+          color: t.accentStrong,
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(

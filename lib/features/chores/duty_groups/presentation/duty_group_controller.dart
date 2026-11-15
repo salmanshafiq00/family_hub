@@ -125,6 +125,7 @@ class DutyGroupController extends Notifier<DutyGroupFormState> {
       memberId: request.memberId,
       members: request.members,
       startsWith: request.startsWith,
+      cycleUnit: request.cycleUnit,
     );
     final failure = result.failureOrNull;
     if (failure != null) return _failed(failure);

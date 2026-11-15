@@ -202,6 +202,79 @@ void main() {
     });
   });
 
+  group('cycle', () {
+    test('a weekly rota becomes daily from the next week start', () {
+      final before = aRotation();
+      expect(RotationEngine.planned(before, day(10, 10)), 'cara');
+
+      final changed = RotationBuilder.cycle(
+        before,
+        cycleUnit: CycleUnit.day,
+        effectiveFrom: day(10, 7),
+      ).valueOrNull!;
+
+      expect(changed.versions.last.from, day(10, 10));
+      expect(changed.versions.last.cycleUnit, CycleUnit.day);
+      expect(RotationEngine.planned(changed, day(10, 10)), 'cara');
+      expect(RotationEngine.planned(changed, day(10, 11)), 'dave');
+      expect(RotationEngine.planned(changed, day(10, 12)), 'alice');
+    });
+
+    test('nothing before the boundary changes', () {
+      final before = aRotation();
+      final changed = RotationBuilder.cycle(
+        before,
+        cycleUnit: CycleUnit.day,
+        effectiveFrom: day(10, 7),
+      ).valueOrNull!;
+      for (var i = 1; i <= 6; i++) {
+        final earlier = day(10, 10).addDays(-i);
+        expect(
+          RotationEngine.planned(changed, earlier),
+          RotationEngine.planned(before, earlier),
+          reason: '$earlier',
+        );
+      }
+    });
+
+    test('a monthly rota changes on the first of the month', () {
+      final changed = RotationBuilder.cycle(
+        aRotation(cycleUnit: CycleUnit.month),
+        cycleUnit: CycleUnit.week,
+        effectiveFrom: day(10, 7),
+      ).valueOrNull!;
+      expect(changed.versions.last.from, day(11, 1));
+      expect(changed.versions.last.cycleUnit, CycleUnit.week);
+    });
+
+    test('the same unit is refused', () {
+      final result = RotationBuilder.cycle(
+        aRotation(),
+        cycleUnit: CycleUnit.week,
+        effectiveFrom: day(10, 7),
+      );
+      expect(result.failureOrNull, failureCode('invalid_rotation'));
+    });
+
+    test('the occurrence unit is refused (no schedule on a group)', () {
+      final result = RotationBuilder.cycle(
+        aRotation(),
+        cycleUnit: CycleUnit.occurrence,
+        effectiveFrom: day(10, 7),
+      );
+      expect(result.failureOrNull, failureCode('invalid_rotation'));
+    });
+
+    test('a date before the first version is refused', () {
+      final result = RotationBuilder.cycle(
+        aRotation(),
+        cycleUnit: CycleUnit.day,
+        effectiveFrom: day(8, 1),
+      );
+      expect(result.failureOrNull, failureCode('invalid_date'));
+    });
+  });
+
   group('occurrence unit', () {
     const schedule = WeekdaysRecurrence(weekdays: <int>[6, 7, 1, 2, 3, 4]);
 

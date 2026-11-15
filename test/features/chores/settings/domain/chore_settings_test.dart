@@ -166,7 +166,7 @@ void main() {
       );
     });
 
-    test('a built-in row may be renamed and deactivated, never removed', () {
+    test('a built-in group may be renamed, deactivated or deleted', () {
       final renamed = <ChoreGroup>[
         for (final g in defaultGroups)
           if (g.id == 'kitchen')
@@ -182,8 +182,27 @@ void main() {
       ];
       expect(
         codeOf(ChoreSettings.defaults.copyWith(groups: removed)),
+        isNull,
+        reason: 'a chore falls back to the other group (ChoreCatalogs.groupOf)',
+      );
+    });
+
+    test('a built-in preset or reason cannot be removed', () {
+      final noMorning = <DueTimePreset>[
+        for (final p in defaultDueTimePresets)
+          if (p.id != 'morning') p,
+      ];
+      expect(
+        codeOf(ChoreSettings.defaults.copyWith(dueTimePresets: noMorning)),
         'invalid_recurrence',
-        reason: 'a starter pack or an occurrence may still reference it',
+      );
+      final noSick = <AbsenceReason>[
+        for (final r in defaultAbsenceReasons)
+          if (r.id != 'sick') r,
+      ];
+      expect(
+        codeOf(ChoreSettings.defaults.copyWith(absenceReasons: noSick)),
+        'invalid_recurrence',
       );
     });
 
@@ -233,7 +252,7 @@ void main() {
       );
       final badColor = <ChoreGroup>[
         ...defaultGroups,
-        const ChoreGroup(id: 'custom_1', nameBn: 'ক', colorIndex: 12),
+        const ChoreGroup(id: 'custom_1', nameBn: 'ক', colorIndex: 24),
       ];
       expect(
         codeOf(ChoreSettings.defaults.copyWith(groups: badColor)),

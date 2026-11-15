@@ -26,6 +26,7 @@ void main() {
   Future<List<List<CatalogEntry>>> pumpEditor(
     WidgetTester tester, {
     List<CatalogEntry> initial = const [kitchen, bathroom, custom],
+    bool canDeleteBuiltIn = false,
   }) async {
     final states = <List<CatalogEntry>>[initial];
     await pumpSharedWidget(
@@ -35,6 +36,7 @@ void main() {
       child: StatefulBuilder(
         builder: (context, setState) => CatalogEditor(
           entries: states.last,
+          canDeleteBuiltIn: canDeleteBuiltIn,
           onChanged: (next) => setState(() => states.add(next)),
         ),
       ),
@@ -146,8 +148,18 @@ void main() {
     expect(
       find.text('মুছুন'),
       findsNothing,
-      reason: 'built-in rows (starter pack) are never deleted',
+      reason: 'built-in presets/reasons are protected by default',
     );
+  });
+
+  testWidgets('canDeleteBuiltIn offers delete on a built-in row', (
+    tester,
+  ) async {
+    final states = await pumpEditor(tester, canDeleteBuiltIn: true);
+    await openMenu(tester, 0);
+    await tester.tap(find.text('মুছুন'));
+    await tester.pumpAndSettle();
+    expect(states.last.map((e) => e.id), isNot(contains('kitchen')));
   });
 
   testWidgets('a custom row can be deleted', (tester) async {

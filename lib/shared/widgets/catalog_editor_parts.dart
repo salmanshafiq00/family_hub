@@ -23,7 +23,7 @@ class _Row extends StatelessWidget {
   final VoidCallback? onMoveUp;
   final VoidCallback? onMoveDown;
 
-  /// Null for a built-in row: built-ins are never deleted.
+  /// Null where the row cannot be deleted (a protected built-in).
   final VoidCallback? onDelete;
 
   @override

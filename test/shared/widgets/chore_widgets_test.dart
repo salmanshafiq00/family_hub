@@ -235,7 +235,7 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey<int>(5)));
       expect(picked, 5);
-      expect(find.byType(InkResponse), findsNWidgets(12));
+      expect(find.byType(InkResponse), findsNWidgets(24));
     });
 
     testWidgets('an out-of-range stored index wraps instead of crashing', (

@@ -225,7 +225,7 @@ describe('families/{f}/choreTemplates', () => {
       await assertFails(
         setDoc(
           doc(as(ALICE), templatePath()),
-          template(ALICE, { colorIndex: 12 }),
+          template(ALICE, { colorIndex: 24 }),
         ),
       );
     });

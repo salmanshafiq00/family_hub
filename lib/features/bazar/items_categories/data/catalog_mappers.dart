@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_hub/core/firebase/base_mapper.dart';
 import 'package:family_hub/core/utils/money.dart';
 import 'package:family_hub/core/utils/quantity.dart';
+import 'package:family_hub/features/bazar/items_categories/domain/catalog_validation.dart';
 import 'package:family_hub/features/bazar/items_categories/domain/category.dart';
 import 'package:family_hub/features/bazar/items_categories/domain/item.dart';
 import 'package:family_hub/features/bazar/items_categories/domain/item_usage_bump.dart';
@@ -40,7 +41,9 @@ abstract final class CatalogMappers {
       id: id,
       nameBn: _stringFrom(map['nameBn']),
       nameEn: _nullableString(map['nameEn']),
-      colorIndex: color < 0 ? 0 : (color > 11 ? 11 : color),
+      colorIndex: color < 0
+          ? 0
+          : (color > maxCatalogColorIndex ? maxCatalogColorIndex : color),
       emoji: _nullableString(map['emoji']),
       imageData: _nullableString(map['imageData']),
       sortOrder: _intFrom(map['sortOrder']),

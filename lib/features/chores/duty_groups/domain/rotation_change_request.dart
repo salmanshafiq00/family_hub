@@ -1,3 +1,4 @@
+import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation.dart';
@@ -18,6 +19,7 @@ final class RotationChangeRequest {
     this.memberId,
     this.members,
     this.startsWith,
+    this.cycleUnit,
   });
 
   final RotationChange change;
@@ -31,6 +33,9 @@ final class RotationChangeRequest {
 
   /// Who goes first at the boundary (reorder only).
   final String? startsWith;
+
+  /// The new cadence (cycle only).
+  final CycleUnit? cycleUnit;
 
   /// The rotation this change would produce, or why it is not possible.
   Result<Rotation> preview(Rotation current, {Recurrence? recurrence}) {
@@ -54,6 +59,16 @@ final class RotationChangeRequest {
           current,
           members: members ?? const <String>[],
           startsWith: startsWith ?? '',
+          effectiveFrom: effectiveFrom,
+        );
+      case RotationChange.cycle:
+        final unit = cycleUnit;
+        if (unit == null) {
+          return const Failure(Validation('rotation', 'invalid_rotation'));
+        }
+        return RotationBuilder.cycle(
+          current,
+          cycleUnit: unit,
           effectiveFrom: effectiveFrom,
         );
     }

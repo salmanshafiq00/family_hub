@@ -18,15 +18,29 @@ import 'package:go_router/go_router.dart';
 /// Everybody can read it; only people with `manageChoreTemplates` see the
 /// create button (`ref.can`, never a role test). ONE listener
 /// ([dutyGroupsStreamProvider]); nothing else is read here.
-class DutyGroupListScreen extends ConsumerWidget {
+///
+/// A switched-off (deleted) group is kept as history and hidden by default;
+/// the toggle brings it back for anyone who needs to restore or inspect it.
+class DutyGroupListScreen extends ConsumerStatefulWidget {
   const DutyGroupListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DutyGroupListScreen> createState() => _DutyGroupListState();
+}
+
+class _DutyGroupListState extends ConsumerState<DutyGroupListScreen> {
+  bool _showInactive = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final canManage = ref.can(Permission.manageChoreTemplates);
     final stream = ref.watch(dutyGroupsStreamProvider);
     final groups = ref.watch(dutyGroupsProvider);
+    final inactive = groups.where((group) => !group.active).toList();
+    final visible = _showInactive
+        ? groups
+        : groups.where((group) => group.active).toList();
 
     final Widget body;
     if (stream.hasError && !stream.hasValue) {
@@ -55,10 +69,27 @@ class DutyGroupListScreen extends ConsumerWidget {
       body = ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
         children: [
-          for (final group in groups) ...[
+          if (inactive.isNotEmpty)
+            SwitchListTile(
+              key: const ValueKey<String>('show_inactive'),
+              contentPadding: EdgeInsets.zero,
+              value: _showInactive,
+              onChanged: (value) => setState(() => _showInactive = value),
+              title: Text(l10n.dutyGroupsShowSwitchedOff),
+              subtitle: Text(
+                l10n.dutyGroupsSwitchedOffCount(inactive.length),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          for (final group in visible) ...[
             DutyGroupCard(group: group),
             const SizedBox(height: 12),
           ],
+          if (visible.isEmpty)
+            EmptyState(
+              icon: Icons.groups_outlined,
+              title: l10n.dutyGroupsNoneActive,
+            ),
           if (truncated)
             Text(l10n.dutyGroupsTruncated(formatters.number(groups.length))),
         ],

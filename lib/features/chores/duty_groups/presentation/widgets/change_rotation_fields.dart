@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The mode-specific inputs of the change-rotation sheet (P3-18): who to add,
-/// who to remove, or the new order and who goes first.
+/// who to remove, the new order and who goes first, or the new cadence.
 class ChangeRotationFields extends ConsumerWidget {
   const ChangeRotationFields({
     required this.mode,
@@ -20,9 +20,11 @@ class ChangeRotationFields extends ConsumerWidget {
     required this.memberId,
     required this.order,
     required this.startsWith,
+    required this.cycleUnit,
     required this.onMember,
     required this.onOrder,
     required this.onStartsWith,
+    required this.onCycleUnit,
     super.key,
   });
 
@@ -33,9 +35,11 @@ class ChangeRotationFields extends ConsumerWidget {
   final String? memberId;
   final List<String> order;
   final String? startsWith;
+  final CycleUnit? cycleUnit;
   final ValueChanged<String> onMember;
   final ValueChanged<List<String>> onOrder;
   final ValueChanged<String> onStartsWith;
+  final ValueChanged<CycleUnit> onCycleUnit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -136,6 +140,28 @@ class ChangeRotationFields extends ConsumerWidget {
               onChanged: onStartsWith,
             ),
           ],
+        );
+      case RotationChange.cycle:
+        return ChoiceWrap<CycleUnit>(
+          options: [
+            ChoiceOption<CycleUnit>(
+              CycleUnit.day,
+              l10n.dutyRotationUnitDay,
+              key: const ValueKey<String>('cycle_day'),
+            ),
+            ChoiceOption<CycleUnit>(
+              CycleUnit.week,
+              l10n.dutyRotationUnitWeek,
+              key: const ValueKey<String>('cycle_week'),
+            ),
+            ChoiceOption<CycleUnit>(
+              CycleUnit.month,
+              l10n.dutyRotationUnitMonth,
+              key: const ValueKey<String>('cycle_month'),
+            ),
+          ],
+          selected: cycleUnit,
+          onChanged: onCycleUnit,
         );
     }
   }

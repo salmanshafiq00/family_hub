@@ -174,7 +174,7 @@ describe('families/{f}/dutyGroups', () => {
       await assertFails(
         setDoc(
           doc(as(ALICE), groupPath()),
-          group(ALICE, { colorIndex: 12 }),
+          group(ALICE, { colorIndex: 24 }),
         ),
       );
     });

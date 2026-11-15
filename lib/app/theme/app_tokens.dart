@@ -75,8 +75,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     this.backgroundGradient,
   }) : assert(chart.length == 10, 'chart must have exactly 10 colors'),
        assert(
-         placeholderPalette.length == 12,
-         'placeholderPalette must have exactly 12 colors',
+         placeholderPalette.length == 24,
+         'placeholderPalette must have exactly 24 colors',
        );
 
   // ── Surfaces ──────────────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
   final Color chartGrid;
 
   // ── Placeholder palette ───────────────────────────────────────────────────
-  final List<Color> placeholderPalette; // exactly 12
+  final List<Color> placeholderPalette; // exactly 24
 
   /// Initial/foreground on a LIGHT placeholder background (dark ink), and on a
   /// DARK one (light ink).  Both reach >= 4.5:1 on every palette entry of the
@@ -376,7 +376,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
       ),
       chartGrid: Color.lerp(chartGrid, other.chartGrid, t)!,
       placeholderPalette: List<Color>.generate(
-        12,
+        24,
         (i) =>
             Color.lerp(placeholderPalette[i], other.placeholderPalette[i], t)!,
       ),

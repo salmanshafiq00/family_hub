@@ -14,9 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The three catalogs of the settings page (P3-17), each one a shared
 /// `CatalogEditor`: chore groups, due-time presets and absence reasons.
 ///
-/// Built-in rows can be renamed and turned off, never removed (the editor only
-/// offers "delete" for custom rows). Turning off a group that chores still use
-/// asks first; those chores keep the group, it is only hidden for new ones.
+/// Every row can be renamed, turned off and deleted; the seven built-in GROUPS
+/// can be deleted too, because a family may want its own set. Turning off a
+/// group that chores still use asks first; those chores keep the group, it is
+/// only hidden for new ones. A chore whose group was deleted falls back to the
+/// `other` group (see `ChoreCatalogs.groupOf`).
 class CatalogSections extends ConsumerWidget {
   const CatalogSections({
     required this.draft,
@@ -49,6 +51,7 @@ class CatalogSections extends ConsumerWidget {
           key: const ValueKey<String>('groups_catalog'),
           title: l10n.choresSettingsGroupsTitle,
           addLabel: l10n.choresGroupAddTitle,
+          canDeleteBuiltIn: true,
           entries: [
             for (final g in catalogs.groups) CatalogMapping.groupEntry(g),
           ],

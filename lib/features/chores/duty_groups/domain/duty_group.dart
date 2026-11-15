@@ -25,7 +25,7 @@ final class DutyGroup {
   final String nameBn;
   final String? nameEn;
 
-  /// Index into `placeholderPalette` (0 … 11); null means "pick one".
+  /// Index into `placeholderPalette` (0 … 23); null means "pick one".
   final int? colorIndex;
 
   /// A calendar-based rotation with at least one version.
@@ -97,5 +97,5 @@ abstract final class DutyGroupLimits {
   /// keep this equal to `kMaxDutyGroups` in `core/firebase/query_limits.dart`.
   static const int maxGroups = 50;
 
-  static const int paletteLength = 12;
+  static const int paletteLength = 24;
 }

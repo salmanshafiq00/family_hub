@@ -53,6 +53,9 @@ abstract final class ChoreSettingsValidator {
       builtIn: [for (final g in s.groups) g.builtIn],
       builtInNames: [for (final g in s.groups) g.nameBn],
       seedIds: _seedIds(defaultGroups),
+      // A family may delete a built-in GROUP: groups are display data and a
+      // chore whose group is gone falls back to `other` (ChoreCatalogs).
+      keepSeeds: false,
     );
     if (groupError != null) return groupError;
     for (final group in s.groups) {
@@ -124,9 +127,10 @@ abstract final class ChoreSettingsValidator {
   /// The rules every catalog shares.
   ///
   /// [seed] is the built-in list: a row that is [builtIn] must correspond to a
-  /// seed id, and every seed row still present must stay (renaming and
-  /// deactivating are allowed, REMOVING is not — the starter pack and older
-  /// occurrences may still reference it).
+  /// seed id. With [keepSeeds] every seed row still present must stay (renaming
+  /// and deactivating are allowed, REMOVING is not — the starter pack and older
+  /// occurrences may still reference it). Groups pass `false`, so a built-in
+  /// group can be deleted like a custom one.
   static Validation? _checkList({
     required String field,
     required List<String> ids,
@@ -134,6 +138,7 @@ abstract final class ChoreSettingsValidator {
     required List<bool> builtIn,
     required List<String> builtInNames,
     required Set<String> seedIds,
+    bool keepSeeds = true,
   }) {
     if (ids.isEmpty) {
       return Validation(field, 'no_dates');
@@ -155,7 +160,9 @@ abstract final class ChoreSettingsValidator {
       if (index < 0) {
         // The built-in was deleted. A starter pack or an existing occurrence
         // may still reference it, so removal is not allowed (road map P3-06).
-        return Validation(field, 'invalid_recurrence');
+        // Groups opt out: their chores fall back to `other` (keepSeeds=false).
+        if (keepSeeds) return Validation(field, 'invalid_recurrence');
+        continue;
       }
       if (!builtIn[index]) {
         // A seed row may be renamed/deactivated but never turned into a

@@ -42,6 +42,16 @@ final choreGroupsProvider = Provider<List<ChoreGroup>>(
   (ref) => ref.watch(choreCatalogsProvider).activeGroups,
 );
 
+/// The icon a family chose for one group, or `null` when the catalog has no
+/// row for it (the caller then falls back to the built-in group icons).
+///
+/// The calendar, the tile and the detail header read THIS, so renaming a group
+/// or picking another icon in the settings screen changes every chore of it.
+final choreGroupIconKeyProvider = Provider.family<String?, String>(
+  (ref, groupId) =>
+      ref.watch(choreCatalogsProvider).groupOrNull(groupId)?.iconKey,
+);
+
 /// Due-time presets in clock order, active only.
 final dueTimePresetsProvider = Provider<List<DueTimePreset>>(
   (ref) => ref.watch(choreCatalogsProvider).activePresets,

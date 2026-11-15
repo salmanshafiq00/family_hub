@@ -2,8 +2,8 @@ import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:flutter/material.dart';
 
-/// The 12 palette colours of the theme as tappable circles.  The stored value
-/// is the index (0-11), never a hex, so a category looks right in both themes.
+/// The palette colours of the theme as tappable circles.  The stored value
+/// is the index (0-23), never a hex, so a category looks right in both themes.
 /// Selection is a ring *and* a check mark.
 class ColorSwatchGrid extends StatelessWidget {
   const ColorSwatchGrid({

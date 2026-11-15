@@ -142,7 +142,7 @@ void main() {
         const Validation('nameEn', 'too_long'),
       );
       _expectFailure(
-        await add(colorIndex: 12),
+        await add(colorIndex: 24),
         const Validation('colorIndex', 'invalid'),
       );
       _expectFailure(
@@ -250,7 +250,7 @@ void main() {
           familyId: BazarFixture.familyId,
           categoryId: 'cat_food',
           nameBn: 'খাদ্য',
-          colorIndex: 12,
+          colorIndex: 24,
         ),
         const Validation('colorIndex', 'invalid'),
       );

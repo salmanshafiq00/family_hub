@@ -32,8 +32,8 @@ class CatalogEntry {
   /// Inactive rows stay in the list but are no longer offered as a choice.
   final bool active;
 
-  /// Built-in rows can be edited and deactivated, never deleted (they come
-  /// from the starter pack and the recurrence code may reference them).
+  /// Built-in rows can be edited and deactivated; deleting one is allowed only
+  /// when the editor sets [CatalogEditor.canDeleteBuiltIn].
   final bool builtIn;
 
   /// A short secondary line (for a preset: the time; for a group: the colour).
@@ -87,6 +87,7 @@ class CatalogEditor extends StatelessWidget {
     this.addLabel,
     this.emptyLabel,
     this.canReorder = true,
+    this.canDeleteBuiltIn = false,
     this.onEditEntry,
     this.onBeforeToggleActive,
     super.key,
@@ -106,6 +107,11 @@ class CatalogEditor extends StatelessWidget {
   final String? emptyLabel;
 
   final bool canReorder;
+
+  /// Offers "delete" for a built-in row too (chore groups: a family may want
+  /// its own set). The caller is responsible for the confirmation.
+  final bool canDeleteBuiltIn;
+
   final Future<CatalogEntry?> Function(BuildContext, CatalogEntry?)?
   onEditEntry;
   final Future<bool> Function(BuildContext, CatalogEntry)? onBeforeToggleActive;
@@ -157,7 +163,9 @@ class CatalogEditor extends StatelessWidget {
                     : null,
                 onEdit: () => _edit(context, entry),
                 onToggleActive: () => _handleToggle(context, entry),
-                onDelete: entry.builtIn ? null : () => _remove(entry),
+                onDelete: entry.builtIn && !canDeleteBuiltIn
+                    ? null
+                    : () => _remove(entry),
               );
             },
           ),

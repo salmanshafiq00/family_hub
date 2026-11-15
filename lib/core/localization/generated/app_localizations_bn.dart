@@ -3480,6 +3480,31 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dutyGroupDeactivateConfirm => 'বন্ধ করুন';
 
   @override
+  String get dutyGroupDelete => 'গ্রুপ মুছুন';
+
+  @override
+  String get dutyGroupDeleteTitle => 'এই ডিউটি গ্রুপটি মুছবেন?';
+
+  @override
+  String dutyGroupDeleteMessage(String name) {
+    return '$name তালিকা থেকে সরে যাবে এবং এর পালা বন্ধ হবে। কাজগুলোর ইতিহাস রয়ে যাবে; আবার পালা চালাতে অন্য গ্রুপে সরিয়ে নিন।';
+  }
+
+  @override
+  String get dutyGroupDeleted => 'গ্রুপ মুছে ফেলা হয়েছে';
+
+  @override
+  String get dutyGroupsShowSwitchedOff => 'বন্ধ করা গ্রুপ দেখান';
+
+  @override
+  String dutyGroupsSwitchedOffCount(int count) {
+    return '$countটি গ্রুপ বন্ধ আছে';
+  }
+
+  @override
+  String get dutyGroupsNoneActive => 'সব গ্রুপ বন্ধ করা আছে।';
+
+  @override
   String get dutyRotationMembers => 'পালার ক্রমে সদস্য';
 
   @override
@@ -3578,6 +3603,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dutyChangeReorder => 'ক্রম বদলান';
 
   @override
+  String get dutyChangeCycle => 'কত পরপর বদলাবে';
+
+  @override
   String get dutyChangeFrom => 'কার্যকর হবে';
 
   @override
@@ -3593,6 +3621,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dutyChangePickMember => 'একজন সদস্য বেছে নিন';
+
+  @override
+  String get dutyChangePickCycle => 'দিন, সপ্তাহ বা মাস বেছে নিন';
 
   @override
   String get dutyPlanFailed =>

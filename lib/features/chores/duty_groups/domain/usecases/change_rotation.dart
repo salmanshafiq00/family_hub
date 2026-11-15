@@ -17,11 +17,12 @@ import 'package:family_hub/features/chores/templates/domain/recurrence/recurrenc
 import 'package:family_hub/features/family/domain/family_repository.dart';
 import 'package:family_hub/features/family/domain/permission_access.dart';
 
-/// The three edits [ChangeRotation] understands.
+/// The edits [ChangeRotation] understands.
 enum RotationChange {
   add('add'),
   remove('remove'),
-  reorder('reorder');
+  reorder('reorder'),
+  cycle('cycle');
 
   const RotationChange(this.id);
 
@@ -52,6 +53,9 @@ class ChangeRotation {
   ///
   /// [recurrence] is required only when the rotation advances by `occurrence`
   /// (a duty group then needs the schedule it is being previewed for).
+  ///
+  /// [cycleUnit] is the new cadence for a [RotationChange.cycle] edit;
+  /// `occurrence` is refused because a group has no single schedule.
   Future<Result<DutyGroup>> call({
     required String actorUid,
     required String familyId,
@@ -63,6 +67,7 @@ class ChangeRotation {
     String? startsWith,
     int? weekStartDay,
     Recurrence? recurrence,
+    CycleUnit? cycleUnit,
   }) async {
     final permitted = await requirePermission(
       _families,
@@ -78,6 +83,7 @@ class ChangeRotation {
       memberId: memberId,
       members: members,
       startsWith: startsWith,
+      cycleUnit: cycleUnit,
     );
     if (invalidInput != null) return Failure<DutyGroup>(invalidInput);
 
@@ -107,6 +113,7 @@ class ChangeRotation {
       startsWith: startsWith,
       weekStartDay: weekStartDay,
       recurrence: recurrence,
+      cycleUnit: cycleUnit,
     );
     final buildFailure = built.failureOrNull;
     if (buildFailure != null) return Failure<DutyGroup>(buildFailure);
@@ -147,6 +154,7 @@ class ChangeRotation {
     required String? startsWith,
     required int? weekStartDay,
     required Recurrence? recurrence,
+    required CycleUnit? cycleUnit,
   }) {
     switch (change) {
       case RotationChange.add:
@@ -173,6 +181,13 @@ class ChangeRotation {
           effectiveFrom: effectiveFrom,
           weekStartDay: weekStartDay,
         );
+      case RotationChange.cycle:
+        return RotationBuilder.cycle(
+          rotation,
+          cycleUnit: cycleUnit!,
+          effectiveFrom: effectiveFrom,
+          weekStartDay: weekStartDay,
+        );
     }
   }
 
@@ -182,6 +197,7 @@ class ChangeRotation {
     required String? memberId,
     required List<String>? members,
     required String? startsWith,
+    required CycleUnit? cycleUnit,
   }) {
     switch (change) {
       case RotationChange.add:
@@ -196,6 +212,11 @@ class ChangeRotation {
         }
         if (startsWith == null || startsWith.trim().isEmpty) {
           return const Validation('members', 'member_required');
+        }
+        return null;
+      case RotationChange.cycle:
+        if (cycleUnit == null) {
+          return const Validation('rotation', 'invalid_rotation');
         }
         return null;
     }

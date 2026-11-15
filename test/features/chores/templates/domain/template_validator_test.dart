@@ -480,8 +480,8 @@ void main() {
 
     test('the icon key and the colour are bounded', () {
       expect(codeOf(aTemplate(iconKey: 'x' * 25)), 'too_long');
-      expect(codeOf(aTemplate(colorIndex: 12)), 'invalid_range');
-      expect(codeOf(aTemplate(colorIndex: 11)), isNull);
+      expect(codeOf(aTemplate(colorIndex: 24)), 'invalid_range');
+      expect(codeOf(aTemplate(colorIndex: 23)), isNull);
     });
 
     test('reminders are stored within their limits', () {

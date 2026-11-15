@@ -39,7 +39,10 @@ class AppAvatar extends StatelessWidget {
   /// Localized screen-reader label.  Null makes the avatar decorative.
   final String? semanticLabel;
 
-  /// Number of preset avatars (matches `placeholderPalette`).
+  /// Number of preset avatar colours offered by the profile picker.
+  ///
+  /// A subset of `placeholderPalette`: twenty-four circles would push the
+  /// profile form's first field off a phone screen.
   static const int presetCount = 12;
 
   /// Stable (cross-run) hash: Dart's `String.hashCode` is not guaranteed so.
@@ -63,7 +66,7 @@ class AppAvatar extends StatelessWidget {
   /// Exposed so tests (and matching artwork) can assert that the same person
   /// keeps the same colour on every screen and every launch.
   static int colorIndex(String id, {String? avatarKey}) {
-    const paletteLength = 12; // matches placeholderPalette.length
+    const paletteLength = 24; // matches placeholderPalette.length
     return presetIndex(avatarKey) ?? stableHash(id) % paletteLength;
   }
 

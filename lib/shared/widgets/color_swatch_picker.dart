@@ -3,16 +3,16 @@ import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:flutter/material.dart';
 
-/// Picks one of the theme's twelve placeholder colours by index (P3-04).
+/// Picks one of the theme's twenty-four placeholder colours by index (P3-04).
 ///
 /// Colour is never the only cue: the selected swatch carries a check mark and
-/// every swatch is announced as "Colour N of 12". Indices wrap at the palette
+/// every swatch is announced as "Colour N of 24". Indices wrap at the palette
 /// length, so a stored `colorIndex` can never point past the theme.
 class ColorSwatchPicker extends StatelessWidget {
   const ColorSwatchPicker({
     required this.selectedIndex,
     required this.onChanged,
-    this.count = 12,
+    this.count = 24,
     this.enabled = true,
     super.key,
   });

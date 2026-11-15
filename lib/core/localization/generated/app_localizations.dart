@@ -6076,6 +6076,48 @@ abstract class AppLocalizations {
   /// **'বন্ধ করুন'**
   String get dutyGroupDeactivateConfirm;
 
+  /// No description provided for @dutyGroupDelete.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপ মুছুন'**
+  String get dutyGroupDelete;
+
+  /// No description provided for @dutyGroupDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ডিউটি গ্রুপটি মুছবেন?'**
+  String get dutyGroupDeleteTitle;
+
+  /// No description provided for @dutyGroupDeleteMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} তালিকা থেকে সরে যাবে এবং এর পালা বন্ধ হবে। কাজগুলোর ইতিহাস রয়ে যাবে; আবার পালা চালাতে অন্য গ্রুপে সরিয়ে নিন।'**
+  String dutyGroupDeleteMessage(String name);
+
+  /// No description provided for @dutyGroupDeleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপ মুছে ফেলা হয়েছে'**
+  String get dutyGroupDeleted;
+
+  /// No description provided for @dutyGroupsShowSwitchedOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করা গ্রুপ দেখান'**
+  String get dutyGroupsShowSwitchedOff;
+
+  /// No description provided for @dutyGroupsSwitchedOffCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি গ্রুপ বন্ধ আছে'**
+  String dutyGroupsSwitchedOffCount(int count);
+
+  /// No description provided for @dutyGroupsNoneActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব গ্রুপ বন্ধ করা আছে।'**
+  String get dutyGroupsNoneActive;
+
   /// No description provided for @dutyRotationMembers.
   ///
   /// In bn, this message translates to:
@@ -6244,6 +6286,12 @@ abstract class AppLocalizations {
   /// **'ক্রম বদলান'**
   String get dutyChangeReorder;
 
+  /// No description provided for @dutyChangeCycle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কত পরপর বদলাবে'**
+  String get dutyChangeCycle;
+
   /// No description provided for @dutyChangeFrom.
   ///
   /// In bn, this message translates to:
@@ -6273,6 +6321,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'একজন সদস্য বেছে নিন'**
   String get dutyChangePickMember;
+
+  /// No description provided for @dutyChangePickCycle.
+  ///
+  /// In bn, this message translates to:
+  /// **'দিন, সপ্তাহ বা মাস বেছে নিন'**
+  String get dutyChangePickCycle;
 
   /// No description provided for @dutyPlanFailed.
   ///

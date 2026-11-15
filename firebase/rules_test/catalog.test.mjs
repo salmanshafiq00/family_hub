@@ -134,11 +134,11 @@ describe('families/{f}/bazarCategories', () => {
     );
   });
 
-  it('denies colorIndex 12', async () => {
+  it('denies colorIndex 24', async () => {
     await assertFails(
       setDoc(
         doc(as(ALICE), categoryPath('cat2')),
-        categoryDoc(ALICE, { colorIndex: 12 }),
+        categoryDoc(ALICE, { colorIndex: 24 }),
       ),
     );
   });

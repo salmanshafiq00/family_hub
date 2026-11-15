@@ -721,7 +721,7 @@ service cloud.firestore {
             || d.archivedAt is timestamp)
         && (!('colorIndex' in d.keys()) || d.colorIndex == null
             || (d.colorIndex is int
-                && d.colorIndex >= 0 && d.colorIndex <= 11))
+                && d.colorIndex >= 0 && d.colorIndex <= 23))
         && optStr(d, 'iconKey', 24)
         && d.get('sortOrder', 0) is int
         && d.get('revision', 0) is int && d.revision >= 1
@@ -767,7 +767,7 @@ service cloud.firestore {
         && optStr(d, 'nameEn', 80)
         && (!('colorIndex' in d.keys()) || d.colorIndex == null
             || (d.colorIndex is int
-                && d.colorIndex >= 0 && d.colorIndex <= 11))
+                && d.colorIndex >= 0 && d.colorIndex <= 23))
         && rotationOk(d.get('rotation', {}))
         && d.get('active', true) is bool
         && d.get('sortOrder', 0) is int;
@@ -1253,7 +1253,7 @@ service cloud.firestore {
         && optStr(d, 'nameEn', 60)
         && d.get('colorIndex', -1) is int
         && d.get('colorIndex', -1) >= 0
-        && d.get('colorIndex', -1) <= 11
+        && d.get('colorIndex', -1) <= 23
         && optStr(d, 'emoji', 8)
         && optStr(d, 'imageData', 24000)
         && d.get('sortOrder', -1) is int

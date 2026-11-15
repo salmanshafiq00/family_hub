@@ -7,6 +7,7 @@ import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart'
     as domain;
 import 'package:family_hub/features/chores/presentation/chore_icons.dart';
 import 'package:family_hub/features/chores/presentation/date_of_key.dart';
+import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
@@ -61,7 +62,15 @@ class OccurrenceHeader extends ConsumerWidget {
                 color: t.accentSoft,
                 borderRadius: BorderRadius.circular(t.radiusMd),
               ),
-              child: Icon(choreIconFor(item), color: t.accentStrong),
+              child: Icon(
+                choreIconFor(
+                  item,
+                  groupIconKey: item.groupId == null
+                      ? null
+                      : ref.watch(choreGroupIconKeyProvider(item.groupId!)),
+                ),
+                color: t.accentStrong,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(

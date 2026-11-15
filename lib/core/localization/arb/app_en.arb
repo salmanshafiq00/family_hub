@@ -3204,6 +3204,32 @@
   "@dutyGroupDeactivateMessage": {},
   "dutyGroupDeactivateConfirm": "Switch off",
   "@dutyGroupDeactivateConfirm": {},
+  "dutyGroupDelete": "Delete group",
+  "@dutyGroupDelete": {},
+  "dutyGroupDeleteTitle": "Delete this duty group?",
+  "@dutyGroupDeleteTitle": {},
+  "dutyGroupDeleteMessage": "{name} disappears from the list and its rota stops. Its chores keep their history; move them to another group to rotate again.",
+  "@dutyGroupDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dutyGroupDeleted": "Group deleted",
+  "@dutyGroupDeleted": {},
+  "dutyGroupsShowSwitchedOff": "Show switched-off groups",
+  "@dutyGroupsShowSwitchedOff": {},
+  "dutyGroupsSwitchedOffCount": "{count} switched-off group(s)",
+  "@dutyGroupsSwitchedOffCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dutyGroupsNoneActive": "Every group is switched off.",
+  "@dutyGroupsNoneActive": {},
   "dutyRotationMembers": "Members in turn order",
   "@dutyRotationMembers": {},
   "dutyRotationNeedTwo": "Add at least two members.",
@@ -3305,6 +3331,8 @@
   "@dutyChangeRemove": {},
   "dutyChangeReorder": "Change the order",
   "@dutyChangeReorder": {},
+  "dutyChangeCycle": "Change how often",
+  "@dutyChangeCycle": {},
   "dutyChangeFrom": "Takes effect on",
   "@dutyChangeFrom": {},
   "dutyChangeNothingBefore": "Nothing before {date} changes.",
@@ -3321,6 +3349,8 @@
   "@dutyChangeAfter": {},
   "dutyChangePickMember": "Choose a member",
   "@dutyChangePickMember": {},
+  "dutyChangePickCycle": "Choose day, week or month",
+  "@dutyChangePickCycle": {},
   "dutyPlanFailed": "Saved, but planning the dates failed.",
   "@dutyPlanFailed": {},
   "dutyPlanning": "Planning the dates…",

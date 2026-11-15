@@ -2,6 +2,7 @@ import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/rotation.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_editor_screen.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_list_screen.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
@@ -88,6 +89,44 @@ void main() {
 
       expect(find.text('No duty groups yet'), findsOneWidget);
     });
+
+    testWidgets('a switched-off group is hidden until the toggle', (
+      tester,
+    ) async {
+      final fixture = ChoresFixture();
+      fixture.chores.dutyGroups.groups[_familyId] = <String, DutyGroup>{
+        'group_1': aDutyGroup(id: 'group_1'),
+        'group_2': aDutyGroup(
+          id: 'group_2',
+          nameBn: 'পুরোনো ডিউটি',
+          nameEn: 'Old duty',
+          active: false,
+          sortOrder: 1,
+        ),
+      };
+      await _pump(tester, fixture: fixture, home: const DutyGroupListScreen());
+
+      expect(find.text('Daily kitchen duty'), findsOneWidget);
+      expect(find.text('Old duty'), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('show_inactive')));
+      await tester.pump();
+
+      expect(find.text('Old duty'), findsOneWidget);
+    });
+
+    testWidgets('when every group is switched off the list says so', (
+      tester,
+    ) async {
+      final fixture = ChoresFixture();
+      fixture.chores.dutyGroups.groups[_familyId] = <String, DutyGroup>{
+        'group_1': aDutyGroup(id: 'group_1', active: false),
+      };
+      await _pump(tester, fixture: fixture, home: const DutyGroupListScreen());
+
+      expect(find.text('Every group is switched off.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('show_inactive')), findsOneWidget);
+    });
   });
 
   group('DutyGroupEditorScreen', () {
@@ -169,6 +208,7 @@ void main() {
       );
       expect(find.byKey(const ValueKey('save_group')), findsNothing);
       expect(find.byKey(const ValueKey('change_rotation')), findsNothing);
+      expect(find.byKey(const ValueKey('delete_group')), findsNothing);
     });
 
     testWidgets('adding a member from the next boundary keeps the past', (
@@ -202,6 +242,77 @@ void main() {
         'bob',
       ]);
       expect(group.rotation.versions.last.from, DateKey(2026, 10, 24));
+    });
+
+    testWidgets('changing the cadence stores a daily version', (tester) async {
+      final fixture = _fixture();
+      await _pump(
+        tester,
+        fixture: fixture,
+        home: const DutyGroupEditorScreen(groupId: 'group_1'),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('change_rotation')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('mode_cycle')));
+      await tester.pump();
+
+      expect(find.text('Choose day, week or month'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('cycle_day')));
+      await tester.pump();
+
+      expect(find.textContaining('Nothing before'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('change_apply')));
+      await tester.pumpAndSettle();
+
+      final group = fixture.chores.dutyGroups.groups[_familyId]!['group_1']!;
+      expect(group.rotation.versions, hasLength(2));
+      expect(group.rotation.versions.last.from, DateKey(2026, 10, 24));
+      expect(group.rotation.versions.last.cycleUnit, CycleUnit.day);
+      // Whoever the weekly rota planned for the boundary keeps that turn.
+      expect(
+        group.rotation.versions.last.anchorIndex,
+        group.rotation.versions.first.anchorIndex,
+      );
+    });
+
+    testWidgets('deleting a group switches it off and leaves the list', (
+      tester,
+    ) async {
+      final fixture = _fixture();
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) =>
+                const DutyGroupEditorScreen(groupId: 'group_1'),
+          ),
+          GoRoute(
+            path: AppRoutes.choresDutyGroups,
+            builder: (context, state) => const DutyGroupListScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await _pump(tester, fixture: fixture, router: router);
+
+      await tester.tap(find.byKey(const ValueKey('delete_group')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete this duty group?'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('confirm_delete')));
+      await tester.pumpAndSettle();
+
+      expect(
+        fixture.chores.dutyGroups.groups[_familyId]!['group_1']!.active,
+        isFalse,
+      );
+      expect(find.byType(DutyGroupListScreen), findsOneWidget);
+      // The soft delete keeps the document, so history stays readable.
+      expect(fixture.chores.dutyGroups.writes, greaterThan(0));
     });
   });
 }

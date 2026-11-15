@@ -93,9 +93,9 @@ class DevTokensScreen extends StatelessWidget {
           ..add(_Swatch('chartGrid', t.chartGrid)),
       ),
       _Section(
-        'Placeholder Palette [0..11]',
+        'Placeholder Palette [0..23]',
         List.generate(
-          12,
+          t.placeholderPalette.length,
           (i) => _Swatch('placeholder[$i]', t.placeholderPalette[i]),
         ),
       ),

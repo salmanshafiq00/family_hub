@@ -59,7 +59,7 @@ final class ChoreGroup {
   final String nameBn;
   final String? nameEn;
 
-  /// Index into `placeholderPalette` (0 … 11).
+  /// Index into `placeholderPalette` (0 … 23).
   final int colorIndex;
 
   /// Key into the chore icon map (`chore_icons.dart`, P3-15).
@@ -248,5 +248,5 @@ abstract final class ChoreSettingsLimits {
   static const int maxProjectedMonthsAhead = 12;
   static const int maxOverdueGraceMinutes = 240;
   static const int maxSwapExpiryBufferMinutes = 1440;
-  static const int paletteLength = 12;
+  static const int paletteLength = 24;
 }

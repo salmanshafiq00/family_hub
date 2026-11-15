@@ -248,10 +248,11 @@ List<String> get knownIconKeys => <String>[
   for (final icon in choreIcons) icon.key,
 ];
 
-/// The icon of one chore: its group's `iconKey`, else the fallback. Kept here
+/// The icon of one chore: the family's `iconKey` for the chore's group when
+/// given, else the built-in group map, else the neutral checklist. Kept here
 /// so the tile, the detail header and the calendar agree.
-IconData choreIconFor(ChoreItem item) =>
-    choreIcon(choreGroupIconKeys[item.groupId]);
+IconData choreIconFor(ChoreItem item, {String? groupIconKey}) =>
+    choreIcon(groupIconKey ?? choreGroupIconKeys[item.groupId]);
 
 /// Group id -> icon key (the built-in catalogs of P3-06). The picker and the
 /// settings screen read it; a family's renamed group keeps its id, so the icon

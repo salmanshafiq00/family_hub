@@ -3501,6 +3501,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutyGroupDeactivateConfirm => 'Switch off';
 
   @override
+  String get dutyGroupDelete => 'Delete group';
+
+  @override
+  String get dutyGroupDeleteTitle => 'Delete this duty group?';
+
+  @override
+  String dutyGroupDeleteMessage(String name) {
+    return '$name disappears from the list and its rota stops. Its chores keep their history; move them to another group to rotate again.';
+  }
+
+  @override
+  String get dutyGroupDeleted => 'Group deleted';
+
+  @override
+  String get dutyGroupsShowSwitchedOff => 'Show switched-off groups';
+
+  @override
+  String dutyGroupsSwitchedOffCount(int count) {
+    return '$count switched-off group(s)';
+  }
+
+  @override
+  String get dutyGroupsNoneActive => 'Every group is switched off.';
+
+  @override
   String get dutyRotationMembers => 'Members in turn order';
 
   @override
@@ -3599,6 +3624,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutyChangeReorder => 'Change the order';
 
   @override
+  String get dutyChangeCycle => 'Change how often';
+
+  @override
   String get dutyChangeFrom => 'Takes effect on';
 
   @override
@@ -3614,6 +3642,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dutyChangePickMember => 'Choose a member';
+
+  @override
+  String get dutyChangePickCycle => 'Choose day, week or month';
 
   @override
   String get dutyPlanFailed => 'Saved, but planning the dates failed.';

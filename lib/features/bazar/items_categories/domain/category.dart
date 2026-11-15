@@ -1,7 +1,7 @@
 /// A bazar category (`families/{f}/bazarCategories/{id}`).
 ///
 /// Categories are deactivated, never deleted.  [colorIndex] indexes the theme's
-/// placeholder palette (0–11); the document never stores a hex colour.
+/// placeholder palette (0–23); the document never stores a hex colour.
 final class Category {
   const Category({
     required this.id,

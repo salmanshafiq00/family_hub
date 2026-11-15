@@ -1,8 +1,8 @@
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/utils/date_key.dart';
-import 'package:family_hub/core/utils/date_ranges.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation.dart';
+import 'package:family_hub/features/chores/duty_groups/domain/rotation_boundaries.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation_engine.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/rotation_validator.dart';
 import 'package:family_hub/features/chores/templates/domain/recurrence/recurrence.dart';
@@ -39,7 +39,7 @@ abstract final class RotationBuilder {
     final unsupported = _occurrenceCheck(current, recurrence);
     if (unsupported != null) return Failure(unsupported);
 
-    final boundary = nextBoundary(current, effectiveFrom);
+    final boundary = RotationBoundaries.next(current, effectiveFrom);
     final planned = RotationEngine.planned(
       rotation,
       boundary,
@@ -81,7 +81,7 @@ abstract final class RotationBuilder {
     final unsupported = _occurrenceCheck(current, recurrence);
     if (unsupported != null) return Failure(unsupported);
 
-    final boundary = nextBoundary(current, effectiveFrom);
+    final boundary = RotationBoundaries.next(current, effectiveFrom);
     final planned = RotationEngine.planned(
       rotation,
       boundary,
@@ -135,7 +135,7 @@ abstract final class RotationBuilder {
       return const Failure(Validation('members', 'too_few_members'));
     }
 
-    final boundary = nextBoundary(current, effectiveFrom);
+    final boundary = RotationBoundaries.next(current, effectiveFrom);
     return _withVersion(
       rotation,
       _versionFrom(
@@ -148,27 +148,43 @@ abstract final class RotationBuilder {
     );
   }
 
-  /// The first cycle boundary on or after [requested] for [version].
+  /// Changes how often the turn advances, from the next cycle boundary on.
   ///
-  /// Day cycles change any day; week cycles only on a week start; month cycles
-  /// on the first of a month. The `occurrence` unit has no single schedule on
-  /// its own, so the caller picks a firing day and it is used as-is.
-  static DateKey nextBoundary(RotationVersion version, DateKey requested) {
-    switch (version.cycleUnit) {
-      case CycleUnit.day:
-      case CycleUnit.occurrence:
-        return requested;
-      case CycleUnit.week:
-        final start = startOfWeek(
-          requested,
-          _safeWeekStart(version.weekStartDay),
-        );
-        return start == requested ? start : start.addDays(7);
-      case CycleUnit.month:
-        return requested.day == 1
-            ? requested
-            : requested.monthKey.addMonths(1).startOfMonth;
+  /// The boundary is the CURRENT unit's next boundary (a weekly rota changes on
+  /// a week start), and whoever the old rotation planned for that day takes the
+  /// first turn under the new cadence — so the changeover never skips anybody.
+  ///
+  /// `occurrence` is refused: it needs a template schedule, which a group does
+  /// not have (the group editor offers day/week/month only).
+  static Result<Rotation> cycle(
+    Rotation rotation, {
+    required CycleUnit cycleUnit,
+    required DateKey effectiveFrom,
+    int? weekStartDay,
+  }) {
+    if (cycleUnit == CycleUnit.occurrence) {
+      return const Failure(Validation('rotation', 'invalid_rotation'));
     }
+    final current = _currentVersion(rotation, effectiveFrom);
+    if (current == null) return const Failure(_invalidDate);
+    if (current.cycleUnit == cycleUnit) {
+      return const Failure(Validation('rotation', 'invalid_rotation'));
+    }
+
+    final boundary = RotationBoundaries.next(current, effectiveFrom);
+    final planned = RotationEngine.planned(rotation, boundary);
+    final anchorIndex = planned == null ? 0 : current.members.indexOf(planned);
+    return _withVersion(
+      rotation,
+      _versionFrom(
+        current,
+        from: boundary,
+        members: current.members,
+        anchorIndex: anchorIndex < 0 ? 0 : anchorIndex,
+        weekStartDay: weekStartDay,
+        cycleUnit: cycleUnit,
+      ),
+    );
   }
 
   static RotationVersion? _currentVersion(
@@ -182,6 +198,7 @@ abstract final class RotationBuilder {
     required List<String> members,
     required int anchorIndex,
     int? weekStartDay,
+    CycleUnit? cycleUnit,
   }) => RotationVersion(
     from: from,
     members: List<String>.unmodifiable(members),
@@ -189,7 +206,7 @@ abstract final class RotationBuilder {
     // planned for that day.
     anchorDate: from,
     anchorIndex: anchorIndex,
-    cycleUnit: current.cycleUnit,
+    cycleUnit: cycleUnit ?? current.cycleUnit,
     weekStartDay: weekStartDay ?? current.weekStartDay,
   );
 
@@ -258,11 +275,6 @@ abstract final class RotationBuilder {
   ) => version.cycleUnit == CycleUnit.occurrence && recurrence == null
       ? const Validation('rotation', 'invalid_rotation')
       : null;
-
-  static int _safeWeekStart(int weekStartDay) =>
-      weekStartDay < DateTime.monday || weekStartDay > DateTime.sunday
-      ? DateTime.saturday
-      : weekStartDay;
 
   static const Validation _invalidDate = Validation('rotation', 'invalid_date');
 }

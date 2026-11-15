@@ -81,7 +81,7 @@ abstract final class TemplateLimits {
   static const int maxRotationVersions = 20;
   static const int maxRotationMembers = 12;
   static const int maxReminderOffsets = 5;
-  static const int paletteLength = 12;
+  static const int paletteLength = 24;
 
   /// The first slot of every template is always the main one.
   static const String mainSlotKey = 'main';

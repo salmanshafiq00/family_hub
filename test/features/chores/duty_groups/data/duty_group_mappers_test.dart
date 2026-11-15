@@ -41,7 +41,7 @@ void main() {
       id: 'group_7',
       nameBn: 'রান্নাঘর ডিউটি',
       nameEn: 'Kitchen duty',
-      colorIndex: 11,
+      colorIndex: 23,
       active: false,
       sortOrder: 4,
     );

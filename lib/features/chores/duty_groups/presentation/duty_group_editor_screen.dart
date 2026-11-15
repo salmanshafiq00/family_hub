@@ -1,4 +1,5 @@
 import 'package:family_hub/app/routing/app_routes.dart';
+import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/permissions/permission.dart';
@@ -8,6 +9,7 @@ import 'package:family_hub/features/chores/duty_groups/domain/rotation_draft.dar
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_controller.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/widgets/change_rotation_sheet.dart';
+import 'package:family_hub/features/chores/duty_groups/presentation/widgets/duty_group_confirm_dialogs.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/widgets/duty_group_fields.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/widgets/duty_group_status_banner.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/widgets/group_roster_view.dart';
@@ -185,6 +187,19 @@ class _EditorState extends ConsumerState<DutyGroupEditorScreen> {
             busy: busy,
             onPressed: () => _save(group),
           ),
+          if (group != null && group.active) ...[
+            const SizedBox(height: 8),
+            TextButton.icon(
+              key: const ValueKey<String>('delete_group'),
+              style: TextButton.styleFrom(
+                foregroundColor: context.tokens.danger,
+                minimumSize: const Size(48, 48),
+              ),
+              onPressed: busy ? null : () => _delete(group),
+              icon: const Icon(Icons.delete_outline_rounded),
+              label: Text(l10n.dutyGroupDelete),
+            ),
+          ],
         ],
       ],
     );
@@ -223,7 +238,7 @@ class _EditorState extends ConsumerState<DutyGroupEditorScreen> {
     );
     if (!mounted) return;
     if (!ok && ref.read(dutyGroupControllerProvider).needsDeactivateConfirm) {
-      final confirmed = await _confirmDeactivate();
+      final confirmed = await showDeactivateGroupDialog(context);
       if (confirmed != true || !mounted) return;
       ok = await controller.update(
         groupId: group.id,
@@ -237,26 +252,29 @@ class _EditorState extends ConsumerState<DutyGroupEditorScreen> {
     if (ok) messenger.showSnackBar(SnackBar(content: Text(saved)));
   }
 
-  Future<bool?> _confirmDeactivate() {
-    final l10n = context.l10n;
-    return showDialog<bool>(
-      context: context,
-      builder: (dialog) => AlertDialog(
-        title: Text(l10n.dutyGroupDeactivateTitle),
-        content: Text(l10n.dutyGroupDeactivateMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialog).pop(false),
-            child: Text(l10n.actionCancel),
-          ),
-          FilledButton(
-            key: const ValueKey<String>('confirm_deactivate'),
-            onPressed: () => Navigator.of(dialog).pop(true),
-            child: Text(l10n.dutyGroupDeactivateConfirm),
-          ),
-        ],
-      ),
+  /// A soft delete: the group is switched off, so it leaves the list while its
+  /// rotation history and old occurrences stay readable.
+  Future<void> _delete(DutyGroup group) async {
+    final confirmed = await showDeleteGroupDialog(
+      context,
+      nameBn: group.nameBn,
     );
+    if (confirmed != true || !mounted) return;
+    final controller = ref.read(dutyGroupControllerProvider.notifier);
+    final messenger = ScaffoldMessenger.of(context);
+    final deleted = context.l10n.dutyGroupDeleted;
+    final router = GoRouter.of(context);
+    final ok = await controller.update(
+      groupId: group.id,
+      nameBn: group.nameBn,
+      nameEn: group.nameEn,
+      colorIndex: group.colorIndex,
+      active: false,
+      confirmDeactivate: true,
+    );
+    if (!ok || !mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(deleted)));
+    _leave(router);
   }
 
   Future<void> _change(DutyGroup group) async {
