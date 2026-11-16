@@ -703,8 +703,7 @@ service cloud.firestore {
         && (d.subtasks.size() == 0
             || (subtaskOk(d.subtasks[0])
                 && subtaskOk(d.subtasks[d.subtasks.size() - 1])))
-        && (!('estimatedMinutes' in d.keys())
-            || d.estimatedMinutes == null
+        && (d.get('estimatedMinutes', null) == null
             || (d.estimatedMinutes is int
                 && d.estimatedMinutes >= 1 && d.estimatedMinutes <= 600))
         && d.get('difficulty', 'normal') in ['easy', 'normal', 'hard']
@@ -809,6 +808,14 @@ service cloud.firestore {
     function nullableId(d, k) {
       return !(k in d.keys()) || d[k] == null || str(d[k], 1, 64);
     }
+    function occurrenceOptionalString(d, k, hi) {
+      let value = d.get(k, null);
+      return value == null || str(value, 0, hi);
+    }
+    function occurrenceOptionalId(d, k) {
+      let value = d.get(k, null);
+      return value == null || str(value, 1, 64);
+    }
     function exceptionOk(e) {
       return e is map
         && e.keys().hasOnly(['note', 'by', 'at'])
@@ -816,9 +823,38 @@ service cloud.firestore {
         && str(e.get('by', ''), 1, 64)
         && e.get('at', null) is timestamp;
     }
-    // The shape of the whole document, whoever writes it.  Snapshot equality
-    // with the previous version is checked by the update rules below, because
-    // only they need it.
+    // Replans can change only these fields. The update dispatcher separately
+    // checks the full closed key set, so unchanged snapshot fields need no
+    // repeated whole-document validation.
+    function occurrenceReplanFieldsOk(d) {
+      return d.get('templateRev', null) is int
+        && d.templateRev >= 1
+        && str(d.get('nameBn', ''), 1, 80)
+        && occurrenceOptionalString(d, 'nameEn', 80)
+        && occurrenceOptionalString(d, 'groupId', 24)
+        && str(d.get('instructions', null), 0, 4000)
+        && d.get('subtasks', null) is list
+        && d.subtasks.size() <= 30
+        && (d.subtasks.size() == 0
+            || (subtaskOk(d.subtasks[0])
+                && subtaskOk(d.subtasks[d.subtasks.size() - 1])))
+        && d.get('requiredCount', null) is int
+        && d.requiredCount >= 0
+        && d.requiredCount <= d.subtasks.size()
+        && d.get('difficulty', null) in ['easy', 'normal', 'hard']
+        && (d.get('estimatedMinutes', null) == null
+            || (d.estimatedMinutes is int
+                && d.estimatedMinutes >= 1 && d.estimatedMinutes <= 600))
+        && d.get('verification', null) in ['off', 'required']
+        && d.get('dueAt', null) is timestamp
+        && (d.get('dueMinutes', null) == null
+            || (d.dueMinutes is int && d.dueMinutes >= 0 && d.dueMinutes <= 1439))
+        && occurrenceOptionalId(d, 'plannedAssigneeId')
+        && occurrenceOptionalId(d, 'assigneeId')
+        && d.get('assignmentSource', '') in ['rotation', 'fixed', 'manual',
+                                             'cover', 'swap', 'reassign']
+        && d.get('needsCover', null) is bool;
+    }
     function occurrenceOk(id, d) {
       return d.keys().hasOnly(occurrenceKeys())
         && occurrenceIdOk(id)
@@ -829,75 +865,56 @@ service cloud.firestore {
         && monthKeyOk(d.get('monthKey', ''))
         && d.dateKey.matches('^' + d.monthKey + '-[0-9]{2}$')
         && d.get('dueAt', null) is timestamp
-        && d.get('templateRev', 0) is int && d.templateRev >= 1
-        && optStr(d, 'slotKey', 12)
-        && (!('dueMinutes' in d.keys())
-            || d.dueMinutes == null
+        && d.get('templateRev', 0) is int
+        && d.templateRev >= 1
+        && occurrenceOptionalString(d, 'slotKey', 12)
+        && (d.get('dueMinutes', null) == null
             || (d.dueMinutes is int && d.dueMinutes >= 0 && d.dueMinutes <= 1439))
         && str(d.get('nameBn', ''), 1, 80)
-        && optStr(d, 'nameEn', 80)
-        && optStr(d, 'groupId', 24)
-        && str(d.get('instructions', ''), 0, 4000)
-        && d.get('subtasks', []) is list
+        && occurrenceOptionalString(d, 'nameEn', 80)
+        && occurrenceOptionalString(d, 'groupId', 24)
+        && str(d.get('instructions', null), 0, 4000)
+        && d.get('subtasks', null) is list
         && d.subtasks.size() <= 30
         && (d.subtasks.size() == 0
             || (subtaskOk(d.subtasks[0])
                 && subtaskOk(d.subtasks[d.subtasks.size() - 1])))
-        && d.get('requiredCount', 0) is int
+        && d.get('requiredCount', null) is int
         && d.get('requiredCount', 0) >= 0
         && d.get('requiredCount', 0) <= d.subtasks.size()
-        && d.get('difficulty', 'normal') in ['easy', 'normal', 'hard']
-        && (!('estimatedMinutes' in d.keys())
-            || d.estimatedMinutes == null
+        && d.get('difficulty', null) in ['easy', 'normal', 'hard']
+        && (d.get('estimatedMinutes', null) == null
             || (d.estimatedMinutes is int
                 && d.estimatedMinutes >= 1 && d.estimatedMinutes <= 600))
-        && d.get('verification', 'off') in ['off', 'required']
-        && d.get('status', '') in ['scheduled', 'in_progress', 'completed',
-                                   'verified', 'skipped']
-        && nullableId(d, 'plannedAssigneeId')
-        && nullableId(d, 'assigneeId')
-        && nullableId(d, 'coverForId')
+        && d.get('verification', null) in ['off', 'required']
+        && occurrenceOptionalId(d, 'plannedAssigneeId')
+        && occurrenceOptionalId(d, 'assigneeId')
+        && occurrenceOptionalId(d, 'coverForId')
         && d.get('assignmentSource', '') in ['rotation', 'fixed', 'manual',
                                              'cover', 'swap', 'reassign']
-        && d.get('needsCover', false) is bool
+        && d.get('needsCover', null) is bool
+        && d.get('status', '') == 'scheduled'
         && d.get('subtaskDone', null) is map
-        && d.get('subtaskDone', {}).size() <= 30
-        && nullableTimestamp(d, 'completedAt')
-        && nullableId(d, 'completedBy')
-        && nullableTimestamp(d, 'verifiedAt')
-        && nullableId(d, 'verifiedBy')
-        && d.get('reopenCount', 0) is int && d.reopenCount >= 0
-        && d.reopenCount <= 100
-        && (!('exception' in d.keys())
-            || d.exception == null
-            || exceptionOk(d.exception))
-        && (!('skipReason' in d.keys())
-            || d.skipReason == null
-            || d.skipReason in ['absence', 'manager'])
-        && d.get('needsAttention', false) is bool
-        && nullableTimestamp(d, 'lastCommentAt')
-        && (!('lastEventId' in d.keys()) || d.lastEventId == null
-            || (d.lastEventId is string
-                && d.lastEventId.matches('^[A-Za-z0-9_-]{1,64}$')));
-    }
-    // What a CREATE writes: straight from the generator, no history at all.
-    // The mapper writes every history field as an explicit null, so "no history"
-    // is `== null` (an absent key reads as null through `get`), never a
-    // key-absence test.
-    function occurrenceFresh(d) {
-      return d.get('status', '') == 'scheduled'
-        && d.get('subtaskDone', {}).size() == 0
+        && d.subtaskDone.size() == 0
         && d.get('completedAt', null) == null
         && d.get('completedBy', null) == null
         && d.get('verifiedAt', null) == null
         && d.get('verifiedBy', null) == null
-        && d.get('reopenCount', 0) == 0
+        && d.get('reopenCount', null) == 0
         && d.get('exception', null) == null
         && d.get('skipReason', null) == null
-        && d.get('needsAttention', false) == false
+        && d.get('needsAttention', null) == false
         && d.get('lastCommentAt', null) == null
+        && (d.get('lastEventId', null) == null
+            || (d.lastEventId is string
+                && d.lastEventId.matches('^[A-Za-z0-9_-]{1,64}$')))
         && d.get('deletedAt', null) == null
-        && d.get('deletedBy', null) == null;
+        && d.get('deletedBy', null) == null
+        && d.get('createdAt', null) is timestamp
+        && d.get('createdBy', '') == request.auth.uid
+        && d.get('updatedAt', null) is timestamp
+        && d.get('updatedBy', '') == request.auth.uid
+        && d.get('schemaVersion', null) is int;
     }
     function occurrencePath(f, o) {
       return /databases/$(database)/documents/families/$(f)/choreOccurrences/$(o);
@@ -2713,262 +2730,266 @@ service cloud.firestore {
         allow create: if verified()
           && canReadFamilyData(f)
           && createsAsSelf()
-          && occurrenceOk(o, request.resource.data)
-          && occurrenceFresh(request.resource.data);
+          && occurrenceOk(o, request.resource.data);
 
-        // 1. TICK / COMPLETE / UNCOMPLETE (M-02: one rule, four branches).
-        //    Whoever acts must pass `mayTick` against the PREVIOUS assignee.
-        //    The metadata that other rules own never moves here.  A chore can
-        //    only be (or stay) `completed` when every required step is ticked
-        //    (`subtaskDone.size() >= requiredCount`) or a manager's
-        //    `exception` exists (M-01).  Limit: the rules cannot read WHICH
-        //    keys were ticked nor who ticked one (CLAUDE.md rule 45), so the
-        //    size also counts optional ticks; the use cases are stricter.
-        allow update: if verified()
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && mayTick(f, prev())
-          && next().get('verifiedAt', null) == prev().get('verifiedAt', null)
-          && next().get('verifiedBy', null) == prev().get('verifiedBy', null)
-          && next().get('skipReason', null) == prev().get('skipReason', null)
-          && next().get('reopenCount', 0) == prev().get('reopenCount', 0)
-          && (
-            // (a) stays completed: a step is ticked/unticked on a finished
-            //     chore by anybody who may tick; completion data unchanged.
-            (prev().get('status', '') == 'completed'
-              && next().get('status', '') == 'completed'
-              && next().get('completedAt', null) == prev().get('completedAt', null)
-              && next().get('completedBy', null) == prev().get('completedBy', null)
-              && completionValid(next())
-              && occurrenceChanged()
-                   .hasOnly(['subtaskDone', 'updatedAt', 'updatedBy']))
-            // (b) completes: records the REAL actor (D-P3-14).
-            || (prev().get('status', '') in ['scheduled', 'in_progress']
-              && next().get('status', '') == 'completed'
-              && next().get('completedAt', null) is timestamp
-              && next().get('completedBy', null) == request.auth.uid
-              && completionValid(next())
-              && occurrenceChanged()
-                   .hasOnly(['subtaskDone', 'status', 'completedAt',
-                             'completedBy', 'updatedAt', 'updatedBy']))
-            // (c) open -> open: a partial tick; no completion data at all.
-            || (prev().get('status', '') in ['scheduled', 'in_progress']
-              && next().get('status', '') in ['scheduled', 'in_progress']
-              && next().get('completedAt', null) == null
-              && next().get('completedBy', null) == null
-              && occurrenceChanged()
-                   .hasOnly(['subtaskDone', 'status', 'updatedAt',
-                             'updatedBy']))
-            // (d) uncompletes: completion cleared, and the `uncompleted`
-            //     event (B-05, its own id) is created in the same batch.
-            || (prev().get('status', '') == 'completed'
-              && next().get('status', '') in ['scheduled', 'in_progress']
-              && next().get('completedAt', null) == null
-              && next().get('completedBy', null) == null
-              && occurrenceChanged()
-                   .hasOnly(['subtaskDone', 'status', 'completedAt',
-                             'completedBy', 'lastEventId', 'updatedAt',
-                             'updatedBy'])
-              && occurrenceChanged().hasAny(['lastEventId'])
-              && occurrenceEventNew(f, o, 'uncompleted', 0))
-          );
+        function tickUpdateAllowed(f, o, changed) {
+          return (
+              changed.hasOnly(['subtaskDone', 'updatedAt', 'updatedBy'])
+              || changed.hasOnly(['subtaskDone', 'status', 'completedAt',
+                                  'completedBy', 'updatedAt', 'updatedBy'])
+              || changed.hasOnly(['subtaskDone', 'status', 'updatedAt',
+                                  'updatedBy'])
+              || changed.hasOnly(['subtaskDone', 'status', 'completedAt',
+                                  'completedBy', 'lastEventId', 'updatedAt',
+                                  'updatedBy'])
+            )
+            && prev().get('deletedAt', null) == null
+            && mayTick(f, prev())
+            && next().get('subtaskDone', null) is map
+            && next().get('subtaskDone', {}).size() <= 30
+            && next().get('verifiedAt', null) == prev().get('verifiedAt', null)
+            && next().get('verifiedBy', null) == prev().get('verifiedBy', null)
+            && next().get('skipReason', null) == prev().get('skipReason', null)
+            && next().get('reopenCount', 0) == prev().get('reopenCount', 0)
+            && (
+              (prev().get('status', '') == 'completed'
+                && next().get('status', '') == 'completed'
+                && next().get('completedAt', null)
+                     == prev().get('completedAt', null)
+                && next().get('completedBy', null)
+                     == prev().get('completedBy', null)
+                && completionValid(next())
+                && changed.hasOnly(['subtaskDone', 'updatedAt', 'updatedBy']))
+              || (prev().get('status', '') in ['scheduled', 'in_progress']
+                && next().get('status', '') == 'completed'
+                && next().get('completedAt', null) is timestamp
+                && next().get('completedBy', null) == request.auth.uid
+                && completionValid(next())
+                && changed.hasOnly(['subtaskDone', 'status', 'completedAt',
+                                    'completedBy', 'updatedAt', 'updatedBy']))
+              || (prev().get('status', '') in ['scheduled', 'in_progress']
+                && next().get('status', '') in ['scheduled', 'in_progress']
+                && next().get('completedAt', null) == null
+                && next().get('completedBy', null) == null
+                && changed.hasOnly(['subtaskDone', 'status', 'updatedAt',
+                                    'updatedBy']))
+              || (prev().get('status', '') == 'completed'
+                && next().get('status', '') in ['scheduled', 'in_progress']
+                && next().get('completedAt', null) == null
+                && next().get('completedBy', null) == null
+                && changed.hasOnly(['subtaskDone', 'status', 'completedAt',
+                                    'completedBy', 'lastEventId', 'updatedAt',
+                                    'updatedBy'])
+                && changed.hasAny(['lastEventId'])
+                && occurrenceEventNew(f, o, 'uncompleted', 0))
+            );
+        }
 
-        // 3. VERIFY (M-05; old rule 2 was merged into rule 1, M-02): a MANAGER who is not the person who completed it,
-        //    only a task that requires it (snapshot) while the family switch
-        //    is on, and only with the `verified` event in the same batch.
-        //    Matches `PermissionPolicy.verifyChore` and the use case.
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') == 'completed'
-          && prev().get('completedBy', '') != request.auth.uid
-          && prev().get('verification', 'off') == 'required'
-          && (exists(permissionsPath(f))
-              && get(permissionsPath(f)).data
-                   .get('choreVerificationEnabled', false) == true)
-          && next().get('status', '') == 'verified'
-          && next().get('verifiedAt', null) is timestamp
-          && next().get('verifiedBy', '') == request.auth.uid
-          && occurrenceChanged()
-               .hasOnly(['status', 'verifiedAt', 'verifiedBy', 'lastEventId',
-                         'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'verified', 0);
+        function verifyUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['status', 'verifiedAt', 'verifiedBy', 'lastEventId',
+               'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && prev().get('status', '') == 'completed'
+            && prev().get('completedBy', '') != request.auth.uid
+            && prev().get('verification', 'off') == 'required'
+            && (exists(permissionsPath(f))
+                && get(permissionsPath(f)).data
+                     .get('choreVerificationEnabled', false) == true)
+            && next().get('status', '') == 'verified'
+            && next().get('verifiedAt', null) is timestamp
+            && next().get('verifiedBy', '') == request.auth.uid
+            && occurrenceEventNew(f, o, 'verified', 0);
+        }
 
-        // 4. REOPEN: a completed task by anyone who may comment on it, a
-        //    VERIFIED one by a manager only (verified_requires_manager).  The
-        //    reason and the cleared completion survive on the `reopened` event.
-        //    B-04: a task with steps is only "in progress" again when the steps
-        //    to redo are UNTICKED, so the patch may shrink `subtaskDone` (it can
-        //    never grow or rewrite a tick here).
-        allow update: if verified()
-          && isActiveMember(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && (
-            (prev().get('status', '') == 'completed')
-            || (prev().get('status', '') == 'verified' && isManager(f))
-          )
-          && next().get('status', '') == 'in_progress'
-          && next().get('reopenCount', 0) == prev().get('reopenCount', 0) + 1
-          && next().get('completedAt', null) == null
-          && next().get('completedBy', null) == null
-          && next().get('verifiedAt', null) == null
-          && next().get('verifiedBy', null) == null
-          && next().get('subtaskDone', {}).size()
-               <= prev().get('subtaskDone', {}).size()
-          && occurrenceChanged()
-               .hasOnly(['status', 'reopenCount', 'completedAt', 'completedBy',
-                         'verifiedAt', 'verifiedBy', 'subtaskDone',
-                         'lastEventId', 'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'reopened', 3)
-          && getAfter(occurrenceEventPath(f, o, next().lastEventId)).data
-               .get('prevCompletedAt', null) == prev().get('completedAt', null);
+        function reopenUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['status', 'reopenCount', 'completedAt', 'completedBy',
+               'verifiedAt', 'verifiedBy', 'subtaskDone', 'lastEventId',
+               'updatedAt', 'updatedBy'])
+            && isActiveMember(f)
+            && prev().get('deletedAt', null) == null
+            && (
+              prev().get('status', '') == 'completed'
+              || (prev().get('status', '') == 'verified' && isManager(f))
+            )
+            && next().get('status', '') == 'in_progress'
+            && next().get('reopenCount', 0) == prev().get('reopenCount', 0) + 1
+            && next().get('completedAt', null) == null
+            && next().get('completedBy', null) == null
+            && next().get('verifiedAt', null) == null
+            && next().get('verifiedBy', null) == null
+            && next().get('subtaskDone', {}).size()
+                 <= prev().get('subtaskDone', {}).size()
+            && occurrenceEventNew(f, o, 'reopened', 3)
+            && getAfter(occurrenceEventPath(f, o, next().lastEventId)).data
+                 .get('prevCompletedAt', null) == prev().get('completedAt', null);
+        }
 
-        // 5. EXCEPTION (manager): finish without the required steps.
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && (!('exception' in prev().keys()) || prev().exception == null)
-          && next().get('exception', null) is map
-          && next().get('exception', {}).get('by', '') == request.auth.uid
-          && next().get('status', '') == prev().get('status', '')
-          && occurrenceChanged()
-               .hasOnly(['exception', 'lastEventId', 'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'exception', 3);
+        function exceptionUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['exception', 'lastEventId', 'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && (!('exception' in prev().keys()) || prev().exception == null)
+            && exceptionOk(next().get('exception', null))
+            && next().get('exception', {}).get('by', '') == request.auth.uid
+            && next().get('status', '') == prev().get('status', '')
+            && occurrenceEventNew(f, o, 'exception', 3);
+        }
 
-        // 6. SKIP / UNSKIP (manager).
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') in ['scheduled', 'in_progress']
-          && next().get('status', '') == 'skipped'
-          && next().get('skipReason', null) in ['absence', 'manager']
-          && occurrenceChanged()
-               .hasOnly(['status', 'skipReason', 'lastEventId',
-                         'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'skipped', 3);
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') == 'skipped'
-          && next().get('status', '') == 'scheduled'
-          && next().get('skipReason', null) == null
-          && occurrenceChanged()
-               .hasOnly(['status', 'skipReason', 'lastEventId',
-                         'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'unskipped', 0);
+        function skipUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['status', 'skipReason', 'lastEventId', 'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && (
+              (prev().get('status', '') in ['scheduled', 'in_progress']
+                && next().get('status', '') == 'skipped'
+                && next().get('skipReason', null) in ['absence', 'manager']
+                && occurrenceEventNew(f, o, 'skipped', 3))
+              || (prev().get('status', '') == 'skipped'
+                && next().get('status', '') == 'scheduled'
+                && next().get('skipReason', null) == null
+                && occurrenceEventNew(f, o, 'unskipped', 0))
+            );
+        }
 
-        // 7. REASSIGN (manager) or a manual ASSIGN.  The assignee only moves
-        //    together with a `reassigned` event that carries the reason.
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') in ['scheduled', 'in_progress']
-          && next().get('status', '') == prev().get('status', '')
-          && next().get('assigneeId', null) != prev().get('assigneeId', null)
-          && next().get('assignmentSource', '') in ['manual', 'reassign']
-          && occurrenceChanged()
-               .hasOnly(['assigneeId', 'plannedAssigneeId', 'assignmentSource',
-                         'needsCover', 'lastEventId', 'updatedAt', 'updatedBy'])
-          && occurrenceEventNew(f, o, 'reassigned', 3);
+        function reassignUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['assigneeId', 'plannedAssigneeId', 'assignmentSource',
+               'needsCover', 'lastEventId', 'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && prev().get('status', '') in ['scheduled', 'in_progress']
+            && next().get('status', '') == prev().get('status', '')
+            && next().get('assigneeId', null) != prev().get('assigneeId', null)
+            && nullableId(next(), 'assigneeId')
+            && nullableId(next(), 'plannedAssigneeId')
+            && next().get('assignmentSource', '') in ['manual', 'reassign']
+            && next().get('needsCover', false) is bool
+            && occurrenceEventNew(f, o, 'reassigned', 3);
+        }
 
-        // 8. SWAP / COVER: the assignee moves only with a `swapped`/`covered`
-        //    event that names a request ACCEPTED in the same batch by its
-        //    recipient (`swapAcceptedAfter`, P3-26).
-        allow update: if verified()
-          && isActiveMember(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') in ['scheduled', 'in_progress']
-          && next().get('status', '') == prev().get('status', '')
-          && next().get('assigneeId', null) != prev().get('assigneeId', null)
-          && next().get('assignmentSource', '') in ['swap', 'cover']
-          && occurrenceChanged()
-               .hasOnly(['assigneeId', 'coverForId', 'assignmentSource',
-                         'needsCover', 'lastEventId', 'updatedAt', 'updatedBy'])
-          && occurrenceChanged().hasAny(['assigneeId'])
-          && (
-            (next().get('assignmentSource', '') == 'swap'
-              && occurrenceEventNew(f, o, 'swapped', 3))
-            || (next().get('assignmentSource', '') == 'cover'
-              && occurrenceEventNew(f, o, 'covered', 3))
-          )
-          && swapAcceptedAfter(f, o);
+        function swapUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['assigneeId', 'coverForId', 'assignmentSource', 'needsCover',
+               'lastEventId', 'updatedAt', 'updatedBy'])
+            && isActiveMember(f)
+            && prev().get('deletedAt', null) == null
+            && prev().get('status', '') in ['scheduled', 'in_progress']
+            && next().get('status', '') == prev().get('status', '')
+            && next().get('assigneeId', null) != prev().get('assigneeId', null)
+            && nullableId(next(), 'assigneeId')
+            && nullableId(next(), 'coverForId')
+            && next().get('assignmentSource', '') in ['swap', 'cover']
+            && next().get('needsCover', false) is bool
+            && changed.hasAny(['assigneeId'])
+            && (
+              (next().get('assignmentSource', '') == 'swap'
+                && occurrenceEventNew(f, o, 'swapped', 3))
+              || (next().get('assignmentSource', '') == 'cover'
+                && occurrenceEventNew(f, o, 'covered', 3))
+            )
+            && swapAcceptedAfter(f, o);
+        }
 
-        // 9. ATTENTION flag and the comment marker (P3-25).
-        allow update: if verified()
-          && isActiveMember(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && occurrenceChanged()
-               .hasOnly(['needsAttention', 'lastCommentAt',
-                         'updatedAt', 'updatedBy'])
-          // Anybody active may comment (`lastCommentAt` only) or RAISE the
-          // flag; only whoever may act on the chore may clear it (P3-25).
-          && (!occurrenceChanged().hasAny(['needsAttention'])
-              || next().get('needsAttention', false) == true
-              || mayTick(f, prev()));
+        function attentionUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['needsAttention', 'lastCommentAt', 'updatedAt', 'updatedBy'])
+            && isActiveMember(f)
+            && prev().get('deletedAt', null) == null
+            && next().get('needsAttention', false) is bool
+            && nullableTimestamp(next(), 'lastCommentAt')
+            && (!changed.hasAny(['needsAttention'])
+                || next().get('needsAttention', false) == true
+                || mayTick(f, prev()));
+        }
 
-        // 10. REPLAN (manager): only an unstarted document, only its snapshot.
-        allow update: if verified()
-          && isManager(f)
-          && prev().get('deletedAt', null) == null
-          && occurrenceOk(o, next())
-          && prev().get('status', '') == 'scheduled'
-          && prev().get('subtaskDone', {}).size() == 0
-          && prev().get('completedAt', null) == null
-          && prev().get('reopenCount', 0) == 0
-          && occurrenceChanged()
-               .hasOnly(['templateRev', 'nameBn', 'nameEn', 'groupId',
-                         'instructions', 'subtasks', 'requiredCount',
-                         'difficulty',
-                         'estimatedMinutes', 'verification', 'dueAt',
-                         'dueMinutes', 'plannedAssigneeId', 'assigneeId',
-                         'assignmentSource', 'needsCover',
-                         'updatedAt', 'updatedBy']);
+        function replanUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['templateRev', 'nameBn', 'nameEn', 'groupId', 'instructions',
+               'subtasks', 'requiredCount', 'difficulty', 'estimatedMinutes',
+               'verification', 'dueAt', 'dueMinutes', 'plannedAssigneeId',
+               'assigneeId', 'assignmentSource', 'needsCover', 'updatedAt',
+               'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && prev().get('status', '') == 'scheduled'
+            && prev().get('subtaskDone', {}).size() == 0
+            && prev().get('completedAt', null) == null
+            && prev().get('reopenCount', 0) == 0
+            && occurrenceReplanFieldsOk(next());
+        }
 
-        // 11. SOFT DELETE (M-04): a manager, only an unstarted FUTURE document:
-        //     scheduled, no ticks, never completed, never reopened.
-        allow update: if verified()
-          && isManager(f)
-          && occurrenceOk(o, next())
-          && prev().get('deletedAt', null) == null
-          && next().get('deletedAt', null) is timestamp
-          && next().get('deletedBy', '') == request.auth.uid
-          && prev().get('status', '') == 'scheduled'
-          && prev().get('subtaskDone', {}).size() == 0
-          && prev().get('completedAt', null) == null
-          && prev().get('reopenCount', 0) == 0
-          && (next().get('dateKey', '') > todayKey())
-          && occurrenceChanged()
-               .hasOnly(['deletedAt', 'deletedBy', 'updatedAt', 'updatedBy']);
+        function softDeleteUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['deletedAt', 'deletedBy', 'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) == null
+            && next().get('deletedAt', null) is timestamp
+            && next().get('deletedBy', '') == request.auth.uid
+            && prev().get('status', '') == 'scheduled'
+            && prev().get('subtaskDone', {}).size() == 0
+            && prev().get('completedAt', null) == null
+            && prev().get('reopenCount', 0) == 0
+            && next().get('dateKey', '') > todayKey();
+        }
 
-        // 12. RESTORE (B-06, manager): a resumed template or a re-added date
-        //     brings back a soft-deleted, still unstarted document.  Only the
-        //     snapshot fields (the replan set) and the delete pair change;
-        //     every update rule above requires a live document, so without
-        //     this rule `RegenerateRange` could never restore anything.
-        allow update: if verified()
-          && isManager(f)
-          && occurrenceOk(o, next())
-          && prev().get('deletedAt', null) != null
-          && next().get('deletedAt', null) == null
-          && next().get('deletedBy', null) == null
-          && prev().get('status', '') == 'scheduled'
-          && prev().get('subtaskDone', {}).size() == 0
-          && occurrenceChanged()
-               .hasOnly(['templateRev', 'nameBn', 'nameEn', 'groupId',
-                         'instructions', 'subtasks', 'requiredCount',
-                         'difficulty',
-                         'estimatedMinutes', 'verification', 'dueAt',
-                         'dueMinutes', 'plannedAssigneeId', 'assigneeId',
-                         'assignmentSource', 'needsCover',
-                         'deletedAt', 'deletedBy', 'updatedAt', 'updatedBy']);
+        function restoreUpdateAllowed(f, o, changed) {
+          return changed.hasOnly(
+              ['templateRev', 'nameBn', 'nameEn', 'groupId', 'instructions',
+               'subtasks', 'requiredCount', 'difficulty', 'estimatedMinutes',
+               'verification', 'dueAt', 'dueMinutes', 'plannedAssigneeId',
+               'assigneeId', 'assignmentSource', 'needsCover', 'deletedAt',
+               'deletedBy', 'updatedAt', 'updatedBy'])
+            && isManager(f)
+            && prev().get('deletedAt', null) != null
+            && next().get('deletedAt', null) == null
+            && next().get('deletedBy', null) == null
+            && prev().get('status', '') == 'scheduled'
+            && prev().get('subtaskDone', {}).size() == 0
+            && occurrenceReplanFieldsOk(next());
+        }
+
+        function occurrenceTransitionAllowed(f, o, changed) {
+          return changed.hasAny(['exception'])
+            ? exceptionUpdateAllowed(f, o, changed)
+            : changed.hasAny(['reopenCount'])
+            ? reopenUpdateAllowed(f, o, changed)
+            : changed.hasAny(['skipReason'])
+            ? skipUpdateAllowed(f, o, changed)
+            : changed.hasAny(['deletedAt', 'deletedBy'])
+            ? (prev().get('deletedAt', null) == null
+                ? softDeleteUpdateAllowed(f, o, changed)
+                : restoreUpdateAllowed(f, o, changed))
+            : changed.hasAny(['verifiedAt', 'verifiedBy'])
+            ? verifyUpdateAllowed(f, o, changed)
+            : changed.hasAny(['needsAttention', 'lastCommentAt'])
+            ? attentionUpdateAllowed(f, o, changed)
+            : changed.hasAny([
+                'templateRev', 'nameBn', 'nameEn', 'groupId', 'instructions',
+                'subtasks', 'requiredCount', 'difficulty', 'estimatedMinutes',
+                'verification', 'dueAt', 'dueMinutes',
+              ])
+            ? replanUpdateAllowed(f, o, changed)
+            : changed.hasAny(['assigneeId'])
+            ? (reassignUpdateAllowed(f, o, changed)
+                || swapUpdateAllowed(f, o, changed))
+            : tickUpdateAllowed(f, o, changed);
+        }
+
+        function occurrenceUpdateAllowed(f, o) {
+          let changed = occurrenceChanged();
+          return verified()
+            && next().keys().hasOnly(occurrenceKeys())
+            && occurrenceTransitionAllowed(f, o, changed);
+        }
+
+        // The after-state is validated once; the transition helpers then enforce
+        // the same per-action permissions, state constraints, and changed keys.
+        allow update: if resource != null && occurrenceUpdateAllowed(f, o);
 
         allow delete: if false;
 

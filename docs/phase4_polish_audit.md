@@ -40,7 +40,7 @@ screen in the app.
 |---|---|---|---|---|---|
 | 21 | Read budget | Medium | `test/features/dashboard/perf/home_listener_census_test.dart`, `docs/phase4_read_budget.md` | Home keeps 13 live data listeners where D-P4-14 planned seven: budget, categories, fund transactions, contribution plans, availability and member stats each read their own source. Flat in family size, but above the plan. | Open. The test pins the ceiling at 13, so a new listener fails rather than passing silently. |
 | 22 | Concurrency | Medium | `lib/features/chores/achievements/data/firestore_member_stats_repository.dart` (`save`) | The write is a blind batch `set`, so a phone that syncs from a read taken before the other phone wrote replaces its document — the second phone's finalised month is gone. Pinned by the third test in `stats_sync_concurrency_test.dart`. | Open. Needs a guarded (compare-and-set / transaction) write in Phase 5. |
-| 24 | Security rules | High | `firebase/firestore.rules` (`occurrenceOk` and the `choreOccurrences` / `comments` match blocks) | 15 rules tests fail with `PERMISSION_DENIED: … maximum of 1000 expressions to evaluate has been reached`, plus two 30s timeouts on the 400-document generation batch. The emulator caps one request at 1000 evaluated expressions, and the chore rules re-evaluate the large `occurrenceOk` validator inside ~13 alternative `allow update` blocks; rules do not memoize a function across call sites, so the expressions multiply. **This is a denial-by-exhaustion, not a wrong permission decision** — the write is refused for a legitimate reason the rule cannot express in budget. Memoizing the role helpers (`me(f)` once, then `activeIn`/`roleIn` predicates) cut a manager check from 12 document accesses to 2 and recovered exactly one test, so the fix is structural. | Open — Phase 5. Options: collapse the alternative `allow update` blocks into one that validates the whole after-state once, split `occurrenceOk` into per-transition validators so a request only pays for its own transition, or move occurrence mutation validation into a guarded `update()` transaction the client already runs. Until then the chore write path is unproven by rules tests. Whether production refuses the same write is **not** established — the number observed here is the emulator's budget, so treat this as "these 15 paths have no rules evidence", not as a proven outage. |
+| 24 | Security rules | High | `firebase/firestore.rules` (`occurrenceOk` and the `choreOccurrences` / `comments` match blocks) | The local rules route occurrence updates through one transition dispatcher, validate fresh creates without repeating the full lifecycle checks, and validate only changed snapshot fields on replan/restore. Standalone emulator runs pass: `chore_occurrences.test.mjs` (101), `chore_occurrence_parity.test.mjs` (6), and `chore_comments.test.mjs` (27), including the 400-document batch. The complete `npm test` run is still not green (673 passed, 33 failed); occurrence creates pass standalone but fail when all test files are loaded together, and unrelated denied-case tests also unexpectedly succeed. | Partial — the three chore suites have standalone evidence, but the complete rules test run still needs reliable isolation and a green result. Production rules have not been updated. Do not deploy yet. |
 
 | 26 | Test harness | Medium | `test/support/app_test_side_effect_overrides.dart` | Seven app-level side-effect providers (`preferenceSync`, `dashboardPreferenceSync`, `reminderOrchestration`, `pushOrchestration`, `foregroundNotificationBridge`, `statsSyncOrchestration`, `celebrationOrchestration`) are overridden with `overrideWithValue(null)` in every widget test, so their bodies never execute under test. Finding 25 is a crash this hid. | Open. Phase 5 should give each hook its own focused test that runs the real body against fakes, the way `celebration_orchestration_test.dart` now does, and keep the null override only for screen tests that do not care about it. |
 
@@ -60,16 +60,12 @@ screen in the app.
 - Calendar polish and calendar views: 32 tests passed.
 - Architecture file-size guard: 1 test passed.
 - Swap UI (banner answers, sheet waits for the family list): 6 tests passed.
-- Firestore rules emulator (first time it has compiled, 2026-11-07): 138 passed,
-  15 failed of 153. The failures sit in only three of the 21 rules test files —
-  `chore_comments.test.mjs`, `chore_occurrence_parity.test.mjs` and
-  `chore_occurrences.test.mjs` — and every message is
-  `maximum of 1000 expressions to evaluate has been reached` or a 30s timeout on
-  the 400-document generation batch, i.e. item 24, not a role check answering
-  wrongly. The other 18 files (money, fund, budgets, advances, contributions,
-  engagement stats, activity, swaps, templates, settings, devices, duty groups,
-  catalog, dashboard/notification settings and the rules-contract file) are
-  green.
+- Firestore rules emulator: standalone chore suites pass after the local
+  refactor (`chore_occurrences` 101, parity 6, comments 27). The complete
+  `npm test` run reports 673 passed and 33 failed. Since occurrence creates
+  pass in isolation but fail when all files are loaded, investigate cross-file
+  test setup before treating the combined result as rules evidence. Production
+  rules are not updated.
 - Whole suite: 3276 passed, 0 failed, 0 skipped (`flutter test --exclude-tags
   golden`, 2026-11-07). `flutter analyze` reports no issues, `dart format .` is
   clean and `node tools/check_indexes.mjs` passes.

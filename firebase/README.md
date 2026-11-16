@@ -109,10 +109,14 @@ npx firebase emulators:exec --only firestore --project demo-family-hub \
   "npm --prefix firebase/rules_test test"
 ```
 
-Expected as of 2026-11-08 (re-measured): 138 pass, 15 fail. All 15 are chore-occurrence and
-comment writes that hit the emulator's 1000-expression budget — a Phase 5 rules redesign,
-documented as item 24 in `docs/phase4_polish_audit.md`. Do not read a green run of the other 18
-files as proof that those 15 paths are enforced.
+After the local rules refactor, standalone emulator suites pass:
+`chore_occurrences.test.mjs` (101, including the 400-document batch),
+`chore_occurrence_parity.test.mjs` (6), and `chore_comments.test.mjs` (27).
+The combined `npm test` run currently reports 673 pass and 33 fail; occurrence
+creates pass standalone but fail when all test files are loaded, and unrelated
+denied-case tests also unexpectedly succeed. Investigate test isolation and
+rerun the complete suite before deploying. Production rules have not been
+updated. See item 24 in `docs/phase4_polish_audit.md`.
 
 `emulators:exec` refuses to start if something already holds port 8080 (`Could not start Firestore
 Emulator, port taken`) — usually a `firebase emulators:start` left running for the app. Stop it, or

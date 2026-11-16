@@ -48,19 +48,13 @@ implementation.
 
 ## Debts Phase 4 hands over (measured, not assumed)
 
-- **The chore rules exceed the emulator's expression budget, and had never
-  compiled before 2026-11-07.** `firebase/firestore.rules` is now compilable and
-  138 of its 153 tests pass, but 15 fail with `maximum of 1000 expressions to
-  evaluate has been reached` (or time out) on `choreOccurrences` create/update,
-  comment flags and the skip/reassign transitions — see item 23 and item 24 of
-  [phase4_polish_audit.md](./phase4_polish_audit.md). Those paths therefore have
-  **no rules evidence**: do not treat a client-side `PermissionPolicy` pass as a
-  server-side permission, and do not add another transition rule to the
-  `choreOccurrences` block without first shrinking it (one validator per
-  transition instead of ~13 alternative blocks that each re-evaluate
-  `occurrenceOk`). Document accesses in rules are not memoized across call
-  sites, which is why the role helpers now read the member document once and
-  answer every role question from that snapshot.
+- **The chore rules and combined rules test run need final verification.** The
+  standalone occurrence (101 tests, including the 400-document batch), parity
+  (6), and comments (27) suites pass after the local refactor. The combined
+  `npm test` run reports 673 passed and 33 failed; occurrence creates that pass
+  alone fail when all files are loaded, alongside unrelated denied-case
+  failures. Resolve test isolation and rerun the complete suite before
+  publishing rules. See item 24 of [phase4_polish_audit.md](./phase4_polish_audit.md).
 - **`memberStats` writes are unguarded.** `MemberStatsRepository.save` is a
   plain batch `set`, so a phone that syncs from a read taken before another
   phone wrote replaces that phone's document, including its finalised month.

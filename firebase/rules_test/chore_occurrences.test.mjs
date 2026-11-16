@@ -174,7 +174,7 @@ describe('families/{f}/choreOccurrences — create', () => {
   it('denies a member of another family', async () => {
     await assertFails(
       setDoc(
-        doc(as(ERIN), `families/${FAM_B}/choreOccurrences/tpl_1_20261024`),
+        doc(as(ERIN), `families/${FAM_A}/choreOccurrences/tpl_1_20261024`),
         occurrenceDoc(ERIN),
       ),
     );
