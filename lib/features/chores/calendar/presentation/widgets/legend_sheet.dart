@@ -1,16 +1,15 @@
+import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
-import 'package:family_hub/features/chores/calendar/presentation/painters/hatch_painter.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/day_corner_marks.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/hatch_swatch.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/heat_legend.dart';
+import 'package:family_hub/features/chores/calendar/presentation/painters/calendar_date_border_painter.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart'
     show statusLabelOf, widgetStatusOf;
+import 'package:family_hub/shared/widgets/app_avatar.dart';
+import 'package:family_hub/shared/widgets/flag_chip.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:flutter/material.dart';
 
-/// "What the symbols mean": every status shape, the hatch and corner marks of
-/// a day cell, and the heat key (B.3, B.7).
+/// "What the symbols mean": status shapes, availability and attention marks.
 Future<void> showLegendSheet(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
@@ -51,35 +50,147 @@ class LegendSheet extends StatelessWidget {
               ),
             ),
             _LegendRow(
-              leading: const HatchSwatch(
-                directions: <HatchDirection>{HatchDirection.rising},
-                size: 24,
-              ),
-              text: l10n.calendarLegendPlanned,
-            ),
-            _LegendRow(
-              leading: const HatchSwatch(
-                directions: <HatchDirection>{HatchDirection.falling},
-                size: 24,
-              ),
-              text: l10n.calendarLegendAway,
-            ),
-            _LegendRow(
-              leading: const DayCornerMark(cover: true),
-              text: l10n.calendarCellNeedsCover,
-            ),
-            _LegendRow(
-              leading: const DayCornerMark(cover: false),
-              text: l10n.calendarCellNeedsAttention,
+              leading: const _AvatarLegendMark(),
+              text: l10n.calendarLegendAvatarDescription,
             ),
             const SizedBox(height: 8),
             Semantics(
               header: true,
-              child: Text(l10n.calendarHeatLegend, style: textTheme.titleSmall),
+              child: Text(
+                l10n.calendarLegendDateStates,
+                style: textTheme.titleSmall,
+              ),
             ),
-            const SizedBox(height: 4),
-            const HeatLegend(),
+            _LegendRow(
+              leading: const _DateSurfaceMark(scheduled: true),
+              text: l10n.calendarLegendScheduledSurface,
+            ),
+            _LegendRow(
+              leading: const _DateSurfaceMark(),
+              text: l10n.calendarLegendPastSurface,
+            ),
+            _LegendRow(
+              leading: const _DateSurfaceMark(today: true),
+              text: l10n.calendarLegendTodaySurface,
+            ),
+            _LegendRow(
+              leading: const _DateBorderMark(
+                state: CalendarDateBorderState.overdue,
+              ),
+              text: l10n.calendarLegendOverdueBorder,
+            ),
+            _LegendRow(
+              leading: const _DateBorderMark(
+                state: CalendarDateBorderState.completed,
+              ),
+              text: l10n.calendarLegendCompletedBorder,
+            ),
+            _LegendRow(
+              leading: Icon(
+                FlagChip.iconFor(ChoreFlag.needsCover),
+                color: FlagChip.toneFor(
+                  ChoreFlag.needsCover,
+                  context.tokens,
+                ).foreground,
+              ),
+              text: FlagChip.labelFor(ChoreFlag.needsCover, l10n),
+            ),
+            _LegendRow(
+              leading: Icon(
+                FlagChip.iconFor(ChoreFlag.needsAttention),
+                color: FlagChip.toneFor(
+                  ChoreFlag.needsAttention,
+                  context.tokens,
+                ).foreground,
+              ),
+              text: FlagChip.labelFor(ChoreFlag.needsAttention, l10n),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarLegendMark extends StatelessWidget {
+  const _AvatarLegendMark();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: 28,
+      height: 28,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: t.accent, width: 2),
+      ),
+      child: ExcludeSemantics(
+        child: AppAvatar(
+          id: 'calendar_legend',
+          name: context.l10n.calendarLegendYouAvatar,
+          avatarKey: 'p0',
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class _DateSurfaceMark extends StatelessWidget {
+  const _DateSurfaceMark({this.scheduled = false, this.today = false});
+
+  final bool scheduled;
+  final bool today;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = today
+        ? t.accent
+        : scheduled
+        ? t.statusScheduledContainer
+        : t.surfaceSunken;
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+        border: today ? Border.all(color: t.textOnAccent, width: 2) : null,
+      ),
+    );
+  }
+}
+
+class _DateBorderMark extends StatelessWidget {
+  const _DateBorderMark({required this.state});
+
+  final CalendarDateBorderState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = state == CalendarDateBorderState.overdue
+        ? t.statusOverdueOn
+        : t.statusCompletedOn;
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+      ),
+      child: CustomPaint(
+        foregroundPainter: CalendarDateBorderPainter(
+          state: state,
+          stateColor: color,
+          isToday: false,
+          todayColor: t.textOnAccent,
+          isSelected: false,
+          selectedColor: t.accent,
+          radius: t.radiusSm,
         ),
       ),
     );

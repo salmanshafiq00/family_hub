@@ -3971,6 +3971,49 @@
       }
     }
   },
+  "calendarCellPast": "past date",
+  "@calendarCellPast": {},
+  "calendarCellScheduled": "scheduled",
+  "@calendarCellScheduled": {},
+  "calendarCellProgress": "{done} of {total} done",
+  "@calendarCellProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCellCompleted": "all chores completed",
+  "@calendarCellCompleted": {},
+  "calendarDayOpenCount": "Open: {count}",
+  "@calendarDayOpenCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarDaySkippedCount": "Skipped: {count}",
+  "@calendarDaySkippedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCellMembers": "Assigned to {names}",
+  "@calendarCellMembers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarUnknownMember": "Unknown member",
+  "@calendarUnknownMember": {},
   "calendarCellOverdue": "{count} overdue",
   "@calendarCellOverdue": {
     "placeholders": {
@@ -4045,31 +4088,31 @@
   "@calendarCellPlanned": {},
   "calendarDisplayOptions": "Display options",
   "@calendarDisplayOptions": {},
-  "calendarHeatMode": "Workload tint",
-  "@calendarHeatMode": {},
-  "calendarHeatModeHint": "Days with more work get a darker background.",
-  "@calendarHeatModeHint": {},
-  "calendarHeatLegend": "Workload",
-  "@calendarHeatLegend": {},
-  "calendarHeatLess": "Less",
-  "@calendarHeatLess": {},
-  "calendarHeatMore": "More",
-  "@calendarHeatMore": {},
-  "calendarHeatLegendLabel": "Workload from less to more, in four shades",
-  "@calendarHeatLegendLabel": {},
   "calendarLegendMarks": "Day cell marks",
   "@calendarLegendMarks": {},
-  "calendarLegendPlanned": "Slanted lines: every chore of the day is only planned",
-  "@calendarLegendPlanned": {},
-  "calendarLegendAway": "Lines leaning the other way: someone is away",
-  "@calendarLegendAway": {},
+  "calendarLegendAvatarDescription": "Member initials and colors identify who is assigned; the accent ring marks you.",
+  "@calendarLegendAvatarDescription": {},
+  "calendarLegendYouAvatar": "You",
+  "@calendarLegendYouAvatar": {},
+  "calendarLegendDateStates": "Date surfaces and borders",
+  "@calendarLegendDateStates": {},
+  "calendarLegendScheduledSurface": "Tinted surface: chores are scheduled for this date.",
+  "@calendarLegendScheduledSurface": {},
+  "calendarLegendPastSurface": "Muted surface: this is a past date.",
+  "@calendarLegendPastSurface": {},
+  "calendarLegendTodaySurface": "Accent surface and outline: today.",
+  "@calendarLegendTodaySurface": {},
+  "calendarLegendOverdueBorder": "Dashed border: at least one chore is overdue.",
+  "@calendarLegendOverdueBorder": {},
+  "calendarLegendCompletedBorder": "Double border: all non-skipped chores are done.",
+  "@calendarLegendCompletedBorder": {},
   "calendarMonthLandscape": "The month view is not offered on a phone held sideways, so the week is shown.",
   "@calendarMonthLandscape": {},
   "calendarUseFamilyDefaults": "Use family defaults",
   "@calendarUseFamilyDefaults": {},
   "calendarDayPanelLabel": "Chores of the selected day",
   "@calendarDayPanelLabel": {},
-  "galleryCalendarPolish": "Calendar heat and hatch",
+  "galleryCalendarPolish": "Calendar members and date states",
   "@galleryCalendarPolish": {},
   "galleryDashboardCardFrame": "Dashboard card",
   "@galleryDashboardCardFrame": {},

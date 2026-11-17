@@ -7624,6 +7624,54 @@ abstract class AppLocalizations {
   /// **'{count}টি কাজ'**
   String calendarCellChores(String count);
 
+  /// No description provided for @calendarCellPast.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের তারিখ'**
+  String get calendarCellPast;
+
+  /// No description provided for @calendarCellScheduled.
+  ///
+  /// In bn, this message translates to:
+  /// **'নির্ধারিত'**
+  String get calendarCellScheduled;
+
+  /// No description provided for @calendarCellProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'{total}টির মধ্যে {done}টি সম্পন্ন'**
+  String calendarCellProgress(String done, String total);
+
+  /// No description provided for @calendarCellCompleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব কাজ সম্পন্ন'**
+  String get calendarCellCompleted;
+
+  /// No description provided for @calendarDayOpenCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাকি: {count}'**
+  String calendarDayOpenCount(String count);
+
+  /// No description provided for @calendarDaySkippedCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাদ: {count}'**
+  String calendarDaySkippedCount(String count);
+
+  /// No description provided for @calendarCellMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'দায়িত্বে: {names}'**
+  String calendarCellMembers(String names);
+
+  /// No description provided for @calendarUnknownMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা সদস্য'**
+  String get calendarUnknownMember;
+
   /// No description provided for @calendarCellOverdue.
   ///
   /// In bn, this message translates to:
@@ -7774,59 +7822,59 @@ abstract class AppLocalizations {
   /// **'দেখানোর ধরন'**
   String get calendarDisplayOptions;
 
-  /// No description provided for @calendarHeatMode.
-  ///
-  /// In bn, this message translates to:
-  /// **'ব্যস্ততার রং'**
-  String get calendarHeatMode;
-
-  /// No description provided for @calendarHeatModeHint.
-  ///
-  /// In bn, this message translates to:
-  /// **'যে দিনে বেশি কাজ, সেদিনের ঘর গাঢ় দেখায়।'**
-  String get calendarHeatModeHint;
-
-  /// No description provided for @calendarHeatLegend.
-  ///
-  /// In bn, this message translates to:
-  /// **'ব্যস্ততার মাত্রা'**
-  String get calendarHeatLegend;
-
-  /// No description provided for @calendarHeatLess.
-  ///
-  /// In bn, this message translates to:
-  /// **'কম'**
-  String get calendarHeatLess;
-
-  /// No description provided for @calendarHeatMore.
-  ///
-  /// In bn, this message translates to:
-  /// **'বেশি'**
-  String get calendarHeatMore;
-
-  /// No description provided for @calendarHeatLegendLabel.
-  ///
-  /// In bn, this message translates to:
-  /// **'ব্যস্ততা কম থেকে বেশি, চার ধাপের গাঢ়তায়'**
-  String get calendarHeatLegendLabel;
-
   /// No description provided for @calendarLegendMarks.
   ///
   /// In bn, this message translates to:
   /// **'দিনের ঘরের চিহ্ন'**
   String get calendarLegendMarks;
 
-  /// No description provided for @calendarLegendPlanned.
+  /// No description provided for @calendarLegendAvatarDescription.
   ///
   /// In bn, this message translates to:
-  /// **'তির্যক দাগ: দিনের সব কাজ শুধু পরিকল্পিত'**
-  String get calendarLegendPlanned;
+  /// **'সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।'**
+  String get calendarLegendAvatarDescription;
 
-  /// No description provided for @calendarLegendAway.
+  /// No description provided for @calendarLegendYouAvatar.
   ///
   /// In bn, this message translates to:
-  /// **'উল্টো দিকের দাগ: কেউ অনুপস্থিত'**
-  String get calendarLegendAway;
+  /// **'আপনি'**
+  String get calendarLegendYouAvatar;
+
+  /// No description provided for @calendarLegendDateStates.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখের পৃষ্ঠ ও সীমানা'**
+  String get calendarLegendDateStates;
+
+  /// No description provided for @calendarLegendScheduledSurface.
+  ///
+  /// In bn, this message translates to:
+  /// **'রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।'**
+  String get calendarLegendScheduledSurface;
+
+  /// No description provided for @calendarLegendPastSurface.
+  ///
+  /// In bn, this message translates to:
+  /// **'মৃদু পৃষ্ঠ: এটি আগের তারিখ।'**
+  String get calendarLegendPastSurface;
+
+  /// No description provided for @calendarLegendTodaySurface.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।'**
+  String get calendarLegendTodaySurface;
+
+  /// No description provided for @calendarLegendOverdueBorder.
+  ///
+  /// In bn, this message translates to:
+  /// **'ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।'**
+  String get calendarLegendOverdueBorder;
+
+  /// No description provided for @calendarLegendCompletedBorder.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।'**
+  String get calendarLegendCompletedBorder;
 
   /// No description provided for @calendarMonthLandscape.
   ///
@@ -7849,7 +7897,7 @@ abstract class AppLocalizations {
   /// No description provided for @galleryCalendarPolish.
   ///
   /// In bn, this message translates to:
-  /// **'ক্যালেন্ডারের রং ও দাগ'**
+  /// **'ক্যালেন্ডারের সদস্য ও তারিখের অবস্থা'**
   String get galleryCalendarPolish;
 
   /// No description provided for @galleryDashboardCardFrame.

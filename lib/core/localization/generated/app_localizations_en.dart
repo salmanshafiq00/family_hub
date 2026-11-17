@@ -4379,6 +4379,38 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get calendarCellPast => 'past date';
+
+  @override
+  String get calendarCellScheduled => 'scheduled';
+
+  @override
+  String calendarCellProgress(String done, String total) {
+    return '$done of $total done';
+  }
+
+  @override
+  String get calendarCellCompleted => 'all chores completed';
+
+  @override
+  String calendarDayOpenCount(String count) {
+    return 'Open: $count';
+  }
+
+  @override
+  String calendarDaySkippedCount(String count) {
+    return 'Skipped: $count';
+  }
+
+  @override
+  String calendarCellMembers(String names) {
+    return 'Assigned to $names';
+  }
+
+  @override
+  String get calendarUnknownMember => 'Unknown member';
+
+  @override
   String calendarCellOverdue(String count) {
     return '$count overdue';
   }
@@ -4463,35 +4495,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarDisplayOptions => 'Display options';
 
   @override
-  String get calendarHeatMode => 'Workload tint';
-
-  @override
-  String get calendarHeatModeHint =>
-      'Days with more work get a darker background.';
-
-  @override
-  String get calendarHeatLegend => 'Workload';
-
-  @override
-  String get calendarHeatLess => 'Less';
-
-  @override
-  String get calendarHeatMore => 'More';
-
-  @override
-  String get calendarHeatLegendLabel =>
-      'Workload from less to more, in four shades';
-
-  @override
   String get calendarLegendMarks => 'Day cell marks';
 
   @override
-  String get calendarLegendPlanned =>
-      'Slanted lines: every chore of the day is only planned';
+  String get calendarLegendAvatarDescription =>
+      'Member initials and colors identify who is assigned; the accent ring marks you.';
 
   @override
-  String get calendarLegendAway =>
-      'Lines leaning the other way: someone is away';
+  String get calendarLegendYouAvatar => 'You';
+
+  @override
+  String get calendarLegendDateStates => 'Date surfaces and borders';
+
+  @override
+  String get calendarLegendScheduledSurface =>
+      'Tinted surface: chores are scheduled for this date.';
+
+  @override
+  String get calendarLegendPastSurface => 'Muted surface: this is a past date.';
+
+  @override
+  String get calendarLegendTodaySurface => 'Accent surface and outline: today.';
+
+  @override
+  String get calendarLegendOverdueBorder =>
+      'Dashed border: at least one chore is overdue.';
+
+  @override
+  String get calendarLegendCompletedBorder =>
+      'Double border: all non-skipped chores are done.';
 
   @override
   String get calendarMonthLandscape =>
@@ -4504,7 +4536,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarDayPanelLabel => 'Chores of the selected day';
 
   @override
-  String get galleryCalendarPolish => 'Calendar heat and hatch';
+  String get galleryCalendarPolish => 'Calendar members and date states';
 
   @override
   String get galleryDashboardCardFrame => 'Dashboard card';

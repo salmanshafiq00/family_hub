@@ -5,7 +5,6 @@ import 'package:family_hub/features/chores/calendar/domain/calendar_filters.dart
 import 'package:family_hub/features/chores/calendar/domain/calendar_month_model.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
-import 'package:family_hub/features/chores/templates/domain/template_enums.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../calendar_test_support.dart';
@@ -21,7 +20,6 @@ void main() {
     String? viewer = 'cara',
     CalendarFilters filters = CalendarFilters.none,
     AvailabilityIndex availability = AvailabilityIndex.empty,
-    HeatMode heat = HeatMode.off,
     DateKey? today,
     bool truncated = false,
   }) => CalendarMonthModel.build(
@@ -33,7 +31,6 @@ void main() {
     viewerId: viewer,
     filters: filters,
     availability: availability,
-    heatMode: heat,
     truncated: truncated,
   );
 
@@ -83,7 +80,7 @@ void main() {
   group('empty and today', () {
     test('an empty month has empty cells and no truncation', () {
       final model = build(const []);
-      expect(model.days.every((d) => d.isEmpty && d.markers.extra == 0), true);
+      expect(model.days.every((d) => d.isEmpty && d.byMember.isEmpty), true);
       expect(model.truncated, isFalse);
       expect(model.totalInMonth, 0);
     });
@@ -125,7 +122,7 @@ void main() {
       expect(summary.total, 3);
       expect(summary.countOf(ChoreStatus.overdue), 1);
       expect(summary.countOf(ChoreStatus.verified), 0);
-      expect(summary.markers.markers.first, ChoreStatus.overdue);
+      expect(summary.mostUrgent, ChoreStatus.overdue);
       expect(summary.hasNeedsCover, isTrue);
       expect(summary.hasNeedsAttention, isTrue);
       expect(summary.hasProjectedOnly, isFalse);
@@ -214,28 +211,7 @@ void main() {
     });
   });
 
-  group('heat and availability', () {
-    test('heat is 0 everywhere when off', () {
-      final model = build([aChoreItem('a', DateKey(2026, 10, 25))]);
-      expect(model.days.every((d) => d.heatLevel == 0), isTrue);
-    });
-
-    test('heat ranks a hard day above an easy day', () {
-      final light = DateKey(2026, 10, 25);
-      final heavy = DateKey(2026, 10, 26);
-      final model = build([
-        aChoreItem('a', light, difficulty: Difficulty.easy),
-        aChoreItem('b', heavy, difficulty: Difficulty.hard),
-        aChoreItem('c', heavy, difficulty: Difficulty.hard),
-      ], heat: HeatMode.workload);
-      expect(model.summaryOf(heavy)!.heatLevel, 4);
-      expect(
-        model.summaryOf(light)!.heatLevel < model.summaryOf(heavy)!.heatLevel,
-        isTrue,
-      );
-      expect(model.summaryOf(DateKey(2026, 10, 27))!.heatLevel, 0);
-    });
-
+  group('availability', () {
     test('an absence shows on its days, never on outside days', () {
       final model = build(
         const [],
@@ -271,7 +247,7 @@ void main() {
       var best = const Duration(days: 1);
       for (var run = 0; run < 10; run++) {
         final clock = Stopwatch()..start();
-        final model = build(items, heat: HeatMode.workload);
+        final model = build(items);
         clock.stop();
         expect(model.totalInMonth, 900);
         if (clock.elapsed < best) best = clock.elapsed;

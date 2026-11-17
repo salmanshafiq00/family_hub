@@ -3970,6 +3970,49 @@
       }
     }
   },
+  "calendarCellPast": "আগের তারিখ",
+  "@calendarCellPast": {},
+  "calendarCellScheduled": "নির্ধারিত",
+  "@calendarCellScheduled": {},
+  "calendarCellProgress": "{total}টির মধ্যে {done}টি সম্পন্ন",
+  "@calendarCellProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCellCompleted": "সব কাজ সম্পন্ন",
+  "@calendarCellCompleted": {},
+  "calendarDayOpenCount": "বাকি: {count}",
+  "@calendarDayOpenCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarDaySkippedCount": "বাদ: {count}",
+  "@calendarDaySkippedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCellMembers": "দায়িত্বে: {names}",
+  "@calendarCellMembers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarUnknownMember": "অজানা সদস্য",
+  "@calendarUnknownMember": {},
   "calendarCellOverdue": "{count}টি বিলম্বিত",
   "@calendarCellOverdue": {
     "placeholders": {
@@ -4044,31 +4087,31 @@
   "@calendarCellPlanned": {},
   "calendarDisplayOptions": "দেখানোর ধরন",
   "@calendarDisplayOptions": {},
-  "calendarHeatMode": "ব্যস্ততার রং",
-  "@calendarHeatMode": {},
-  "calendarHeatModeHint": "যে দিনে বেশি কাজ, সেদিনের ঘর গাঢ় দেখায়।",
-  "@calendarHeatModeHint": {},
-  "calendarHeatLegend": "ব্যস্ততার মাত্রা",
-  "@calendarHeatLegend": {},
-  "calendarHeatLess": "কম",
-  "@calendarHeatLess": {},
-  "calendarHeatMore": "বেশি",
-  "@calendarHeatMore": {},
-  "calendarHeatLegendLabel": "ব্যস্ততা কম থেকে বেশি, চার ধাপের গাঢ়তায়",
-  "@calendarHeatLegendLabel": {},
   "calendarLegendMarks": "দিনের ঘরের চিহ্ন",
   "@calendarLegendMarks": {},
-  "calendarLegendPlanned": "তির্যক দাগ: দিনের সব কাজ শুধু পরিকল্পিত",
-  "@calendarLegendPlanned": {},
-  "calendarLegendAway": "উল্টো দিকের দাগ: কেউ অনুপস্থিত",
-  "@calendarLegendAway": {},
+  "calendarLegendAvatarDescription": "সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।",
+  "@calendarLegendAvatarDescription": {},
+  "calendarLegendYouAvatar": "আপনি",
+  "@calendarLegendYouAvatar": {},
+  "calendarLegendDateStates": "তারিখের পৃষ্ঠ ও সীমানা",
+  "@calendarLegendDateStates": {},
+  "calendarLegendScheduledSurface": "রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।",
+  "@calendarLegendScheduledSurface": {},
+  "calendarLegendPastSurface": "মৃদু পৃষ্ঠ: এটি আগের তারিখ।",
+  "@calendarLegendPastSurface": {},
+  "calendarLegendTodaySurface": "অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।",
+  "@calendarLegendTodaySurface": {},
+  "calendarLegendOverdueBorder": "ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।",
+  "@calendarLegendOverdueBorder": {},
+  "calendarLegendCompletedBorder": "দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।",
+  "@calendarLegendCompletedBorder": {},
   "calendarMonthLandscape": "ফোন আড়াআড়ি ধরলে মাসের ভিউ নেই, তাই সপ্তাহ দেখানো হচ্ছে।",
   "@calendarMonthLandscape": {},
   "calendarUseFamilyDefaults": "পরিবারের ডিফল্ট ব্যবহার করুন",
   "@calendarUseFamilyDefaults": {},
   "calendarDayPanelLabel": "নির্বাচিত দিনের কাজ",
   "@calendarDayPanelLabel": {},
-  "galleryCalendarPolish": "ক্যালেন্ডারের রং ও দাগ",
+  "galleryCalendarPolish": "ক্যালেন্ডারের সদস্য ও তারিখের অবস্থা",
   "@galleryCalendarPolish": {},
   "galleryDashboardCardFrame": "ড্যাশবোর্ড কার্ড",
   "@galleryDashboardCardFrame": {},

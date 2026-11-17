@@ -44,6 +44,8 @@ class PillBottomBar extends StatelessWidget {
   /// Minimum touch target (accessibility rule 13).
   static const double minTarget = 48;
 
+  static const double layoutHeight = minTarget + 8 + 4 + 12;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;

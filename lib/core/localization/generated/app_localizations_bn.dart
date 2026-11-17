@@ -4360,6 +4360,38 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get calendarCellPast => 'আগের তারিখ';
+
+  @override
+  String get calendarCellScheduled => 'নির্ধারিত';
+
+  @override
+  String calendarCellProgress(String done, String total) {
+    return '$totalটির মধ্যে $doneটি সম্পন্ন';
+  }
+
+  @override
+  String get calendarCellCompleted => 'সব কাজ সম্পন্ন';
+
+  @override
+  String calendarDayOpenCount(String count) {
+    return 'বাকি: $count';
+  }
+
+  @override
+  String calendarDaySkippedCount(String count) {
+    return 'বাদ: $count';
+  }
+
+  @override
+  String calendarCellMembers(String names) {
+    return 'দায়িত্বে: $names';
+  }
+
+  @override
+  String get calendarUnknownMember => 'অজানা সদস্য';
+
+  @override
   String calendarCellOverdue(String count) {
     return '$countটি বিলম্বিত';
   }
@@ -4444,33 +4476,36 @@ class AppLocalizationsBn extends AppLocalizations {
   String get calendarDisplayOptions => 'দেখানোর ধরন';
 
   @override
-  String get calendarHeatMode => 'ব্যস্ততার রং';
-
-  @override
-  String get calendarHeatModeHint =>
-      'যে দিনে বেশি কাজ, সেদিনের ঘর গাঢ় দেখায়।';
-
-  @override
-  String get calendarHeatLegend => 'ব্যস্ততার মাত্রা';
-
-  @override
-  String get calendarHeatLess => 'কম';
-
-  @override
-  String get calendarHeatMore => 'বেশি';
-
-  @override
-  String get calendarHeatLegendLabel =>
-      'ব্যস্ততা কম থেকে বেশি, চার ধাপের গাঢ়তায়';
-
-  @override
   String get calendarLegendMarks => 'দিনের ঘরের চিহ্ন';
 
   @override
-  String get calendarLegendPlanned => 'তির্যক দাগ: দিনের সব কাজ শুধু পরিকল্পিত';
+  String get calendarLegendAvatarDescription =>
+      'সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।';
 
   @override
-  String get calendarLegendAway => 'উল্টো দিকের দাগ: কেউ অনুপস্থিত';
+  String get calendarLegendYouAvatar => 'আপনি';
+
+  @override
+  String get calendarLegendDateStates => 'তারিখের পৃষ্ঠ ও সীমানা';
+
+  @override
+  String get calendarLegendScheduledSurface =>
+      'রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।';
+
+  @override
+  String get calendarLegendPastSurface => 'মৃদু পৃষ্ঠ: এটি আগের তারিখ।';
+
+  @override
+  String get calendarLegendTodaySurface =>
+      'অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।';
+
+  @override
+  String get calendarLegendOverdueBorder =>
+      'ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।';
+
+  @override
+  String get calendarLegendCompletedBorder =>
+      'দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।';
 
   @override
   String get calendarMonthLandscape =>
@@ -4483,7 +4518,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get calendarDayPanelLabel => 'নির্বাচিত দিনের কাজ';
 
   @override
-  String get galleryCalendarPolish => 'ক্যালেন্ডারের রং ও দাগ';
+  String get galleryCalendarPolish => 'ক্যালেন্ডারের সদস্য ও তারিখের অবস্থা';
 
   @override
   String get galleryDashboardCardFrame => 'ড্যাশবোর্ড কার্ড';

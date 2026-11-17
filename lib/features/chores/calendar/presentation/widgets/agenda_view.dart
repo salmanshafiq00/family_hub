@@ -6,6 +6,7 @@ import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/agenda_model.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
@@ -225,6 +226,9 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
                   onPressed: () => setState(() => _window = _window.later()),
                 )
               : const SizedBox(height: 24),
+        ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: kCalendarBottomClearance),
         ),
       ],
     );

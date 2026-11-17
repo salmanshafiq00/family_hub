@@ -34,14 +34,6 @@ final calendarDensityProvider = Provider<Density>(
   (ref) => ref.watch(calendarPrefsProvider.select((p) => p.density)),
 );
 
-final calendarMarkerStyleProvider = Provider<MarkerStyle>(
-  (ref) => ref.watch(calendarPrefsProvider.select((p) => p.markerStyle)),
-);
-
-final calendarHeatModeProvider = Provider<HeatMode>(
-  (ref) => ref.watch(calendarPrefsProvider.select((p) => p.heatMode)),
-);
-
 /// The free-text search of the filter sheet. Session state only: a stale search
 /// that hides chores after a restart would look like missing data.
 final calendarQueryProvider = NotifierProvider<CalendarQueryController, String>(
@@ -86,7 +78,6 @@ final calendarMonthModelProvider = Provider.autoDispose
       final today = ref.watch(todayKeyProvider);
       final scope = ref.watch(calendarScopeProvider);
       final filters = ref.watch(calendarFiltersProvider);
-      final heat = ref.watch(calendarHeatModeProvider);
       final viewer = ref.watch(currentUidProvider);
       final availability = ref.watch(availabilityIndexProvider);
       return mapAsync<MonthItems, CalendarMonthModel>(
@@ -100,7 +91,6 @@ final calendarMonthModelProvider = Provider.autoDispose
           scope: scope,
           viewerId: viewer,
           availability: availability,
-          heatMode: heat,
           truncated: value.truncated,
         ),
       );
@@ -119,7 +109,6 @@ final weekModelProvider = Provider.autoDispose
       final today = ref.watch(todayKeyProvider);
       final scope = ref.watch(calendarScopeProvider);
       final filters = ref.watch(calendarFiltersProvider);
-      final heat = ref.watch(calendarHeatModeProvider);
       final viewer = ref.watch(currentUidProvider);
       final availability = ref.watch(availabilityIndexProvider);
       return mapAsync<MonthItems, WeekModel>(
@@ -133,7 +122,6 @@ final weekModelProvider = Provider.autoDispose
           scope: scope,
           viewerId: viewer,
           availability: availability,
-          heatMode: heat,
         ),
       );
     });

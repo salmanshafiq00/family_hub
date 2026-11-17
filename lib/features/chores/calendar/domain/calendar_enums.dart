@@ -14,24 +14,6 @@ typedef CalendarView = CalendarViewKind;
 /// "My chores" or "Whole family" (`settings/chores.defaultScope`).
 typedef CalendarScope = CalendarScopeKind;
 
-/// Tint behind the day cells (Appendix B.4).
-enum HeatMode {
-  off('off'),
-  workload('workload');
-
-  const HeatMode(this.id);
-
-  /// The id stored in the local preferences (P3-21).
-  final String id;
-
-  static HeatMode fromId(Object? id) {
-    for (final mode in values) {
-      if (mode.id == id) return mode;
-    }
-    return HeatMode.off;
-  }
-}
-
 /// How roomy the tiles and cells are.
 enum Density {
   comfortable('comfortable'),
@@ -46,23 +28,5 @@ enum Density {
       if (density.id == id) return density;
     }
     return Density.comfortable;
-  }
-}
-
-/// How a day cell draws its chores.
-enum MarkerStyle {
-  glyphs('glyphs'),
-  dots('dots'),
-  count('count');
-
-  const MarkerStyle(this.id);
-
-  final String id;
-
-  static MarkerStyle fromId(Object? id) {
-    for (final style in values) {
-      if (style.id == id) return style;
-    }
-    return MarkerStyle.glyphs;
   }
 }

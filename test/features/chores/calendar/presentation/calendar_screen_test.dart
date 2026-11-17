@@ -5,6 +5,7 @@ import 'package:family_hub/features/chores/calendar/presentation/calendar_screen
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
+import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -146,32 +147,47 @@ void main() {
     });
   });
 
-  group('markers', () {
-    testWidgets('three glyphs and a +N for a busy day', (tester) async {
+  group('day cell member summaries', () {
+    testWidgets('a busy day shows its avatar and progress, not status glyphs', (
+      tester,
+    ) async {
       final day = DateKey(2026, 10, 27);
       await pump(tester, occurrences: [for (var i = 0; i < 5; i++) on(i, day)]);
 
       expect(
         find.descendant(
           of: cell(2026, 10, 27),
-          matching: find.byType(StatusGlyph),
+          matching: find.byType(AppAvatar),
         ),
-        findsNWidgets(3),
+        findsOneWidget,
       );
       expect(
-        find.descendant(of: cell(2026, 10, 27), matching: find.text('+2')),
+        find.descendant(of: cell(2026, 10, 27), matching: find.text('0/5')),
         findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: cell(2026, 10, 27),
+          matching: find.byType(StatusGlyph),
+        ),
+        findsNothing,
       );
     });
 
-    testWidgets('a day outside the month carries no markers', (tester) async {
+    testWidgets('a day outside the month carries no avatars or footer', (
+      tester,
+    ) async {
       await pump(tester, occurrences: [on(1, DateKey(2026, 11, 1))]);
 
       expect(
         find.descendant(
           of: cell(2026, 11, 1),
-          matching: find.byType(StatusGlyph),
+          matching: find.byType(AppAvatar),
         ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: cell(2026, 11, 1), matching: find.text('0/1')),
         findsNothing,
       );
     });
@@ -182,7 +198,9 @@ void main() {
       await pump(tester, occurrences: [for (var i = 0; i < 3; i++) on(i, day)]);
 
       expect(
-        find.bySemanticsLabel(RegExp(r'^27 October, Tuesday, 3 chores')),
+        find.bySemanticsLabel(
+          RegExp(r'^27 October, Tuesday, scheduled.*3 chores.*0 of 3 done'),
+        ),
         findsOneWidget,
       );
       handle.dispose();

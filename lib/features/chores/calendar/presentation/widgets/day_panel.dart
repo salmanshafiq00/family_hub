@@ -1,30 +1,26 @@
-import 'dart:async';
-
-import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
-import 'package:family_hub/core/permissions/permission.dart';
 import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/day_summary_details.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/presentation/widgets/day_part_section.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
-import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 /// The snap points of the day panel, as a fraction of the screen (B.5).
 const List<double> kDayPanelSnaps = <double>[0.28, 0.55, 0.92];
 
 /// The selected day's chores in a bottom sheet the person drags between three
-/// heights (P3-23). Header: the date, the count and, for a manager, "Add
-/// chore". Rows: the same `TodayRow` as everywhere, grouped by day part.
+/// heights (P3-23). Header: the date and count. Rows: the same `TodayRow` as
+/// everywhere, grouped by day part.
 ///
 /// On a tablet the same list is shown permanently beside the grid by
 /// [DayPanelPane] (P3-24).
@@ -102,7 +98,10 @@ class DayPanelList extends ConsumerWidget {
     final l10n = context.l10n;
     final formatters = ref.watch(appFormattersProvider);
     final items = ref.watch(dayPanelItemsProvider(day));
-    final canAdd = ref.can(Permission.manageChoreTemplates);
+    final summary = ref
+        .watch(calendarMonthModelProvider(day.monthKey))
+        .value
+        ?.summaryOf(day);
     final date = DateTime.utc(day.year, day.month, day.day);
     final count = items.hasValue ? items.requireValue.length : 0;
 
@@ -140,7 +139,12 @@ class DayPanelList extends ConsumerWidget {
       controller: controller,
       // The sheet's own controller drives the drag; the pane scrolls itself.
       primary: false,
-      padding: EdgeInsets.fromLTRB(12, handle ? 0 : 12, 12, 24),
+      padding: EdgeInsets.fromLTRB(
+        12,
+        handle ? 0 : 12,
+        12,
+        kCalendarBottomClearance,
+      ),
       children: [
         if (handle)
           Center(
@@ -172,16 +176,12 @@ class DayPanelList extends ConsumerWidget {
                 ),
               ),
             ),
-            if (canAdd)
-              TextButton.icon(
-                key: const Key('calendar_add_chore'),
-                onPressed: () =>
-                    unawaited(context.push(AppRoutes.choresTemplateNew)),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(l10n.calendarAddChore),
-              ),
           ],
         ),
+        if (summary != null && summary.total > 0) ...[
+          const SizedBox(height: 8),
+          DaySummaryDetails(summary: summary, formatters: formatters),
+        ],
         const SizedBox(height: 8),
         body,
       ],

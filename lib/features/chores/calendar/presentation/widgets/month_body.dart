@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
-import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_month_model.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_member_styles.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_filter_sheet.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_two_pane.dart';
@@ -17,6 +18,7 @@ import 'package:family_hub/features/chores/calendar/presentation/widgets/weekday
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
+import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,8 +69,8 @@ class _GridColumn extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formatters = ref.watch(appFormattersProvider);
     final focus = ref.watch(calendarFocusProvider);
-    final scope = ref.watch(calendarScopeProvider);
-    final style = ref.watch(calendarMarkerStyleProvider);
+    final memberStyles = ref.watch(calendarMemberStylesProvider);
+    final viewerId = ref.watch(currentUidProvider);
     final weekStart = ref.watch(choreSettingsProvider).weekStartDay;
     final reduce = MediaQuery.disableAnimationsOf(context);
     final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
@@ -91,27 +93,48 @@ class _GridColumn extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          WeekdayHeaderRow(weekStartDay: weekStart, formatters: formatters),
-          SizedBox(
-            height: rows * cellHeight,
-            child: MonthPager(
-              epoch: epoch,
-              month: focus.month,
-              reduceMotion: reduce,
-              onMonthChanged: controller.showMonth,
-              pageBuilder: (context, month) => MonthPage(
-                month: month,
-                weekStartDay: weekStart,
-                cellHeight: cellHeight,
-                selectedDay: focus.day,
-                scope: scope,
-                markerStyle: style,
-                onSelect: (day) {
-                  unawaited(HapticFeedback.selectionClick());
-                  controller.selectDay(day);
-                },
-              ),
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth < kCalendarSevenColumnMinWidth
+                  ? kCalendarSevenColumnMinWidth
+                  : constraints.maxWidth;
+              return SingleChildScrollView(
+                key: const PageStorageKey<String>('calendar_month_columns'),
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: width,
+                  child: Column(
+                    children: [
+                      WeekdayHeaderRow(
+                        weekStartDay: weekStart,
+                        formatters: formatters,
+                      ),
+                      SizedBox(
+                        height: rows * cellHeight,
+                        child: MonthPager(
+                          epoch: epoch,
+                          month: focus.month,
+                          reduceMotion: reduce,
+                          onMonthChanged: controller.showMonth,
+                          pageBuilder: (context, month) => MonthPage(
+                            month: month,
+                            weekStartDay: weekStart,
+                            cellHeight: cellHeight,
+                            selectedDay: focus.day,
+                            memberStyles: memberStyles,
+                            viewerId: viewerId,
+                            onSelect: (day) {
+                              unawaited(HapticFeedback.selectionClick());
+                              controller.selectDay(day);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           if (truncated) ...[
             const SizedBox(height: 8),
@@ -137,8 +160,8 @@ class MonthPage extends ConsumerWidget {
     required this.weekStartDay,
     required this.cellHeight,
     required this.selectedDay,
-    required this.scope,
-    required this.markerStyle,
+    required this.memberStyles,
+    required this.viewerId,
     required this.onSelect,
     super.key,
   });
@@ -147,8 +170,8 @@ class MonthPage extends ConsumerWidget {
   final int weekStartDay;
   final double cellHeight;
   final DateKey selectedDay;
-  final CalendarScope scope;
-  final MarkerStyle markerStyle;
+  final Map<String, CalendarMemberStyle> memberStyles;
+  final String? viewerId;
   final ValueChanged<DateKey> onSelect;
 
   @override
@@ -172,8 +195,8 @@ class MonthPage extends ConsumerWidget {
         MonthGrid(
           model: value,
           selectedDay: selectedDay,
-          scope: scope,
-          markerStyle: markerStyle,
+          memberStyles: memberStyles,
+          viewerId: viewerId,
           formatters: formatters,
           cellHeight: cellHeight,
           onSelect: onSelect,

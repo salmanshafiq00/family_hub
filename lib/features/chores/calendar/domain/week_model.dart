@@ -43,7 +43,6 @@ final class WeekModel {
     CalendarScope scope = CalendarScope.all,
     String? viewerId,
     AvailabilityIndex availability = AvailabilityIndex.empty,
-    HeatMode heatMode = HeatMode.off,
   }) {
     final range = MonthMatrix.weekOf(anchor, weekStartDay);
     final days = <DateKey>[for (var i = 0; i < 7; i++) range.start.addDays(i)];
@@ -53,7 +52,6 @@ final class WeekModel {
       viewerId: viewerId,
       filters: filters,
       availability: availability,
-      heatMode: heatMode,
     );
     final inWeek = <ChoreItem>[
       for (final item in items)

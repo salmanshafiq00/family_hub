@@ -10,8 +10,8 @@ import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart';
 /// The month grid, ready to draw (P3-20, Appendix B).
 ///
 /// Pure: one call turns the month's items into 4–6 weeks of [DaySummary]s.
-/// Scope, filters and heat are applied in memory over the month's single
-/// listener (D-P3-8), so changing them never reads anything.
+/// Scope and filters are applied in memory over the month's single listener
+/// (D-P3-8), so changing them never reads anything.
 final class CalendarMonthModel {
   const CalendarMonthModel({
     required this.month,
@@ -36,7 +36,6 @@ final class CalendarMonthModel {
     CalendarScope scope = CalendarScope.all,
     String? viewerId,
     AvailabilityIndex availability = AvailabilityIndex.empty,
-    HeatMode heatMode = HeatMode.off,
     bool truncated = false,
   }) {
     final matrix = MonthMatrix.build(month, weekStartDay);
@@ -46,7 +45,6 @@ final class CalendarMonthModel {
       viewerId: viewerId,
       filters: filters,
       availability: availability,
-      heatMode: heatMode,
     );
     final summaries = builder.build(
       days: matrix.days,

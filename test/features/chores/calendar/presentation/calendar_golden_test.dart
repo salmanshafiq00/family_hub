@@ -18,7 +18,7 @@ import '../../../../shared/widgets/shared_widgets_test_support.dart';
 import '../../chores_test_helpers.dart';
 import '../../presentation/chores_p3_15_support.dart';
 
-/// P3-24 goldens (B.9-23): month (5-row and 6-row, heat on), agenda, week, day
+/// P3-24 goldens (B.9-23): month (5-row and 6-row), agenda, week, day
 /// panel and the tablet two-pane, in both themes and both languages.
 ///
 /// Generated on Linux CI only (ADR 0005): run the `Update goldens` workflow,
@@ -55,7 +55,6 @@ void main() {
     required int theme,
     required String lang,
     MonthKey? month,
-    bool heat = false,
     double width = 360,
     double height = 800,
   }) async {
@@ -79,11 +78,6 @@ void main() {
     final container = ProviderScope.containerOf(
       tester.element(find.byType(CalendarScreen)),
     );
-    if (heat) {
-      await container
-          .read(calendarPrefsProvider.notifier)
-          .setHeatMode(HeatMode.workload);
-    }
     await container
         .read(calendarPrefsProvider.notifier)
         .setScope(CalendarScopeKind.all);
@@ -102,17 +96,16 @@ void main() {
     () {
       for (var theme = 0; theme < appThemes.length; theme++) {
         for (final lang in <String>['bn', 'en']) {
-          testWidgets('month, 6 rows, heat on (${appThemes[theme].id}/$lang)', (
+          testWidgets('month, 6 rows (${appThemes[theme].id}/$lang)', (
             tester,
           ) async {
             await shoot(
               tester,
-              'month6_heat',
+              'month6',
               view: CalendarViewKind.month,
               theme: theme,
               lang: lang,
               month: MonthKey(2026, 10),
-              heat: true,
             );
           });
           testWidgets('month, 5 rows (${appThemes[theme].id}/$lang)', (
@@ -165,7 +158,6 @@ void main() {
               view: CalendarViewKind.month,
               theme: theme,
               lang: lang,
-              heat: true,
               width: 1000,
             );
           });

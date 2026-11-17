@@ -2,16 +2,13 @@ import 'package:family_hub/app/gallery/gallery_sections.dart';
 import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
-import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
-import 'package:family_hub/features/chores/calendar/presentation/painters/hatch_painter.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/hatch_swatch.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/heat_legend.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
-/// P3-24: the heat key, the two hatches and day cells in each decoration.
+/// Calendar date states used by the month and week grids.
 GallerySection calendarPolishSection = GallerySection(
   id: 'calendar_polish',
   label: (l10n) => l10n.galleryCalendarPolish,
@@ -20,43 +17,32 @@ GallerySection calendarPolishSection = GallerySection(
       languageCode: Localizations.localeOf(context).languageCode,
       useBanglaDigits: Localizations.localeOf(context).languageCode == 'bn',
     );
-    DaySummary day(
-      int n, {
-      int heat = 0,
-      bool planned = false,
-      Set<String> away = const <String>{},
-      bool cover = false,
-      bool attention = false,
-    }) => DaySummary(
-      dateKey: DateKey(2026, 10, n),
-      heatLevel: heat,
-      hasProjectedOnly: planned,
-      unavailableMemberIds: away,
-      hasNeedsCover: cover,
-      hasNeedsAttention: attention,
-    );
     final cells = <DaySummary>[
-      day(1),
-      day(2, heat: 1),
-      day(3, heat: 4),
-      day(4, planned: true),
-      day(5, away: const <String>{'a'}),
-      day(6, planned: true, away: const <String>{'a'}),
-      day(7, cover: true, attention: true),
+      DaySummary(dateKey: DateKey(2026, 10, 1)),
+      DaySummary(
+        dateKey: DateKey(2026, 10, 2),
+        total: 2,
+        counts: const <ChoreStatus, int>{ChoreStatus.scheduled: 2},
+      ),
+      DaySummary(
+        dateKey: DateKey(2026, 10, 3),
+        isPast: true,
+        total: 2,
+        counts: const <ChoreStatus, int>{ChoreStatus.completed: 2},
+      ),
+      DaySummary(
+        dateKey: DateKey(2026, 10, 4),
+        isPast: true,
+        total: 2,
+        counts: const <ChoreStatus, int>{ChoreStatus.overdue: 1},
+      ),
+      DaySummary(dateKey: DateKey(2026, 10, 5), isToday: true),
+      DaySummary(dateKey: DateKey(2026, 10, 6)),
+      DaySummary(dateKey: DateKey(2026, 10, 7)),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const HeatLegend(),
-        const SizedBox(height: 8),
-        const Wrap(
-          spacing: 8,
-          children: [
-            HatchSwatch(directions: <HatchDirection>{HatchDirection.rising}),
-            HatchSwatch(directions: <HatchDirection>{HatchDirection.falling}),
-          ],
-        ),
-        const SizedBox(height: 8),
         // P4-23: a `cell` is only legal under a `row`, and a `row` only under a
         // `table` - the same nesting `MonthBody` builds, or the demo trips the
         // semantics assertion instead of showing what a screen reader gets.
@@ -74,8 +60,6 @@ GallerySection calendarPolishSection = GallerySection(
                     child: DayCell(
                       summary: summary,
                       selected: summary.dateKey.day == 3,
-                      scope: CalendarScope.all,
-                      markerStyle: MarkerStyle.glyphs,
                       formatters: f,
                       minHeight: 56,
                       onTap: () {},

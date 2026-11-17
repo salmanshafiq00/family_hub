@@ -1,8 +1,7 @@
 import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 
-/// What a day cell shows: up to [MarkerPolicy.maxMarkers] status glyphs and a
-/// "+N" for the chores that did not fit (Appendix B.2).
+/// A priority-ordered subset of statuses for compact calendar summaries.
 final class MarkerPick {
   const MarkerPick({required this.markers, required this.extra});
 
@@ -35,12 +34,10 @@ final class MarkerPick {
   String toString() => 'MarkerPick($markers, +$extra)';
 }
 
-/// Chooses the markers of one day: the most urgent chores first
+/// Orders chore status by urgency, most urgent first
 /// (overdue > in progress > scheduled > completed > verified > skipped).
 ///
-/// One marker per CHORE, not per distinct status, so a day with seven open
-/// chores reads "three rings and +4" instead of a single ring that hides the
-/// load. Pure and stable: equal urgency keeps the order given.
+/// Pure and stable: equal urgency keeps the order given.
 abstract final class MarkerPolicy {
   static const int maxMarkers = 3;
 

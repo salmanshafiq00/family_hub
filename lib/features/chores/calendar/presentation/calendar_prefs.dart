@@ -28,8 +28,6 @@ final class CalendarPrefs {
     required this.scope,
     required this.showProjected,
     this.density = Density.comfortable,
-    this.markerStyle = MarkerStyle.glyphs,
-    this.heatMode = HeatMode.off,
     this.filters = CalendarFilters.none,
   });
 
@@ -46,8 +44,6 @@ final class CalendarPrefs {
   /// The person's own switch; it overrides the family default.
   final bool showProjected;
   final Density density;
-  final MarkerStyle markerStyle;
-  final HeatMode heatMode;
 
   /// Always without free text (see the class comment).
   final CalendarFilters filters;
@@ -57,16 +53,12 @@ final class CalendarPrefs {
     CalendarScope? scope,
     bool? showProjected,
     Density? density,
-    MarkerStyle? markerStyle,
-    HeatMode? heatMode,
     CalendarFilters? filters,
   }) => CalendarPrefs(
     view: view ?? this.view,
     scope: scope ?? this.scope,
     showProjected: showProjected ?? this.showProjected,
     density: density ?? this.density,
-    markerStyle: markerStyle ?? this.markerStyle,
-    heatMode: heatMode ?? this.heatMode,
     filters: filters == null ? this.filters : filters.copyWith(query: ''),
   );
 
@@ -78,8 +70,6 @@ final class CalendarPrefs {
     'scope': scope.id,
     'showProjected': showProjected,
     'density': density.id,
-    'markerStyle': markerStyle.id,
-    'heatMode': heatMode.id,
     'groupIds': filters.groupIds.toList()..sort(),
     'statuses': <String>[for (final status in filters.statuses) status.id]
       ..sort(),
@@ -114,12 +104,6 @@ final class CalendarPrefs {
       density: _hasId(decoded['density'])
           ? Density.fromId(decoded['density'])
           : fallback.density,
-      markerStyle: _hasId(decoded['markerStyle'])
-          ? MarkerStyle.fromId(decoded['markerStyle'])
-          : fallback.markerStyle,
-      heatMode: _hasId(decoded['heatMode'])
-          ? HeatMode.fromId(decoded['heatMode'])
-          : fallback.heatMode,
       filters: CalendarFilters(
         groupIds: _strings(decoded['groupIds']),
         statuses: <ChoreStatus>{
@@ -148,26 +132,15 @@ final class CalendarPrefs {
       other.scope == scope &&
       other.showProjected == showProjected &&
       other.density == density &&
-      other.markerStyle == markerStyle &&
-      other.heatMode == heatMode &&
       other.filters == filters;
 
   @override
-  int get hashCode => Object.hash(
-    view,
-    scope,
-    showProjected,
-    density,
-    markerStyle,
-    heatMode,
-    filters,
-  );
+  int get hashCode => Object.hash(view, scope, showProjected, density, filters);
 
   @override
   String toString() =>
       'CalendarPrefs(${view.id}, ${scope.id}, projected: $showProjected, '
-      '${density.id}, ${markerStyle.id}, heat: ${heatMode.id}, '
-      'filters: ${filters.activeCount})';
+      '${density.id}, filters: ${filters.activeCount})';
 }
 
 /// The live calendar preferences of the current family on this device.
@@ -223,12 +196,6 @@ class CalendarPrefsController extends Notifier<CalendarPrefs> {
 
   Future<void> setDensity(Density density) =>
       _save(state.copyWith(density: density));
-
-  Future<void> setMarkerStyle(MarkerStyle style) =>
-      _save(state.copyWith(markerStyle: style));
-
-  Future<void> setHeatMode(HeatMode mode) =>
-      _save(state.copyWith(heatMode: mode));
 
   Future<void> setShowProjected({required bool value}) =>
       _save(state.copyWith(showProjected: value));

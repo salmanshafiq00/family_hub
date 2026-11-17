@@ -1,8 +1,8 @@
 import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
-import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_month_model.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_member_styles.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -21,8 +21,8 @@ class MonthGrid extends StatelessWidget {
   const MonthGrid({
     required this.model,
     required this.selectedDay,
-    required this.scope,
-    required this.markerStyle,
+    required this.memberStyles,
+    required this.viewerId,
     required this.formatters,
     required this.cellHeight,
     required this.onSelect,
@@ -32,8 +32,8 @@ class MonthGrid extends StatelessWidget {
 
   final CalendarMonthModel model;
   final DateKey selectedDay;
-  final CalendarScope scope;
-  final MarkerStyle markerStyle;
+  final Map<String, CalendarMemberStyle> memberStyles;
+  final String? viewerId;
   final AppFormatters formatters;
   final double cellHeight;
   final ValueChanged<DateKey> onSelect;
@@ -56,15 +56,18 @@ class MonthGrid extends StatelessWidget {
                   children: [
                     for (final summary in week)
                       Expanded(
-                        child: DayCell(
-                          summary: summary,
-                          selected: summary.dateKey == selectedDay,
-                          scope: scope,
-                          markerStyle: markerStyle,
-                          formatters: formatters,
-                          minHeight: cellHeight,
-                          onTap: () => onSelect(summary.dateKey),
-                          onLongPress: () => onLongPress(summary.dateKey),
+                        child: Padding(
+                          padding: const EdgeInsets.all(2),
+                          child: DayCell(
+                            summary: summary,
+                            selected: summary.dateKey == selectedDay,
+                            memberStyles: memberStyles,
+                            viewerId: viewerId,
+                            formatters: formatters,
+                            minHeight: cellHeight,
+                            onTap: () => onSelect(summary.dateKey),
+                            onLongPress: () => onLongPress(summary.dateKey),
+                          ),
                         ),
                       ),
                   ],

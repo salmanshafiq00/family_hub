@@ -40,8 +40,6 @@ void main() {
         scope: CalendarScopeKind.all,
         showProjected: false,
         density: Density.compact,
-        markerStyle: MarkerStyle.dots,
-        heatMode: HeatMode.workload,
         filters: const CalendarFilters(
           groupIds: <String>{'kitchen'},
           statuses: <ChoreStatus>{ChoreStatus.overdue},
@@ -79,6 +77,20 @@ void main() {
         expect(back.scope, CalendarScopeKind.mine);
         expect(back.showProjected, isTrue);
         expect(back.filters.statuses, <ChoreStatus>{ChoreStatus.overdue});
+      },
+    );
+
+    test(
+      'legacy marker styles are ignored without invalidating preferences',
+      () {
+        for (final style in <String>['glyphs', 'dots', 'count']) {
+          final decoded = CalendarPrefs.decode(
+            '{"v":1,"markerStyle":"$style","view":"week"}',
+            fallback: fallback,
+          );
+          expect(decoded!.view, CalendarViewKind.week);
+          expect(decoded.toJson().containsKey('markerStyle'), isFalse);
+        }
       },
     );
   });
@@ -160,14 +172,12 @@ void main() {
       final first = make();
       first.listen(calendarPrefsProvider, (_, _) {});
       final notifier = first.read(calendarPrefsProvider.notifier);
-      await notifier.setHeatMode(HeatMode.workload);
       await notifier.toggleScope();
 
       final second = make();
       second.listen(calendarPrefsProvider, (_, _) {});
       final restored = second.read(calendarPrefsProvider);
 
-      expect(restored.heatMode, HeatMode.workload);
       expect(restored.scope, CalendarScopeKind.all);
     });
 

@@ -1,14 +1,17 @@
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_screen.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_filter_sheet.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/day_panel.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/quick_actions_sheet.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_item.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
+import 'package:family_hub/shared/widgets/pill_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -249,7 +252,7 @@ void main() {
   });
 
   group('day panel', () {
-    testWidgets('lists the day and offers Add chore to a manager', (
+    testWidgets('lists the day without a duplicate Add chore action', (
       tester,
     ) async {
       await pump(
@@ -261,13 +264,49 @@ void main() {
 
       expect(find.byKey(const Key('calendar_day_panel')), findsOneWidget);
       expect(find.byType(TodayRow), findsOneWidget);
-      expect(find.byKey(const Key('calendar_add_chore')), findsOneWidget);
+      expect(find.byKey(const Key('calendar_add_chore')), findsNothing);
+      expect(find.text('0 of 1 done'), findsOneWidget);
+      expect(find.text('Open: 1'), findsOneWidget);
     });
 
     testWidgets('a plain member gets no Add chore', (tester) async {
       await pump(tester, view: CalendarViewKind.month);
 
       expect(find.byKey(const Key('calendar_add_chore')), findsNothing);
+    });
+
+    testWidgets('the last row clears the FAB at 2x text scale', (tester) async {
+      final date = DateKey(2026, 10, 24);
+      await pumpP3Screen(
+        tester,
+        home: Scaffold(
+          body: DayPanelList(day: date),
+          floatingActionButton: FloatingActionButton.small(
+            key: const Key('test_calendar_fab'),
+            onPressed: () {},
+            child: const Icon(Icons.add),
+          ),
+          bottomNavigationBar: PillBottomBar(
+            items: const [
+              PillNavItem(icon: Icons.home, label: 'Home'),
+              PillNavItem(icon: Icons.check, label: 'Chores'),
+            ],
+            selectedIndex: 1,
+            onSelected: (_) {},
+          ),
+        ),
+        occurrences: [for (var i = 0; i < 24; i++) on(i, date)],
+        height: 800,
+        textScale: 2,
+      );
+      await tester.fling(find.byType(ListView), const Offset(0, -4000), 3000);
+      await tester.pumpAndSettle();
+
+      final lastRow = tester.getRect(find.byType(TodayRow).last);
+      final fab = tester.getRect(find.byKey(const Key('test_calendar_fab')));
+      expect(lastRow.bottom, lessThan(fab.top));
+      expect(kCalendarBottomClearance, greaterThan(40 + 16));
+      expect(tester.takeException(), isNull);
     });
   });
 

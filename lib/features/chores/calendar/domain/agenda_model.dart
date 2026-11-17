@@ -82,7 +82,6 @@ final class AgendaModel {
       viewerId: viewerId,
       filters: filters,
       availability: availability,
-      heatMode: HeatMode.off,
     );
     final visible = builder.visibleByDay(items);
 

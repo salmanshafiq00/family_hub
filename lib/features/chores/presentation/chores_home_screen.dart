@@ -76,8 +76,11 @@ class ChoresHomeScreen extends ConsumerWidget {
       // to their own day (P3-29).
       floatingActionButton:
           templates.hasValue && templates.requireValue.isNotEmpty
-          ? FloatingActionButton.extended(
+          ? FloatingActionButton.small(
               key: Key(canManage ? 'chores_fab_new' : 'chores_fab_today'),
+              tooltip: canManage
+                  ? l10n.choresNewAction
+                  : l10n.choresMyTodayAction,
               onPressed: () => unawaited(
                 context.push(
                   canManage
@@ -85,10 +88,7 @@ class ChoresHomeScreen extends ConsumerWidget {
                       : AppRoutes.choresToday,
                 ),
               ),
-              icon: Icon(canManage ? Icons.add_rounded : Icons.today_rounded),
-              label: Text(
-                canManage ? l10n.choresNewAction : l10n.choresMyTodayAction,
-              ),
+              child: Icon(canManage ? Icons.add_rounded : Icons.today_rounded),
             )
           : null,
     );
