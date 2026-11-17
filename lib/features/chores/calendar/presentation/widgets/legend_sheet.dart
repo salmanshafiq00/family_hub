@@ -1,6 +1,8 @@
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
-import 'package:family_hub/features/chores/calendar/presentation/painters/calendar_date_border_painter.dart';
+import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart'
     show statusLabelOf, widgetStatusOf;
@@ -8,8 +10,10 @@ import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:family_hub/shared/widgets/flag_chip.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// "What the symbols mean": status shapes, availability and attention marks.
+/// "What the symbols mean": status shapes, then the REAL date cells (the same
+/// widget the grid draws) next to what each one says.
 Future<void> showLegendSheet(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
@@ -18,13 +22,42 @@ Future<void> showLegendSheet(BuildContext context) =>
       builder: (context) => const LegendSheet(),
     );
 
-class LegendSheet extends StatelessWidget {
+class LegendSheet extends ConsumerWidget {
   const LegendSheet({super.key});
 
+  /// Any day will do: the sample cells only need a number.
+  static final DateKey _sample = DateKey(2026, 11, 17);
+
+  static const double _leadingWidth = 48;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
+    final formatters = ref.watch(appFormattersProvider);
+
+    Widget cell(DaySummary summary, {bool selected = false}) =>
+        ExcludeSemantics(
+          child: IgnorePointer(
+            child: DayCell(
+              summary: summary,
+              selected: selected,
+              formatters: formatters,
+              minHeight: 48,
+              onTap: () {},
+              onLongPress: () {},
+            ),
+          ),
+        );
+
+    DaySummary of(Map<ChoreStatus, int> counts, {bool today = false}) =>
+        DaySummary(
+          dateKey: _sample,
+          isToday: today,
+          total: counts.values.fold(0, (a, b) => a + b),
+          counts: counts,
+        );
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -50,40 +83,53 @@ class LegendSheet extends StatelessWidget {
               ),
             ),
             _LegendRow(
-              leading: const _AvatarLegendMark(),
+              leading: cell(DaySummary(dateKey: _sample)),
+              text: l10n.calendarLegendNoChores,
+            ),
+            _LegendRow(
+              leading: cell(of({ChoreStatus.scheduled: 1})),
+              text: l10n.calendarCellScheduled,
+            ),
+            _LegendRow(
+              leading: cell(
+                of({ChoreStatus.completed: 1, ChoreStatus.scheduled: 1}),
+              ),
+              text: l10n.statusInProgress,
+            ),
+            _LegendRow(
+              leading: cell(
+                of({ChoreStatus.completed: 1, ChoreStatus.verified: 1}),
+              ),
+              text: l10n.calendarCellCompleted,
+            ),
+            _LegendRow(
+              leading: cell(
+                of({ChoreStatus.overdue: 1, ChoreStatus.scheduled: 1}),
+              ),
+              text: l10n.statusOverdue,
+            ),
+            _LegendRow(
+              leading: cell(of({ChoreStatus.skipped: 1})),
+              text: l10n.choreStatusSkipped,
+            ),
+            _LegendRow(
+              leading: cell(DaySummary(dateKey: _sample, isToday: true)),
+              text: l10n.calendarToday,
+            ),
+            _LegendRow(
+              leading: cell(DaySummary(dateKey: _sample), selected: true),
+              text: l10n.calendarCellSelected,
+            ),
+            _LegendRow(
+              leading: Icon(
+                Icons.person_rounded,
+                color: context.tokens.accentStrong,
+              ),
+              text: l10n.calendarLegendMine,
+            ),
+            _LegendRow(
+              leading: const _OtherAvatars(),
               text: l10n.calendarLegendAvatarDescription,
-            ),
-            const SizedBox(height: 8),
-            Semantics(
-              header: true,
-              child: Text(
-                l10n.calendarLegendDateStates,
-                style: textTheme.titleSmall,
-              ),
-            ),
-            _LegendRow(
-              leading: const _DateSurfaceMark(scheduled: true),
-              text: l10n.calendarLegendScheduledSurface,
-            ),
-            _LegendRow(
-              leading: const _DateSurfaceMark(),
-              text: l10n.calendarLegendPastSurface,
-            ),
-            _LegendRow(
-              leading: const _DateSurfaceMark(today: true),
-              text: l10n.calendarLegendTodaySurface,
-            ),
-            _LegendRow(
-              leading: const _DateBorderMark(
-                state: CalendarDateBorderState.overdue,
-              ),
-              text: l10n.calendarLegendOverdueBorder,
-            ),
-            _LegendRow(
-              leading: const _DateBorderMark(
-                state: CalendarDateBorderState.completed,
-              ),
-              text: l10n.calendarLegendCompletedBorder,
             ),
             _LegendRow(
               leading: Icon(
@@ -112,86 +158,30 @@ class LegendSheet extends StatelessWidget {
   }
 }
 
-class _AvatarLegendMark extends StatelessWidget {
-  const _AvatarLegendMark();
+/// Two sample avatars: what "other members" look like at the bottom of a cell.
+class _OtherAvatars extends StatelessWidget {
+  const _OtherAvatars();
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      width: 28,
-      height: 28,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: t.accent, width: 2),
-      ),
-      child: ExcludeSemantics(
-        child: AppAvatar(
-          id: 'calendar_legend',
-          name: context.l10n.calendarLegendYouAvatar,
-          avatarKey: 'p0',
-          size: 20,
-        ),
-      ),
-    );
-  }
-}
-
-class _DateSurfaceMark extends StatelessWidget {
-  const _DateSurfaceMark({this.scheduled = false, this.today = false});
-
-  final bool scheduled;
-  final bool today;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final color = today
-        ? t.accent
-        : scheduled
-        ? t.statusScheduledContainer
-        : t.surfaceSunken;
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(t.radiusSm),
-        border: today ? Border.all(color: t.textOnAccent, width: 2) : null,
-      ),
-    );
-  }
-}
-
-class _DateBorderMark extends StatelessWidget {
-  const _DateBorderMark({required this.state});
-
-  final CalendarDateBorderState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final color = state == CalendarDateBorderState.overdue
-        ? t.statusOverdueOn
-        : t.statusCompletedOn;
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: BorderRadius.circular(t.radiusSm),
-      ),
-      child: CustomPaint(
-        foregroundPainter: CalendarDateBorderPainter(
-          state: state,
-          stateColor: color,
-          isToday: false,
-          todayColor: t.textOnAccent,
-          isSelected: false,
-          selectedColor: t.accent,
-          radius: t.radiusSm,
-        ),
+    return const ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppAvatar(
+            id: 'calendar_legend_a',
+            name: 'A',
+            avatarKey: 'p0',
+            size: 16,
+          ),
+          SizedBox(width: 2),
+          AppAvatar(
+            id: 'calendar_legend_b',
+            name: 'B',
+            avatarKey: 'p2',
+            size: 16,
+          ),
+        ],
       ),
     );
   }
@@ -209,7 +199,10 @@ class _LegendRow extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
         children: [
-          SizedBox(width: 28, child: Center(child: leading)),
+          SizedBox(
+            width: LegendSheet._leadingWidth,
+            child: Center(child: leading),
+          ),
           const SizedBox(width: 12),
           Expanded(child: Text(text)),
         ],

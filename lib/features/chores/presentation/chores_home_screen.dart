@@ -8,6 +8,7 @@ import 'package:family_hub/features/chores/calendar/presentation/calendar_screen
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_bell.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
@@ -19,7 +20,7 @@ import 'package:go_router/go_router.dart';
 ///
 /// A family with no chore template yet keeps the friendly first-run empty state
 /// (with "Manage" for a manager) instead of an empty grid. The app bar carries
-/// the shortcut to Today and, for a manager, the Manage hub.
+/// the inbox bell, the shortcut to Today and, for a manager, the Manage hub.
 class ChoresHomeScreen extends ConsumerWidget {
   const ChoresHomeScreen({super.key});
 
@@ -56,6 +57,8 @@ class ChoresHomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.navChores),
         actions: [
+          // P3-27: the inbox bell lives in the app bar, first in the list.
+          const InboxBell(),
           IconButton(
             key: const Key('chores_open_today'),
             tooltip: l10n.calendarOpenToday,

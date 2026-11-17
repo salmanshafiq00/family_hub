@@ -26,10 +26,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The Month view (P3-22, P3-24): the grid, and the selected day's chores.
 ///
-/// Phone: the grid with the draggable day panel over its lower part.
-/// Tablet (>= [kTwoPaneMinWidth]): the grid and a permanent day panel side by
-/// side ([CalendarTwoPane]). Both read the SAME providers, so the two layouts
-/// never disagree.
+/// Phone: the grid fills the space ABOVE the collapsed day panel and never
+/// scrolls; the draggable panel sits over the rest. Tablet
+/// (>= [kTwoPaneMinWidth]): the grid and a permanent day panel side by side
+/// ([CalendarTwoPane]). Both read the SAME providers, so the two layouts never
+/// disagree.
 class MonthBody extends ConsumerWidget {
   const MonthBody({required this.epoch, super.key});
 
@@ -40,30 +41,39 @@ class MonthBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final focus = ref.watch(calendarFocusProvider);
     final twoPane = MediaQuery.sizeOf(context).width >= kTwoPaneMinWidth;
-    final grid = _GridColumn(epoch: epoch, reserveForSheet: !twoPane);
     if (twoPane) {
       return CalendarTwoPane(
-        grid: grid,
+        grid: _GridColumn(epoch: epoch),
         panel: DayPanelPane(day: focus.day),
       );
     }
-    return Stack(
-      children: [
-        Positioned.fill(child: grid),
-        DayPanel(day: focus.day),
-      ],
+    return LayoutBuilder(
+      builder: (context, box) => Stack(
+        children: [
+          // The panel's first snap is a fraction of THIS body, and so is the
+          // space kept free under the grid: one number for both (R2).
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: dayPanelRestingHeight(box.maxHeight),
+              ),
+              child: _GridColumn(epoch: epoch),
+            ),
+          ),
+          DayPanel(day: focus.day),
+        ],
+      ),
     );
   }
 }
 
-/// The weekday header, the pager of month grids and the truncated banner.
+/// The weekday header, the pager of month grids and the truncated banner. The
+/// month rows share the height that is left, so the grid fits and never
+/// scrolls sideways.
 class _GridColumn extends ConsumerWidget {
-  const _GridColumn({required this.epoch, required this.reserveForSheet});
+  const _GridColumn({required this.epoch});
 
   final MonthKey epoch;
-
-  /// Leave room under the grid for the day panel at its lowest snap.
-  final bool reserveForSheet;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,75 +83,70 @@ class _GridColumn extends ConsumerWidget {
     final viewerId = ref.watch(currentUidProvider);
     final weekStart = ref.watch(choreSettingsProvider).weekStartDay;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
-    final cellHeight = 56 * scale.clamp(1.0, 2.0);
     final rows = _rowsOf(focus.month, weekStart);
     final controller = ref.read(calendarFocusProvider.notifier);
     final truncated =
         ref.watch(calendarMonthModelProvider(focus.month)).value?.truncated ??
         false;
-    final height = MediaQuery.sizeOf(context).height;
 
-    return SingleChildScrollView(
-      key: const PageStorageKey<String>('calendar_month'),
-      padding: EdgeInsets.fromLTRB(
-        12,
-        0,
-        12,
-        reserveForSheet ? height * 0.3 : 12,
+    Widget pager(double cellHeight) => SizedBox(
+      height: rows * cellHeight,
+      child: MonthPager(
+        epoch: epoch,
+        month: focus.month,
+        reduceMotion: reduce,
+        onMonthChanged: controller.showMonth,
+        pageBuilder: (context, month) => MonthPage(
+          month: month,
+          weekStartDay: weekStart,
+          cellHeight: cellHeight,
+          selectedDay: focus.day,
+          memberStyles: memberStyles,
+          viewerId: viewerId,
+          onSelect: (day) {
+            unawaited(HapticFeedback.selectionClick());
+            controller.selectDay(day);
+          },
+        ),
       ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kCalendarGridSidePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth < kCalendarSevenColumnMinWidth
-                  ? kCalendarSevenColumnMinWidth
-                  : constraints.maxWidth;
-              return SingleChildScrollView(
-                key: const PageStorageKey<String>('calendar_month_columns'),
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: width,
-                  child: Column(
-                    children: [
-                      WeekdayHeaderRow(
-                        weekStartDay: weekStart,
-                        formatters: formatters,
-                      ),
-                      SizedBox(
-                        height: rows * cellHeight,
-                        child: MonthPager(
-                          epoch: epoch,
-                          month: focus.month,
-                          reduceMotion: reduce,
-                          onMonthChanged: controller.showMonth,
-                          pageBuilder: (context, month) => MonthPage(
-                            month: month,
-                            weekStartDay: weekStart,
-                            cellHeight: cellHeight,
-                            selectedDay: focus.day,
-                            memberStyles: memberStyles,
-                            viewerId: viewerId,
-                            onSelect: (day) {
-                              unawaited(HapticFeedback.selectionClick());
-                              controller.selectDay(day);
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          if (truncated) ...[
-            const SizedBox(height: 8),
-            TruncatedBanner(
-              onOpenFilters: () => unawaited(showCalendarFilterSheet(context)),
+          WeekdayHeaderRow(weekStartDay: weekStart, formatters: formatters),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final cellHeight = calendarCellHeightFor(
+                  availableHeight: box.maxHeight,
+                  rows: rows,
+                );
+                // Only a very small window or a huge text size needs more
+                // than the space there is; then (and only then) it scrolls.
+                if (rows * cellHeight > box.maxHeight + 0.5) {
+                  return SingleChildScrollView(
+                    key: const PageStorageKey<String>('calendar_month'),
+                    child: pager(cellHeight),
+                  );
+                }
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: pager(cellHeight),
+                );
+              },
             ),
-          ],
+          ),
+          if (truncated)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4),
+              child: TruncatedBanner(
+                onOpenFilters: () =>
+                    unawaited(showCalendarFilterSheet(context)),
+              ),
+            ),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
+import 'package:family_hub/features/chores/calendar/domain/member_load.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:flutter/material.dart';
@@ -17,28 +18,48 @@ GallerySection calendarPolishSection = GallerySection(
       languageCode: Localizations.localeOf(context).languageCode,
       useBanglaDigits: Localizations.localeOf(context).languageCode == 'bn',
     );
+    // One cell per state: none, scheduled (with my chore and two others),
+    // in progress, all done, overdue, skipped, today.
     final cells = <DaySummary>[
       DaySummary(dateKey: DateKey(2026, 10, 1)),
       DaySummary(
         dateKey: DateKey(2026, 10, 2),
-        total: 2,
-        counts: const <ChoreStatus, int>{ChoreStatus.scheduled: 2},
+        total: 3,
+        counts: const <ChoreStatus, int>{ChoreStatus.scheduled: 3},
+        mineCount: 1,
+        byMember: const <MemberLoad>[
+          MemberLoad(memberId: 'me', count: 1),
+          MemberLoad(memberId: 'amy', count: 1),
+          MemberLoad(memberId: 'bob', count: 1),
+        ],
       ),
       DaySummary(
         dateKey: DateKey(2026, 10, 3),
-        isPast: true,
         total: 2,
-        counts: const <ChoreStatus, int>{ChoreStatus.completed: 2},
+        counts: const <ChoreStatus, int>{
+          ChoreStatus.completed: 1,
+          ChoreStatus.scheduled: 1,
+        },
       ),
       DaySummary(
         dateKey: DateKey(2026, 10, 4),
         isPast: true,
         total: 2,
+        counts: const <ChoreStatus, int>{ChoreStatus.completed: 2},
+      ),
+      DaySummary(
+        dateKey: DateKey(2026, 10, 5),
+        isPast: true,
+        total: 2,
         counts: const <ChoreStatus, int>{ChoreStatus.overdue: 1},
       ),
-      DaySummary(dateKey: DateKey(2026, 10, 5), isToday: true),
-      DaySummary(dateKey: DateKey(2026, 10, 6)),
-      DaySummary(dateKey: DateKey(2026, 10, 7)),
+      DaySummary(
+        dateKey: DateKey(2026, 10, 6),
+        isPast: true,
+        total: 1,
+        counts: const <ChoreStatus, int>{ChoreStatus.skipped: 1},
+      ),
+      DaySummary(dateKey: DateKey(2026, 10, 7), isToday: true),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,8 +81,9 @@ GallerySection calendarPolishSection = GallerySection(
                     child: DayCell(
                       summary: summary,
                       selected: summary.dateKey.day == 3,
+                      viewerId: 'me',
                       formatters: f,
-                      minHeight: 56,
+                      minHeight: 64,
                       onTap: () {},
                       onLongPress: () {},
                     ),

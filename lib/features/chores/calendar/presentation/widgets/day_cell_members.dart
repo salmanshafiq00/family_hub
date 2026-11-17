@@ -5,6 +5,9 @@ import 'package:family_hub/features/chores/calendar/presentation/calendar_member
 import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:flutter/material.dart';
 
+/// The OTHER members who have a chore on a date: up to two avatars, then
+/// `+n`. The viewer is never in this row (the cell shows them with the person
+/// icon instead) and nobody is ranked: the order is by member id.
 class DayCellMembers extends StatelessWidget {
   const DayCellMembers({
     required this.loads,
@@ -17,17 +20,19 @@ class DayCellMembers extends StatelessWidget {
   final Map<String, CalendarMemberStyle> styles;
   final String? viewerId;
 
+  /// The avatar diameter.
+  static const double size = 16;
+
   @override
   Widget build(BuildContext context) {
-    final members = <MemberLoad>[
+    final others = <String>[
       for (final load in loads)
-        if (load.memberId != null) load,
-    ];
-    if (members.isEmpty) return const SizedBox(height: 18);
+        if (load.memberId != null && load.memberId != viewerId) load.memberId!,
+    ]..sort();
+    if (others.isEmpty) return const SizedBox.shrink();
 
-    final visible = members.take(2).toList();
-    final hidden = members.length - visible.length;
-    const size = 18.0;
+    final visible = others.take(2).toList();
+    final hidden = others.length - visible.length;
     return ExcludeSemantics(
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -38,10 +43,8 @@ class DayCellMembers extends StatelessWidget {
               Padding(
                 padding: EdgeInsetsDirectional.only(start: index == 0 ? 0 : 2),
                 child: _MemberAvatar(
-                  memberId: visible[index].memberId!,
-                  style: styles[visible[index].memberId],
-                  viewer: visible[index].memberId == viewerId,
-                  size: size,
+                  memberId: visible[index],
+                  style: styles[visible[index]],
                 ),
               ),
             if (hidden > 0)
@@ -65,34 +68,17 @@ class DayCellMembers extends StatelessWidget {
 }
 
 class _MemberAvatar extends StatelessWidget {
-  const _MemberAvatar({
-    required this.memberId,
-    required this.style,
-    required this.viewer,
-    required this.size,
-  });
+  const _MemberAvatar({required this.memberId, required this.style});
 
   final String memberId;
   final CalendarMemberStyle? style;
-  final bool viewer;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(
+    return SizedBox.square(
       key: ValueKey<String>('calendar_member_$memberId'),
-      width: size,
-      height: size,
-      padding: const EdgeInsets.all(1),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: t.surface,
-        border: Border.all(
-          color: viewer ? t.accent : t.surface,
-          width: viewer ? 2 : 1,
-        ),
-      ),
+      dimension: DayCellMembers.size,
       child: style == null
           ? DecoratedBox(
               decoration: BoxDecoration(
@@ -110,7 +96,7 @@ class _MemberAvatar extends StatelessWidget {
               id: memberId,
               name: style!.name,
               avatarKey: style!.avatarKey,
-              size: 14,
+              size: DayCellMembers.size,
             ),
     );
   }

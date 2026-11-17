@@ -15,8 +15,8 @@ import 'package:family_hub/shared/widgets/loading_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The snap points of the day panel, as a fraction of the screen (B.5).
-const List<double> kDayPanelSnaps = <double>[0.28, 0.55, 0.92];
+export 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart'
+    show kDayPanelSnaps;
 
 /// The selected day's chores in a bottom sheet the person drags between three
 /// heights (P3-23). Header: the date and count. Rows: the same `TodayRow` as
@@ -182,7 +182,7 @@ class DayPanelList extends ConsumerWidget {
           const SizedBox(height: 8),
           DaySummaryDetails(summary: summary, formatters: formatters),
         ],
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         body,
       ],
     );

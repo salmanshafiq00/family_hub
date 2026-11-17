@@ -55,19 +55,18 @@ class MonthGrid extends StatelessWidget {
                 child: Row(
                   children: [
                     for (final summary in week)
+                      // No padding out here: the gap between two cells is
+                      // inside the cell, so the whole column is tappable.
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(2),
-                          child: DayCell(
-                            summary: summary,
-                            selected: summary.dateKey == selectedDay,
-                            memberStyles: memberStyles,
-                            viewerId: viewerId,
-                            formatters: formatters,
-                            minHeight: cellHeight,
-                            onTap: () => onSelect(summary.dateKey),
-                            onLongPress: () => onLongPress(summary.dateKey),
-                          ),
+                        child: DayCell(
+                          summary: summary,
+                          selected: summary.dateKey == selectedDay,
+                          memberStyles: memberStyles,
+                          viewerId: viewerId,
+                          formatters: formatters,
+                          minHeight: cellHeight,
+                          onTap: () => onSelect(summary.dateKey),
+                          onLongPress: () => onLongPress(summary.dateKey),
                         ),
                       ),
                   ],

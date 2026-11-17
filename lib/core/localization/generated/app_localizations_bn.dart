@@ -4473,39 +4473,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get calendarCellPlanned => 'পরিকল্পিত';
 
   @override
-  String get calendarDisplayOptions => 'দেখানোর ধরন';
+  String get calendarLegendMarks => 'দিনের ঘরের চিহ্ন';
 
   @override
-  String get calendarLegendMarks => 'দিনের ঘরের চিহ্ন';
+  String get calendarLegendNoChores => 'এই দিনে কোনো কাজ নেই';
+
+  @override
+  String get calendarLegendMine => 'ব্যক্তির আইকন: এই দিনে আপনার কাজ আছে।';
+
+  @override
+  String calendarShowingMember(String name) {
+    return 'দেখানো হচ্ছে: $name, সদস্য বদলান';
+  }
 
   @override
   String get calendarLegendAvatarDescription =>
       'সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।';
-
-  @override
-  String get calendarLegendYouAvatar => 'আপনি';
-
-  @override
-  String get calendarLegendDateStates => 'তারিখের পৃষ্ঠ ও সীমানা';
-
-  @override
-  String get calendarLegendScheduledSurface =>
-      'রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।';
-
-  @override
-  String get calendarLegendPastSurface => 'মৃদু পৃষ্ঠ: এটি আগের তারিখ।';
-
-  @override
-  String get calendarLegendTodaySurface =>
-      'অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।';
-
-  @override
-  String get calendarLegendOverdueBorder =>
-      'ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।';
-
-  @override
-  String get calendarLegendCompletedBorder =>
-      'দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।';
 
   @override
   String get calendarMonthLandscape =>

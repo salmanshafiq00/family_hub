@@ -1,3 +1,5 @@
+> **Superseded in part (Nov 2026):** decisions D1 (done/total footer in the cell), D3 (me = viewer avatar with a ring) and the border-painter work are replaced by `docs/CHORES_CALENDAR_REDESIGN_PLAN.md`. Other decisions here still stand.
+
 # Chores Calendar Refresh — Month & Week (Build Plan)
 
 **Target:** `lib/features/chores/calendar/**` and `lib/features/chores/presentation/chores_home_screen.dart`

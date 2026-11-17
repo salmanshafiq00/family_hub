@@ -4492,38 +4492,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarCellPlanned => 'planned';
 
   @override
-  String get calendarDisplayOptions => 'Display options';
-
-  @override
   String get calendarLegendMarks => 'Day cell marks';
 
   @override
+  String get calendarLegendNoChores => 'No chores this day';
+
+  @override
+  String get calendarLegendMine => 'Person icon: you have a chore this day.';
+
+  @override
+  String calendarShowingMember(String name) {
+    return 'Showing: $name, change member';
+  }
+
+  @override
   String get calendarLegendAvatarDescription =>
-      'Member initials and colors identify who is assigned; the accent ring marks you.';
-
-  @override
-  String get calendarLegendYouAvatar => 'You';
-
-  @override
-  String get calendarLegendDateStates => 'Date surfaces and borders';
-
-  @override
-  String get calendarLegendScheduledSurface =>
-      'Tinted surface: chores are scheduled for this date.';
-
-  @override
-  String get calendarLegendPastSurface => 'Muted surface: this is a past date.';
-
-  @override
-  String get calendarLegendTodaySurface => 'Accent surface and outline: today.';
-
-  @override
-  String get calendarLegendOverdueBorder =>
-      'Dashed border: at least one chore is overdue.';
-
-  @override
-  String get calendarLegendCompletedBorder =>
-      'Double border: all non-skipped chores are done.';
+      'Small avatars at the bottom: other members who have a chore this day.';
 
   @override
   String get calendarMonthLandscape =>

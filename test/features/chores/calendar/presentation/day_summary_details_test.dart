@@ -6,7 +6,6 @@ import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_summary_details.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../shared/widgets/shared_widgets_test_support.dart';

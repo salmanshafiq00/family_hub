@@ -4085,26 +4085,22 @@
   "@calendarCellAway": {},
   "calendarCellPlanned": "পরিকল্পিত",
   "@calendarCellPlanned": {},
-  "calendarDisplayOptions": "দেখানোর ধরন",
-  "@calendarDisplayOptions": {},
   "calendarLegendMarks": "দিনের ঘরের চিহ্ন",
   "@calendarLegendMarks": {},
+  "calendarLegendNoChores": "এই দিনে কোনো কাজ নেই",
+  "@calendarLegendNoChores": {},
+  "calendarLegendMine": "ব্যক্তির আইকন: এই দিনে আপনার কাজ আছে।",
+  "@calendarLegendMine": {},
+  "calendarShowingMember": "দেখানো হচ্ছে: {name}, সদস্য বদলান",
+  "@calendarShowingMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calendarLegendAvatarDescription": "সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।",
   "@calendarLegendAvatarDescription": {},
-  "calendarLegendYouAvatar": "আপনি",
-  "@calendarLegendYouAvatar": {},
-  "calendarLegendDateStates": "তারিখের পৃষ্ঠ ও সীমানা",
-  "@calendarLegendDateStates": {},
-  "calendarLegendScheduledSurface": "রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।",
-  "@calendarLegendScheduledSurface": {},
-  "calendarLegendPastSurface": "মৃদু পৃষ্ঠ: এটি আগের তারিখ।",
-  "@calendarLegendPastSurface": {},
-  "calendarLegendTodaySurface": "অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।",
-  "@calendarLegendTodaySurface": {},
-  "calendarLegendOverdueBorder": "ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।",
-  "@calendarLegendOverdueBorder": {},
-  "calendarLegendCompletedBorder": "দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।",
-  "@calendarLegendCompletedBorder": {},
   "calendarMonthLandscape": "ফোন আড়াআড়ি ধরলে মাসের ভিউ নেই, তাই সপ্তাহ দেখানো হচ্ছে।",
   "@calendarMonthLandscape": {},
   "calendarUseFamilyDefaults": "পরিবারের ডিফল্ট ব্যবহার করুন",

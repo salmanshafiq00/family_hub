@@ -5,6 +5,7 @@ import 'package:family_hub/features/chores/calendar/presentation/calendar_screen
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:family_hub/shared/widgets/app_avatar.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:flutter/material.dart';
@@ -148,23 +149,32 @@ void main() {
   });
 
   group('day cell member summaries', () {
-    testWidgets('a busy day shows its avatar and progress, not status glyphs', (
+    testWidgets('a busy day shows my icon, no footer and no status glyph', (
       tester,
     ) async {
       final day = DateKey(2026, 10, 27);
       await pump(tester, occurrences: [for (var i = 0; i < 5; i++) on(i, day)]);
 
+      // My chores: the person icon, never my avatar.
+      expect(
+        find.descendant(
+          of: cell(2026, 10, 27),
+          matching: find.byKey(const Key('calendar_cell_mine')),
+        ),
+        findsOneWidget,
+      );
       expect(
         find.descendant(
           of: cell(2026, 10, 27),
           matching: find.byType(AppAvatar),
         ),
-        findsOneWidget,
+        findsNothing,
       );
       expect(
         find.descendant(of: cell(2026, 10, 27), matching: find.text('0/5')),
-        findsOneWidget,
+        findsNothing,
       );
+      // A scheduled day is a quiet tint: no pip.
       expect(
         find.descendant(
           of: cell(2026, 10, 27),
@@ -230,7 +240,7 @@ void main() {
       expect(find.text('No chores this day'), findsOneWidget);
     });
 
-    testWidgets('the scope chip shows the whole family', (tester) async {
+    testWidgets('the member chip shows the whole family', (tester) async {
       final day = DateKey(2026, 10, 27);
       await pump(
         tester,
@@ -243,10 +253,47 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TodayRow), findsNWidgets(1));
 
-      await tester.tap(find.byKey(const Key('calendar_scope_chip')));
+      await tester.tap(find.byKey(const Key('calendar_member_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('calendar_member_menu_family')));
       await tester.pumpAndSettle();
 
       expect(find.byType(TodayRow), findsNWidgets(2));
+      expect(find.byIcon(Icons.groups_rounded), findsWidgets);
+    });
+
+    testWidgets('the member chip can show one other member', (tester) async {
+      final day = DateKey(2026, 10, 27);
+      await pump(
+        tester,
+        occurrences: [
+          on(1, day),
+          on(2, day, assignee: 'dave'),
+        ],
+      );
+      await tester.tap(cell(2026, 10, 27));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('calendar_member_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('calendar_member_menu_dave')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TodayRow), findsNWidgets(1));
+      expect(
+        containerOf(tester).read(calendarFiltersProvider).memberIds,
+        <String>{'dave'},
+      );
+    });
+
+    testWidgets('the display button is gone and the bell is not in the grid', (
+      tester,
+    ) async {
+      await pump(tester);
+      expect(find.byKey(const Key('calendar_display_button')), findsNothing);
+      expect(find.byKey(const Key('inbox_bell')), findsNothing);
+      expect(find.byKey(const Key('calendar_legend_button')), findsOneWidget);
+      expect(find.byKey(const Key('calendar_filter_button')), findsOneWidget);
     });
   });
 
@@ -270,7 +317,10 @@ void main() {
     ) async {
       await pump(tester);
 
-      final size = tester.getSize(cell(2026, 10, 24));
+      // The whole cell is the tap target; the visual gap is inside it.
+      final size = tester.getSize(
+        find.ancestor(of: cell(2026, 10, 24), matching: find.byType(DayCell)),
+      );
       expect(size.height, greaterThanOrEqualTo(48));
       expect(size.width, greaterThanOrEqualTo(48));
     });

@@ -5,6 +5,7 @@ import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart'
     show widgetStatusOf;
+import 'package:family_hub/shared/widgets/centered_label.dart';
 import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:flutter/material.dart';
 
@@ -76,18 +77,27 @@ class _DayCountChip extends StatelessWidget {
     final t = context.tokens;
     return Container(
       constraints: const BoxConstraints(minHeight: 32),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: t.surfaceSunken,
         borderRadius: BorderRadius.circular(t.radiusPill),
       ),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 4,
+      // The text sits on the exact centre of the pill: [CenteredLabel] removes
+      // the extra space Bangla marks add above or below the glyphs.
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (status != null)
+          if (status != null) ...[
             StatusGlyph(status: widgetStatusOf(status!), size: 14),
-          Text(label, style: TextStyle(color: t.textSecondary, fontSize: 12)),
+            const SizedBox(width: 4),
+          ],
+          Flexible(
+            child: CenteredLabel(
+              label,
+              style: TextStyle(color: t.textSecondary, fontSize: 12),
+            ),
+          ),
         ],
       ),
     );

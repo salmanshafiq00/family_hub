@@ -1,17 +1,21 @@
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
+import 'package:family_hub/features/chores/calendar/domain/day_cell_state.dart';
 import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_member_styles.dart';
-import 'package:family_hub/features/chores/calendar/presentation/painters/calendar_date_border_painter.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell_footer.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell_label.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell_layers.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell_members.dart';
-import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
-/// One rounded date cell with member and completion summaries.
+/// One date cell: a rounded surface, the date number on its exact centre, and
+/// small layers around it (my-chores icon, state pip, other members).
+///
+/// The whole cell, gap included, is the tap target: the [kCalendarCellInset]
+/// is padding INSIDE the target, not dead space between two cells.
 class DayCell extends StatelessWidget {
   const DayCell({
     required this.summary,
@@ -30,6 +34,8 @@ class DayCell extends StatelessWidget {
   final AppFormatters formatters;
   final Map<String, CalendarMemberStyle> memberStyles;
   final String? viewerId;
+
+  /// The height of the cell (the name is kept from the first calendar).
   final double minHeight;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
@@ -38,25 +44,22 @@ class DayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final outside = summary.isOutsideMonth;
-    final state = _borderState(summary);
-    final background = summary.isToday
-        ? t.accent
-        : outside
-        ? t.surface
-        : summary.isPast
-        ? t.surfaceSunken
-        : !summary.isPast && summary.total > 0
-        ? t.statusScheduledContainer
-        : t.surface;
-    final numberColor = summary.isToday
-        ? t.textOnAccent
-        : outside
-        ? t.textDisabled
-        : summary.isPast
-        ? t.textSecondary
-        : !summary.isPast && summary.total > 0
-        ? t.statusScheduledOn
-        : t.textPrimary;
+    final state = dayCellStateOf(summary);
+    final style = dayCellStyleOf(
+      t,
+      summary: summary,
+      state: state,
+      selected: selected,
+    );
+    final pip = outside ? null : dayCellPipOf(state);
+    final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+    // The avatar row needs room under the centred number: not at large text
+    // and not in a short cell. The people stay in the panel and the label.
+    final showMembers =
+        !outside &&
+        summary.total > 0 &&
+        scale < 1.5 &&
+        minHeight >= 40 + 14 * scale;
     final label = dayCellLabel(
       l10n: context.l10n,
       formatters: formatters,
@@ -66,6 +69,40 @@ class DayCell extends StatelessWidget {
     );
     final radius = BorderRadius.circular(t.radiusMd);
 
+    final ink = InkWell(
+      key: ValueKey<String>('calendar_day_${summary.dateKey}'),
+      onTap: onTap,
+      onLongPress: onLongPress,
+      borderRadius: radius,
+      child: Stack(
+        children: [
+          DayCellNumber(
+            text: formatters.number(summary.dateKey.day),
+            color: style.ink,
+            bold: style.bold,
+          ),
+          if (!outside && summary.mineCount > 0)
+            DayCellMineIcon(color: style.ink),
+          if (pip != null) DayCellPip(status: pip, color: style.pip),
+          if (selected && summary.isToday) DayCellTodayDot(color: style.ink),
+          if (showMembers)
+            Positioned(
+              bottom: 2,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: DayCellMembers(
+                  loads: summary.byMember,
+                  styles: memberStyles,
+                  viewerId: viewerId,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    final background = style.background;
+
     return Semantics(
       role: SemanticsRole.cell,
       button: true,
@@ -74,78 +111,25 @@ class DayCell extends StatelessWidget {
       excludeSemantics: true,
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Material(
-        color: background,
-        shape: RoundedRectangleBorder(borderRadius: radius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          key: ValueKey<String>('calendar_day_${summary.dateKey}'),
-          onTap: onTap,
-          onLongPress: onLongPress,
-          borderRadius: radius,
-          child: CustomPaint(
-            foregroundPainter: CalendarDateBorderPainter(
-              state: state,
-              stateColor: state == CalendarDateBorderState.overdue
-                  ? t.statusOverdueOn
-                  : t.statusCompletedOn,
-              isToday: summary.isToday,
-              todayColor: t.textOnAccent,
-              isSelected: selected,
-              selectedColor: summary.isToday ? t.textOnAccent : t.accent,
-              radius: t.radiusMd,
-            ),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: minHeight),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      formatters.number(summary.dateKey.day),
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: numberColor,
-                        fontSize: 14,
-                        fontWeight: summary.isToday || selected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                      ),
-                    ),
-                    if (!outside && summary.total > 0) ...[
-                      const SizedBox(height: 2),
-                      DayCellMembers(
-                        loads: summary.byMember,
-                        styles: memberStyles,
-                        viewerId: viewerId,
-                      ),
-                    ],
-                    if (!outside && summary.total > 0) ...[
-                      const SizedBox(height: 2),
-                      DayCellFooter(
-                        summary: summary,
-                        formatters: formatters,
-                        color: numberColor,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: SizedBox(
+          height: minHeight,
+          child: Padding(
+            padding: const EdgeInsets.all(kCalendarCellInset),
+            child: background == null
+                ? Material(type: MaterialType.transparency, child: ink)
+                : Material(
+                    color: background,
+                    shape: RoundedRectangleBorder(borderRadius: radius),
+                    clipBehavior: Clip.antiAlias,
+                    child: ink,
+                  ),
           ),
         ),
       ),
     );
-  }
-
-  CalendarDateBorderState _borderState(DaySummary summary) {
-    if (summary.countOf(ChoreStatus.overdue) > 0) {
-      return CalendarDateBorderState.overdue;
-    }
-    final nonSkipped = summary.total - summary.countOf(ChoreStatus.skipped);
-    return nonSkipped > 0 && summary.doneCount == nonSkipped
-        ? CalendarDateBorderState.completed
-        : CalendarDateBorderState.none;
   }
 }

@@ -18,6 +18,7 @@ const _styles = <String, CalendarMemberStyle>{
   'cara': CalendarMemberStyle(name: 'Cara', avatarKey: 'p3'),
   'amy': CalendarMemberStyle(name: 'Amy', avatarKey: 'p2'),
   'zara': CalendarMemberStyle(name: 'Zara', avatarKey: 'p4'),
+  'bob': CalendarMemberStyle(name: 'Bob', avatarKey: 'p5'),
 };
 
 void main() {
@@ -30,6 +31,7 @@ void main() {
     Map<String, CalendarMemberStyle> memberStyles = _styles,
     String? viewerId = 'cara',
     double textScale = 1,
+    double height = 64,
   }) async {
     final formatters = AppFormatters(
       languageCode: locale.languageCode,
@@ -54,7 +56,7 @@ void main() {
               memberStyles: memberStyles,
               viewerId: viewerId,
               formatters: formatters,
-              minHeight: 64,
+              minHeight: height,
               onTap: () {},
               onLongPress: () {},
             ),
@@ -64,38 +66,50 @@ void main() {
     );
   }
 
-  testWidgets('me comes first and has the accent ring', (tester) async {
+  DaySummary summary(List<String?> ids, {int mine = 0}) => DaySummary(
+    dateKey: day,
+    total: ids.length,
+    counts: <ChoreStatus, int>{ChoreStatus.scheduled: ids.length},
+    mineCount: mine,
+    byMember: <MemberLoad>[
+      for (final id in ids) MemberLoad(memberId: id, count: 1),
+    ],
+  );
+
+  testWidgets('me is the person icon on top, never in the avatar row', (
+    tester,
+  ) async {
     final handle = tester.ensureSemantics();
     await pumpCell(
       tester,
       locale: const Locale('en'),
-      summary: DaySummary(
-        dateKey: day,
-        total: 3,
-        byMember: const <MemberLoad>[
-          MemberLoad(memberId: 'cara', count: 1),
-          MemberLoad(memberId: 'amy', count: 1),
-          MemberLoad(memberId: 'zara', count: 1),
-        ],
-      ),
+      summary: summary(['cara', 'amy', 'zara', 'bob'], mine: 1),
     );
 
+    expect(find.byKey(const Key('calendar_cell_mine')), findsOneWidget);
     final avatars = tester.widgetList<AppAvatar>(find.byType(AppAvatar));
-    expect(avatars.map((avatar) => avatar.id), ['cara', 'amy']);
-    expect(avatars.first.avatarKey, 'p3');
-    final ring = tester.widget<Container>(
-      find.byKey(const Key('calendar_member_cara')),
-    );
-    final border = (ring.decoration! as BoxDecoration).border! as Border;
-    expect(border.top.width, 2);
-    expect(border.top.color, appThemes.first.tokens.accent);
+    // Others by member id (never by load): amy, bob; zara is the "+1".
+    expect(avatars.map((avatar) => avatar.id), ['amy', 'bob']);
+    expect(find.byKey(const Key('calendar_member_cara')), findsNothing);
     expect(find.text('+1'), findsOneWidget);
-    expect(find.text('0/3'), findsOneWidget);
+    expect(find.text('0/4'), findsNothing);
     expect(
-      find.bySemanticsLabel(RegExp(r'Assigned to Cara, Amy, Zara')),
+      find.bySemanticsLabel(RegExp(r'Assigned to Cara, Amy, Zara, Bob')),
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  testWidgets('no person icon when the viewer has no chore that day', (
+    tester,
+  ) async {
+    await pumpCell(
+      tester,
+      locale: const Locale('en'),
+      summary: summary(['amy']),
+    );
+    expect(find.byKey(const Key('calendar_cell_mine')), findsNothing);
+    expect(find.byKey(const Key('calendar_member_amy')), findsOneWidget);
   });
 
   testWidgets('missing and unassigned members use a neutral fallback', (
@@ -105,11 +119,7 @@ void main() {
       tester,
       locale: const Locale('en'),
       memberStyles: const <String, CalendarMemberStyle>{},
-      summary: DaySummary(
-        dateKey: day,
-        total: 1,
-        byMember: const <MemberLoad>[MemberLoad(memberId: 'removed', count: 1)],
-      ),
+      summary: summary(['removed']),
     );
     expect(find.byType(AppAvatar), findsNothing);
     expect(find.byIcon(Icons.person_outline_rounded), findsOneWidget);
@@ -117,14 +127,37 @@ void main() {
     await pumpCell(
       tester,
       locale: const Locale('en'),
-      summary: DaySummary(
-        dateKey: day,
-        total: 1,
-        byMember: const <MemberLoad>[MemberLoad(memberId: null, count: 1)],
-      ),
+      summary: summary([null]),
     );
     expect(find.byType(AppAvatar), findsNothing);
     expect(find.byIcon(Icons.person_outline_rounded), findsNothing);
+  });
+
+  testWidgets('the avatar row is hidden at text scale 1.5 and above', (
+    tester,
+  ) async {
+    await pumpCell(
+      tester,
+      locale: const Locale('en'),
+      textScale: 1.5,
+      height: 100,
+      summary: summary(['cara', 'amy'], mine: 1),
+    );
+    expect(find.byType(AppAvatar), findsNothing);
+    // The information stays in the screen-reader label.
+    expect(find.byKey(const Key('calendar_cell_mine')), findsOneWidget);
+  });
+
+  testWidgets('the avatar row is hidden in a cell too short for it', (
+    tester,
+  ) async {
+    await pumpCell(
+      tester,
+      locale: const Locale('en'),
+      height: 44,
+      summary: summary(['amy']),
+    );
+    expect(find.byType(AppAvatar), findsNothing);
   });
 
   for (final locale in AppLocalizations.supportedLocales) {
@@ -135,16 +168,7 @@ void main() {
         tester,
         locale: locale,
         textScale: 2,
-        summary: DaySummary(
-          dateKey: day,
-          total: 3,
-          counts: const <ChoreStatus, int>{ChoreStatus.completed: 2},
-          byMember: const <MemberLoad>[
-            MemberLoad(memberId: 'cara', count: 1),
-            MemberLoad(memberId: 'amy', count: 1),
-            MemberLoad(memberId: 'zara', count: 1),
-          ],
-        ),
+        summary: summary(['cara', 'amy', 'zara'], mine: 1),
       );
       expect(tester.takeException(), isNull);
     });

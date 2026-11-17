@@ -7816,65 +7816,35 @@ abstract class AppLocalizations {
   /// **'পরিকল্পিত'**
   String get calendarCellPlanned;
 
-  /// No description provided for @calendarDisplayOptions.
-  ///
-  /// In bn, this message translates to:
-  /// **'দেখানোর ধরন'**
-  String get calendarDisplayOptions;
-
   /// No description provided for @calendarLegendMarks.
   ///
   /// In bn, this message translates to:
   /// **'দিনের ঘরের চিহ্ন'**
   String get calendarLegendMarks;
 
+  /// No description provided for @calendarLegendNoChores.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিনে কোনো কাজ নেই'**
+  String get calendarLegendNoChores;
+
+  /// No description provided for @calendarLegendMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যক্তির আইকন: এই দিনে আপনার কাজ আছে।'**
+  String get calendarLegendMine;
+
+  /// No description provided for @calendarShowingMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'দেখানো হচ্ছে: {name}, সদস্য বদলান'**
+  String calendarShowingMember(String name);
+
   /// No description provided for @calendarLegendAvatarDescription.
   ///
   /// In bn, this message translates to:
   /// **'সদস্যের আদ্যক্ষর ও রং দিয়ে দায়িত্বে থাকা ব্যক্তিকে চেনা যায়; অ্যাকসেন্ট রিংটি আপনাকে বোঝায়।'**
   String get calendarLegendAvatarDescription;
-
-  /// No description provided for @calendarLegendYouAvatar.
-  ///
-  /// In bn, this message translates to:
-  /// **'আপনি'**
-  String get calendarLegendYouAvatar;
-
-  /// No description provided for @calendarLegendDateStates.
-  ///
-  /// In bn, this message translates to:
-  /// **'তারিখের পৃষ্ঠ ও সীমানা'**
-  String get calendarLegendDateStates;
-
-  /// No description provided for @calendarLegendScheduledSurface.
-  ///
-  /// In bn, this message translates to:
-  /// **'রঙিন পৃষ্ঠ: এই তারিখে কাজ নির্ধারিত।'**
-  String get calendarLegendScheduledSurface;
-
-  /// No description provided for @calendarLegendPastSurface.
-  ///
-  /// In bn, this message translates to:
-  /// **'মৃদু পৃষ্ঠ: এটি আগের তারিখ।'**
-  String get calendarLegendPastSurface;
-
-  /// No description provided for @calendarLegendTodaySurface.
-  ///
-  /// In bn, this message translates to:
-  /// **'অ্যাকসেন্ট পৃষ্ঠ ও রেখা: আজকের তারিখ।'**
-  String get calendarLegendTodaySurface;
-
-  /// No description provided for @calendarLegendOverdueBorder.
-  ///
-  /// In bn, this message translates to:
-  /// **'ড্যাশ করা সীমানা: অন্তত একটি কাজের সময় পেরিয়েছে।'**
-  String get calendarLegendOverdueBorder;
-
-  /// No description provided for @calendarLegendCompletedBorder.
-  ///
-  /// In bn, this message translates to:
-  /// **'দুই রেখার সীমানা: বাদ দেওয়া কাজ ছাড়া সব কাজ সম্পন্ন।'**
-  String get calendarLegendCompletedBorder;
 
   /// No description provided for @calendarMonthLandscape.
   ///

@@ -8,25 +8,22 @@ import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_motion.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/agenda_view.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_display_sheet.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_filter_sheet.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_header.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/filter_button.dart';
+import 'package:family_hub/features/chores/calendar/presentation/widgets/calendar_toolbar.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/filter_chips_row.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/legend_sheet.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/month_body.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/month_pager.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/month_year_picker_sheet.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/scope_chip.dart';
-import 'package:family_hub/features/chores/calendar/presentation/widgets/view_switcher.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/week_view.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Below this width seven 48 dp cells do not fit, so the month is replaced by
-/// the week (B.6).
-const double kMonthMinWidth = 336;
+/// Below this width seven cells of about 48 dp do not fit (the grid has 8 dp on
+/// each side), so the month is replaced by the week (B.6). The grid never
+/// scrolls sideways; it either fits or the week is shown.
+const double kMonthMinWidth = 352;
 
 /// A phone held sideways is too short for a month grid and a day panel: its
 /// shortest side stays under this many dp (the Material tablet breakpoint), and
@@ -59,9 +56,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final formatters = ref.watch(appFormattersProvider);
     final focus = ref.watch(calendarFocusProvider);
     final today = ref.watch(todayKeyProvider);
-    final scope = ref.watch(calendarScopeProvider);
     final stored = ref.watch(calendarViewProvider);
-    final filters = ref.watch(calendarFiltersProvider);
     final size = MediaQuery.sizeOf(context);
     final narrow = size.width < kMonthMinWidth;
     final landscapePhone =
@@ -90,10 +85,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Row 1: title, arrows, jump to today, legend.
               CalendarHeader(
                 title: formatters.monthLabel(focus.month),
                 showToday: focus.month != today.monthKey || focus.day != today,
@@ -111,49 +107,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 onNext: () =>
                     weekly ? controller.shiftDays(7) : controller.shiftMonth(1),
                 onToday: controller.goToToday,
+                onLegend: () => unawaited(showLegendSheet(context)),
               ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  ViewSwitcher(
-                    selected: view,
-                    enabled: <CalendarView>{
-                      CalendarViewKind.agenda,
-                      CalendarViewKind.week,
-                      if (monthOffered) CalendarViewKind.month,
-                    },
-                    onChanged: (next) => unawaited(
-                      ref.read(calendarPrefsProvider.notifier).setView(next),
-                    ),
-                  ),
-                  ScopeChip(
-                    scope: scope,
-                    onToggle: () => unawaited(
-                      ref.read(calendarPrefsProvider.notifier).toggleScope(),
-                    ),
-                  ),
-                  FilterButton(
-                    activeCount: filters.activeCount,
-                    formatters: formatters,
-                    onPressed: () =>
-                        unawaited(showCalendarFilterSheet(context)),
-                  ),
-                  IconButton(
-                    key: const Key('calendar_display_button'),
-                    tooltip: l10n.calendarDisplayOptions,
-                    onPressed: () =>
-                        unawaited(showCalendarDisplaySheet(context)),
-                    icon: const Icon(Icons.tune_rounded),
-                  ),
-                  IconButton(
-                    key: const Key('calendar_legend_button'),
-                    tooltip: l10n.calendarLegend,
-                    onPressed: () => unawaited(showLegendSheet(context)),
-                    icon: const Icon(Icons.help_outline_rounded),
-                  ),
-                ],
+              // Row 2: view switcher, whose chores, filters.
+              CalendarToolbar(
+                view: view,
+                enabledViews: <CalendarView>{
+                  CalendarViewKind.agenda,
+                  CalendarViewKind.week,
+                  if (monthOffered) CalendarViewKind.month,
+                },
               ),
               if (stored == CalendarViewKind.month && !monthOffered)
                 Padding(
@@ -166,8 +129,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
+              // Only drawn while a filter is on.
               const FilterChipsRow(),
-              const SizedBox(height: 4),
             ],
           ),
         ),

@@ -189,6 +189,20 @@ class CalendarPrefsController extends Notifier<CalendarPrefs> {
     state.scope == CalendarScope.mine ? CalendarScope.all : CalendarScope.mine,
   );
 
+  /// The member chip: ONE write for "whose chores" so the scope and the member
+  /// filter never disagree. Choosing members implies the whole family (my
+  /// chores plus someone else's would be an empty list); [scope] wins when it
+  /// is given.
+  Future<void> selectMembers({
+    required Set<String> memberIds,
+    CalendarScope? scope,
+  }) => _save(
+    state.copyWith(
+      scope: scope ?? (memberIds.isNotEmpty ? CalendarScope.all : state.scope),
+      filters: state.filters.copyWith(memberIds: memberIds, query: ''),
+    ),
+  );
+
   Future<void> setFilters(CalendarFilters filters) =>
       _save(state.copyWith(filters: filters));
 

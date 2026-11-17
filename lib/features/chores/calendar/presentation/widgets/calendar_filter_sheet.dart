@@ -52,6 +52,7 @@ class _CalendarFilterSheetState extends ConsumerState<CalendarFilterSheet> {
     final l10n = context.l10n;
     final bn = l10n.localeName.startsWith('bn');
     final filters = ref.watch(calendarFiltersProvider);
+    final followsFamily = ref.watch(calendarUsesFamilyDefaultsProvider);
     final groups = ref
         .watch(choreGroupsProvider)
         .where((group) => group.active)
@@ -145,15 +146,18 @@ class _CalendarFilterSheetState extends ConsumerState<CalendarFilterSheet> {
                       key: Key('calendar_filter_member_${member.uid}'),
                       label: Text(member.displayName),
                       selected: filters.memberIds.contains(member.uid),
-                      onSelected: (on) => _write(
-                        filters.copyWith(
-                          memberIds: _toggled(
-                            filters.memberIds,
-                            member.uid,
-                            on: on,
-                          ),
-                          query: '',
-                        ),
+                      // The member chip writes the same state: picking someone
+                      // here also leaves "my chores" (see selectMembers).
+                      onSelected: (on) => unawaited(
+                        ref
+                            .read(calendarPrefsProvider.notifier)
+                            .selectMembers(
+                              memberIds: _toggled(
+                                filters.memberIds,
+                                member.uid,
+                                on: on,
+                              ),
+                            ),
                       ),
                     ),
                 ],
@@ -167,6 +171,19 @@ class _CalendarFilterSheetState extends ConsumerState<CalendarFilterSheet> {
               onChanged: (on) =>
                   _write(filters.copyWith(onlyNeedsAttention: on, query: '')),
             ),
+            if (!followsFamily)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton(
+                  key: const Key('calendar_use_family_defaults'),
+                  onPressed: () => unawaited(
+                    ref
+                        .read(calendarPrefsProvider.notifier)
+                        .useFamilyDefaults(),
+                  ),
+                  child: Text(l10n.calendarUseFamilyDefaults),
+                ),
+              ),
             if (filters.activeCount > 0)
               Align(
                 alignment: AlignmentDirectional.centerEnd,

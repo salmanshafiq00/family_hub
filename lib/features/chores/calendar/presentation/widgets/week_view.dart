@@ -79,8 +79,6 @@ class _WeekStrip extends ConsumerWidget {
     final memberStyles = ref.watch(calendarMemberStylesProvider);
     final viewerId = ref.watch(currentUidProvider);
     final controller = ref.read(calendarFocusProvider.notifier);
-    final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
-    final cellHeight = 56 * scale.clamp(1.0, 2.0);
     final day = week.days.firstWhere(
       (d) => d.dateKey == selected,
       orElse: () => week.days.first,
@@ -93,66 +91,48 @@ class _WeekStrip extends ConsumerWidget {
 
     return SingleChildScrollView(
       key: const PageStorageKey<String>('calendar_week'),
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, kCalendarBottomClearance),
+      padding: const EdgeInsets.fromLTRB(
+        kCalendarGridSidePadding,
+        4,
+        kCalendarGridSidePadding,
+        kCalendarBottomClearance,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          WeekdayHeaderRow(
+            weekStartDay: week.range.start.isoWeekday,
+            formatters: formatters,
+          ),
           // P4-23: [DayCell] claims the semantics `cell` role and Flutter only
           // accepts cell -> row -> table, so the strip is a one-row table.
           // Without it TalkBack gets a cell with no table to navigate and the
           // debug assertion fires.
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth < kCalendarSevenColumnMinWidth
-                  ? kCalendarSevenColumnMinWidth
-                  : constraints.maxWidth;
-              return SingleChildScrollView(
-                key: const PageStorageKey<String>('calendar_week_columns'),
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: width,
-                  child: Column(
-                    children: [
-                      WeekdayHeaderRow(
-                        weekStartDay: week.range.start.isoWeekday,
+          Semantics(
+            role: SemanticsRole.table,
+            container: true,
+            label: l10n.calendarGridLabel,
+            child: Semantics(
+              role: SemanticsRole.row,
+              container: true,
+              child: Row(
+                children: [
+                  for (final d in week.days)
+                    Expanded(
+                      child: DayCell(
+                        summary: d.summary,
+                        selected: d.dateKey == selected,
+                        memberStyles: memberStyles,
+                        viewerId: viewerId,
                         formatters: formatters,
+                        minHeight: kCalendarWeekCellHeight,
+                        onTap: () => controller.selectDay(d.dateKey),
+                        onLongPress: () => controller.selectDay(d.dateKey),
                       ),
-                      Semantics(
-                        role: SemanticsRole.table,
-                        container: true,
-                        label: l10n.calendarGridLabel,
-                        child: Semantics(
-                          role: SemanticsRole.row,
-                          container: true,
-                          child: Row(
-                            children: [
-                              for (final d in week.days)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2),
-                                    child: DayCell(
-                                      summary: d.summary,
-                                      selected: d.dateKey == selected,
-                                      memberStyles: memberStyles,
-                                      viewerId: viewerId,
-                                      formatters: formatters,
-                                      minHeight: cellHeight,
-                                      onTap: () =>
-                                          controller.selectDay(d.dateKey),
-                                      onLongPress: () =>
-                                          controller.selectDay(d.dateKey),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                ],
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),

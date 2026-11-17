@@ -7,13 +7,14 @@ import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/domain/day_summary.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_screen.dart';
-import 'package:family_hub/features/chores/calendar/presentation/painters/calendar_date_border_painter.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/day_cell.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/month_pager.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/weekday_header_row.dart';
 import 'package:family_hub/features/chores/calendar/presentation/widgets/week_view.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
+import 'package:family_hub/shared/widgets/status_chip.dart' show WidgetStatus;
+import 'package:family_hub/shared/widgets/status_glyph.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -93,129 +94,150 @@ void main() {
     ),
   );
 
-  CalendarDateBorderPainter borderPainter(WidgetTester tester) =>
-      tester
-              .widget<CustomPaint>(
-                find.byWidgetPredicate(
-                  (widget) =>
-                      widget is CustomPaint &&
-                      widget.foregroundPainter is CalendarDateBorderPainter,
-                ),
-              )
-              .foregroundPainter!
-          as CalendarDateBorderPainter;
+  Iterable<WidgetStatus> pips(WidgetTester tester) => tester
+      .widgetList<StatusGlyph>(
+        find.descendant(
+          of: find.byKey(ValueKey<String>('calendar_day_$day')),
+          matching: find.byType(StatusGlyph),
+        ),
+      )
+      .map((glyph) => glyph.status);
+
+  DaySummary summaryOf(
+    Map<ChoreStatus, int> counts, {
+    bool today = false,
+    bool past = false,
+  }) => DaySummary(
+    dateKey: day,
+    isToday: today,
+    isPast: past,
+    total: counts.values.fold(0, (a, b) => a + b),
+    counts: counts,
+  );
 
   group('day cell states', () {
     for (var i = 0; i < appThemes.length; i++) {
       testWidgets('date surfaces use theme tokens (${appThemes[i].id})', (
         tester,
       ) async {
-        final tokens = appThemes[i].tokens;
-        await pumpCell(
-          tester,
-          DaySummary(
-            dateKey: day,
-            isPast: true,
-            total: 1,
-            counts: const <ChoreStatus, int>{ChoreStatus.completed: 1},
-          ),
-          theme: i,
-        );
-        final pastCell = cellMaterial(tester, day);
-        expect(pastCell.color, tokens.surfaceSunken);
-        expect(
-          ((pastCell.shape! as RoundedRectangleBorder).borderRadius
-                  as BorderRadius)
-              .topLeft
-              .x,
-          tokens.radiusMd,
-        );
-        expect(dateText(tester, day).style!.color, tokens.textSecondary);
+        final t = appThemes[i].tokens;
 
-        await pumpCell(
-          tester,
-          DaySummary(
-            dateKey: day,
-            total: 1,
-            counts: const <ChoreStatus, int>{ChoreStatus.scheduled: 1},
-          ),
-          theme: i,
-        );
-        expect(
-          cellMaterial(tester, day).color,
-          tokens.statusScheduledContainer,
-        );
-        expect(dateText(tester, day).style!.color, tokens.statusScheduledOn);
+        Future<void> expectCell(
+          DaySummary summary,
+          Color surface,
+          Color ink, {
+          bool selected = false,
+        }) async {
+          await pumpCell(tester, summary, theme: i, selected: selected);
+          final material = cellMaterial(tester, day);
+          expect(material.color, surface);
+          expect(
+            ((material.shape! as RoundedRectangleBorder).borderRadius
+                    as BorderRadius)
+                .topLeft
+                .x,
+            t.radiusMd,
+          );
+          expect(dateText(tester, day).style!.color, ink);
+        }
 
-        await pumpCell(
-          tester,
+        await expectCell(
+          summaryOf({ChoreStatus.scheduled: 1}),
+          t.statusScheduledContainer,
+          t.statusScheduledOn,
+        );
+        await expectCell(
+          summaryOf({ChoreStatus.overdue: 1, ChoreStatus.completed: 1}),
+          t.statusOverdueContainer,
+          t.statusOverdueOn,
+        );
+        await expectCell(
+          summaryOf({ChoreStatus.completed: 1}, past: true),
+          t.statusCompletedContainer,
+          t.statusCompletedOn,
+        );
+        await expectCell(
+          summaryOf({ChoreStatus.skipped: 1}),
+          t.statusSkippedContainer,
+          t.statusSkippedOn,
+        );
+        await expectCell(DaySummary(dateKey: day), t.surface, t.textSecondary);
+        // Today is a SOFT accent; selected is the SOLID accent.
+        await expectCell(
           DaySummary(dateKey: day, isToday: true),
-          theme: i,
+          t.accentSoft,
+          t.accentStrong,
         );
-        expect(cellMaterial(tester, day).color, tokens.accent);
-        expect(dateText(tester, day).style!.color, tokens.textOnAccent);
+        await expectCell(
+          DaySummary(dateKey: day),
+          t.accent,
+          t.textOnAccent,
+          selected: true,
+        );
+        // Selected wins over today, and today keeps a small dot.
+        await expectCell(
+          DaySummary(dateKey: day, isToday: true),
+          t.accent,
+          t.textOnAccent,
+          selected: true,
+        );
+        expect(
+          find.byKey(const Key('calendar_cell_today_dot')),
+          findsOneWidget,
+        );
       });
     }
 
-    testWidgets('overdue and completed use different border treatments', (
+    testWidgets('every state has its own pip shape, scheduled has none', (
       tester,
     ) async {
       await pumpCell(
         tester,
-        DaySummary(
-          dateKey: day,
-          total: 2,
-          counts: const <ChoreStatus, int>{
-            ChoreStatus.overdue: 1,
-            ChoreStatus.completed: 1,
-          },
-        ),
+        summaryOf({ChoreStatus.overdue: 1, ChoreStatus.completed: 1}),
       );
-      expect(borderPainter(tester).state, CalendarDateBorderState.overdue);
-      expect(
-        borderPainter(tester).stateColor,
-        appThemes[0].tokens.statusOverdueOn,
-      );
+      expect(pips(tester), [WidgetStatus.overdue]);
 
       await pumpCell(
         tester,
-        DaySummary(
-          dateKey: day,
-          total: 2,
-          counts: const <ChoreStatus, int>{
-            ChoreStatus.completed: 1,
-            ChoreStatus.verified: 1,
-          },
-        ),
+        summaryOf({ChoreStatus.completed: 1, ChoreStatus.verified: 1}),
       );
-      expect(borderPainter(tester).state, CalendarDateBorderState.completed);
-      expect(
-        borderPainter(tester).stateColor,
-        appThemes[0].tokens.statusCompletedOn,
+      expect(pips(tester), [WidgetStatus.completed]);
+
+      await pumpCell(
+        tester,
+        summaryOf({ChoreStatus.completed: 1, ChoreStatus.scheduled: 1}),
       );
+      expect(pips(tester), [WidgetStatus.inProgress]);
+
+      await pumpCell(tester, summaryOf({ChoreStatus.skipped: 1}));
+      expect(pips(tester), [WidgetStatus.skipped]);
+
+      await pumpCell(tester, summaryOf({ChoreStatus.scheduled: 1}));
+      expect(pips(tester), isEmpty);
+
+      await pumpCell(tester, DaySummary(dateKey: day));
+      expect(pips(tester), isEmpty);
     });
 
-    testWidgets('selected and outside-month cells keep their state', (
+    testWidgets('the cell has no done/total footer', (tester) async {
+      await pumpCell(
+        tester,
+        summaryOf({ChoreStatus.overdue: 1, ChoreStatus.completed: 2}),
+      );
+      expect(find.text('2/3'), findsNothing);
+      expect(find.text('0/3'), findsNothing);
+    });
+
+    testWidgets('outside-month cells have no surface and no pip', (
       tester,
     ) async {
-      await pumpCell(tester, DaySummary(dateKey: day), selected: true);
-      expect(borderPainter(tester).isSelected, isTrue);
-
       await pumpCell(tester, DaySummary.outside(day));
-      expect(cellMaterial(tester, day).color, appThemes[0].tokens.surface);
-      expect(find.text('1/0'), findsNothing);
-    });
-
-    testWidgets('past empty dates keep the distinct past surface', (
-      tester,
-    ) async {
-      await pumpCell(tester, DaySummary(dateKey: day, isPast: true));
-
+      expect(cellMaterial(tester, day).type, MaterialType.transparency);
       expect(
-        cellMaterial(tester, day).color,
-        appThemes[0].tokens.surfaceSunken,
+        dateText(tester, day).style!.color,
+        appThemes[0].tokens.textDisabled,
       );
-      expect(find.text('1/0'), findsNothing);
+      expect(pips(tester), isEmpty);
     });
 
     testWidgets('the label names progress and every nonvisual indicator', (
@@ -322,28 +344,24 @@ void main() {
       expect(find.byKey(const Key('calendar_month_narrow')), findsOneWidget);
     });
 
-    testWidgets('month and week columns stay aligned while scrolling narrow', (
+    testWidgets('a narrow phone gets the week, aligned, never sideways', (
       tester,
     ) async {
       await pump(tester, width: 340);
+      expect(find.byType(WeekView), findsOneWidget);
       expect(find.byType(WeekdayHeaderRow), findsOneWidget);
       final saturday = tester.getCenter(find.text('Sat'));
-      final firstMonthDate = tester.getCenter(
-        find.byKey(const ValueKey<String>('calendar_day_2026-09-26')),
-      );
-      expect(saturday.dx, closeTo(firstMonthDate.dx, 0.1));
-
-      await pump(tester, width: 320);
       final firstWeekDate = tester.getCenter(
         find.byKey(const ValueKey<String>('calendar_day_2026-10-24')),
       );
+      expect(saturday.dx, closeTo(firstWeekDate.dx, 0.1));
       expect(
-        tester.getCenter(find.text('Sat')).dx,
-        closeTo(firstWeekDate.dx, 0.1),
-      );
-      expect(
-        find.byKey(const PageStorageKey<String>('calendar_week_columns')),
-        findsOneWidget,
+        find.byWidgetPredicate(
+          (w) =>
+              w is SingleChildScrollView &&
+              w.scrollDirection == Axis.horizontal,
+        ),
+        findsNothing,
       );
       expect(tester.takeException(), isNull);
     });
@@ -365,16 +383,6 @@ void main() {
         ),
       );
       expect(todaySwitcher.duration, Duration.zero);
-    });
-
-    testWidgets('the display sheet no longer exposes workload heat', (
-      tester,
-    ) async {
-      await pump(tester);
-      await tester.tap(find.byKey(const Key('calendar_display_button')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('calendar_heat_switch')), findsNothing);
-      expect(find.byKey(const Key('calendar_heat_legend')), findsNothing);
     });
 
     testWidgets('the legend sheet explains status and attention marks', (

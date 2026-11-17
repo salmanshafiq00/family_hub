@@ -30,6 +30,7 @@ class StatusGlyph extends StatelessWidget {
     this.size = 14,
     this.semanticLabel,
     this.checkProgress = 1,
+    this.colourOverride,
     super.key,
   });
 
@@ -46,10 +47,16 @@ class StatusGlyph extends StatelessWidget {
   /// Always 1 except while [AnimatedStatusGlyph] animates a completion.
   final double checkProgress;
 
+  /// Draws the shape in this colour instead of the status's own `*On` token,
+  /// for a glyph that sits on a surface the status colours do not belong to
+  /// (a selected calendar date, for example). The caller picks a pair that is
+  /// contrast-tested.
+  final Color? colourOverride;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final colours = statusColours(status, tokens);
+    final colours = colourOverride ?? statusColours(status, tokens);
     final label = semanticLabel ?? _label(context.l10n);
 
     return Semantics(

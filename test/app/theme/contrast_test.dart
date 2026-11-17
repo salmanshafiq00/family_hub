@@ -92,6 +92,17 @@ void main() {
 
         // ── Status onColor on container ───────────────────────────────────
 
+        // The calendar's date cells: today is a soft accent (the selected date,
+        // solid accent + textOnAccent, is covered above).
+        test('accentStrong on accentSoft >= 4.5', () {
+          _assertContrast(
+            'accentStrong/accentSoft',
+            t.accentStrong,
+            t.accentSoft,
+            4.5,
+          );
+        });
+
         test('statusScheduledOn on statusScheduledContainer >= 4.5', () {
           _assertContrast(
             'statusScheduledOn/statusScheduledContainer',

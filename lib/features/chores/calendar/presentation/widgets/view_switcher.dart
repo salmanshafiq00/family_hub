@@ -1,10 +1,15 @@
+import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
+import 'package:family_hub/shared/widgets/centered_label.dart';
 import 'package:flutter/material.dart';
 
-/// Agenda / Month / Week (B.2). The order is the enum's; the labels come from
-/// ARB. [enabled] lists the views that exist yet: the others are shown but
-/// cannot be chosen (Agenda and Week arrive with P3-23).
+/// Agenda / Month / Week (B.2) as a compact three-segment pill.
+///
+/// The pill is 32 dp high; every segment's touch area is 48 dp high. The order
+/// is the enum's, the labels come from ARB. [enabled] lists the views that can
+/// be chosen: the others are shown but dimmed. The selected segment is marked
+/// by its surface AND its bold text, and announced as selected.
 class ViewSwitcher extends StatelessWidget {
   const ViewSwitcher({
     required this.selected,
@@ -13,6 +18,9 @@ class ViewSwitcher extends StatelessWidget {
     super.key,
   });
 
+  /// The visible height of the pill.
+  static const double pillHeight = 32;
+
   final CalendarView selected;
   final Set<CalendarView> enabled;
   final ValueChanged<CalendarView> onChanged;
@@ -20,26 +28,98 @@ class ViewSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final t = context.tokens;
     String label(CalendarView view) => switch (view) {
       CalendarViewKind.agenda => l10n.choresCalendarViewAgenda,
       CalendarViewKind.month => l10n.choresCalendarViewMonth,
       CalendarViewKind.week => l10n.choresCalendarViewWeek,
     };
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SegmentedButton<CalendarView>(
-        key: const Key('calendar_view_switcher'),
-        showSelectedIcon: false,
-        segments: [
-          for (final view in CalendarViewKind.values)
-            ButtonSegment<CalendarView>(
-              value: view,
-              label: Text(label(view)),
-              enabled: enabled.contains(view),
+    return Semantics(
+      key: const Key('calendar_view_switcher'),
+      container: true,
+      child: Stack(
+        children: [
+          // The tray is 32 dp high and centred in the 48 dp touch row.
+          Positioned.fill(
+            top: (kMinInteractiveDimension - pillHeight) / 2,
+            bottom: (kMinInteractiveDimension - pillHeight) / 2,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: t.surfaceSunken,
+                borderRadius: BorderRadius.circular(t.radiusPill),
+              ),
             ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final view in CalendarViewKind.values)
+                _Segment(
+                  label: label(view),
+                  selected: view == selected,
+                  enabled: enabled.contains(view),
+                  onTap: () => onChanged(view),
+                ),
+            ],
+          ),
         ],
-        selected: <CalendarView>{selected},
-        onSelectionChanged: (set) => onChanged(set.first),
+      ),
+    );
+  }
+}
+
+class _Segment extends StatelessWidget {
+  const _Segment({
+    required this.label,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = !enabled
+        ? t.textDisabled
+        : selected
+        ? t.accentStrong
+        : t.textSecondary;
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      onTap: enabled ? onTap : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: enabled ? onTap : null,
+        child: SizedBox(
+          height: kMinInteractiveDimension,
+          child: Center(
+            child: Container(
+              height: ViewSwitcher.pillHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? t.accentSoft : null,
+                borderRadius: BorderRadius.circular(t.radiusPill),
+              ),
+              child: CenteredLabel(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
