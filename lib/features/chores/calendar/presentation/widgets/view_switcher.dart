@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 
 /// Agenda / Month / Week (B.2) as a compact three-segment pill.
 ///
-/// The pill is 32 dp high; every segment's touch area is 48 dp high. The order
-/// is the enum's, the labels come from ARB. [enabled] lists the views that can
-/// be chosen: the others are shown but dimmed. The selected segment is marked
-/// by its surface AND its bold text, and announced as selected.
+/// The pill is 36 dp high (the same visual height as the "whose chores" chip);
+/// every segment's touch area is 48 dp high. The order is the enum's, the labels
+/// come from ARB. [enabled] lists the views that can be chosen: the others are
+/// shown but dimmed. The selected segment is marked by its surface AND its bold
+/// text, and announced as selected.
 class ViewSwitcher extends StatelessWidget {
   const ViewSwitcher({
     required this.selected,
@@ -19,7 +20,7 @@ class ViewSwitcher extends StatelessWidget {
   });
 
   /// The visible height of the pill.
-  static const double pillHeight = 32;
+  static const double pillHeight = 36;
 
   final CalendarView selected;
   final Set<CalendarView> enabled;
@@ -39,7 +40,7 @@ class ViewSwitcher extends StatelessWidget {
       container: true,
       child: Stack(
         children: [
-          // The tray is 32 dp high and centred in the 48 dp touch row.
+          // The tray is 36 dp high and centred in the 48 dp touch row.
           Positioned.fill(
             top: (kMinInteractiveDimension - pillHeight) / 2,
             bottom: (kMinInteractiveDimension - pillHeight) / 2,

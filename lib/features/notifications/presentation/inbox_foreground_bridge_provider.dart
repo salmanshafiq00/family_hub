@@ -103,7 +103,9 @@ final foregroundNotificationBridgeProvider = Provider<void>((ref) {
               item,
               ref.read(membersProvider).value ?? const [],
             ),
-            route: AppRoutes.inbox,
+            // Open the exact row so an actionable item (a swap request) can
+            // show its response sheet after the tap.
+            route: AppRoutes.inboxItem(item.id),
             channel: channel,
           );
         }

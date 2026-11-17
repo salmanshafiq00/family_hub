@@ -1,4 +1,6 @@
+import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/availability/presentation/availability_providers.dart';
+import 'package:family_hub/features/chores/swaps/domain/swap_request.dart';
 import 'package:family_hub/features/chores/swaps/presentation/swap_providers.dart';
 import 'package:family_hub/features/notifications/domain/inbox_item.dart';
 import 'package:family_hub/features/notifications/domain/inbox_port.dart';
@@ -45,9 +47,10 @@ void main() {
     WidgetTester tester, {
     String language = 'en',
     double scale = 1,
+    String? focusItemId,
   }) => pumpP3Screen(
     tester,
-    home: const InboxScreen(),
+    home: InboxScreen(focusItemId: focusItemId),
     sharedFixture: fixture,
     languageCode: language,
     textScale: scale,
@@ -100,6 +103,34 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(fixture.inboxRows.items['i1']!.readAt, isNotNull);
+  });
+
+  testWidgets('a notification deep link opens the swap response actions', (
+    tester,
+  ) async {
+    fixture.inboxRows.items['i1'] = row('i1');
+    fixture.swapWorld.swapRequests['r1'] = SwapRequest(
+      id: 'r1',
+      occurrenceId: 'occ-1',
+      occurrenceDateKey: DateKey(2026, 10, 24),
+      kind: SwapKind.swap,
+      fromMemberId: 'dave',
+      toMemberId: 'cara',
+      reason: 'I cannot do this chore',
+      status: SwapStatus.pending,
+      expiresAt: fixture.clock.nowUtc().add(const Duration(days: 1)),
+      requestedBy: 'dave',
+    );
+    fixture.occurrences.occurrences[ChoresFixture.familyId] = {
+      'occ-1': anOccurrence(id: 'occ-1'),
+    };
+
+    await open(tester, focusItemId: 'i1');
+    await tester.pumpAndSettle();
+
+    expect(fixture.inboxRows.items['i1']!.readAt, isNotNull);
+    expect(find.byKey(const Key('swap_accept')), findsOneWidget);
+    expect(find.byKey(const Key('swap_decline')), findsOneWidget);
   });
 
   testWidgets('mark all read', (tester) async {

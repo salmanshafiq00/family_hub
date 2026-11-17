@@ -12,12 +12,16 @@ final class NotificationChannelDefinition {
     required this.name,
     required this.description,
     required this.highImportance,
+    this.soundName,
   });
 
   final NotificationChannelId id;
   final String name;
   final String description;
   final bool highImportance;
+
+  /// A `res/raw` resource name, or null for the system default sound.
+  final String? soundName;
 }
 
 final class LocalNotificationRequest {
@@ -136,8 +140,8 @@ final class LocalReminderMetadataStore {
       body: request.body ?? '',
       payload: request.payload ?? '',
       refId: decoded['refId'] as String,
-      channelId: NotificationChannelId.values.firstWhere(
-        (channel) => channel.id == decoded['channelId'],
+      channelId: NotificationChannelId.fromStoredId(
+        decoded['channelId'] as String,
       ),
       familyTimezone: decoded['familyTimezone'] as String,
     );

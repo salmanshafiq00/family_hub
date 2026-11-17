@@ -59,6 +59,10 @@ abstract final class AppRoutes {
   /// The module-neutral inbox: a top-level route above the shell (P3-27).
   static const String inbox = '/inbox';
 
+  /// One inbox row, opened from its notification (P4-16).
+  static const String inboxItemPattern = '/inbox/:itemId';
+  static String inboxItem(String id) => '/inbox/$id';
+
   // ── Phase 4 (road map 3.10) ───────────────────────────────────────────────
   //
   // P4-02 declares the constants only. A route is registered by the step that

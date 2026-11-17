@@ -1,16 +1,11 @@
 import 'dart:async';
 
-import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/app/theme/app_tokens.dart';
-import 'package:family_hub/core/audit/audit_ref_type.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
-import 'package:family_hub/features/chores/swaps/presentation/swap_providers.dart';
-import 'package:family_hub/features/chores/swaps/presentation/swap_response_sheet.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/notifications/domain/inbox_item.dart';
-import 'package:family_hub/features/notifications/domain/inbox_port.dart';
-import 'package:family_hub/features/notifications/domain/virtual_inbox.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_open_action.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_providers.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_text.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_tile.dart';
@@ -18,102 +13,26 @@ import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 /// The member's inbox (P3-27): grouped Today / Earlier, an unread dot, tap =
 /// mark read + open what it is about. Items of a module that is switched off
 /// are hidden. One info row explains the Spark limit (D-P3-19): a request shows
 /// up when the app is opened.
-class InboxScreen extends ConsumerWidget {
-  const InboxScreen({super.key});
+class InboxScreen extends ConsumerStatefulWidget {
+  const InboxScreen({this.focusItemId, super.key});
 
-  Future<void> _open(
-    BuildContext context,
-    WidgetRef ref,
-    InboxItem item,
-  ) async {
-    final familyId = ref.read(currentFamilyIdProvider);
-    final uid = ref.read(currentUidProvider);
-    if (item.isUnread) {
-      if (item.id.startsWith('v:')) {
-        final saved = await ref.read(markVirtualInboxReadProvider)(<String>[
-          item.id,
-        ]);
-        if (!saved && context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(context.l10n.errorUnknown)));
-        }
-      } else if (familyId != null && uid != null) {
-        final result = await ref.read(markInboxReadProvider)(
-          familyId: familyId,
-          actorUid: uid,
-          ids: <String>[item.id],
-        );
-        if (result.failureOrNull != null && context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(context.l10n.errorUnknown)));
-        }
-      }
-    }
-    if (!context.mounted) return;
-
-    // The inbox is a page above the shell. Pushing a tab route on top of it
-    // gives the shell a second page with the same key and the Navigator
-    // assertion fails, so a row opens its target by replacing the stack.
-    switch (item.type) {
-      case VirtualInboxType.budgetAlert:
-        if (context.mounted) {
-          context.go(AppRoutes.bazarBudget);
-        }
-        return;
-      case VirtualInboxType.pendingJoinRequests:
-        if (context.mounted) {
-          context.go(AppRoutes.familyMembers);
-        }
-        return;
-      case VirtualInboxType.pendingContributionRequests:
-        if (context.mounted) {
-          context.go(AppRoutes.bazarFundPending);
-        }
-        return;
-      case VirtualInboxType.contributionDue:
-        if (context.mounted) {
-          context.go(AppRoutes.bazarFund);
-        }
-        return;
-      case VirtualInboxType.awaitingVerification:
-        if (context.mounted) {
-          context.go(AppRoutes.choresVerify);
-        }
-        return;
-    }
-    switch (item.refType) {
-      case AuditRefType.swapRequest:
-        final pending = ref.read(pendingSwapsProvider).value ?? const [];
-        for (final request in pending) {
-          if (request.id == item.refId && request.toMemberId == uid) {
-            await ref.respondToSwapWithSheet(context, request);
-            return;
-          }
-        }
-      case AuditRefType.availability:
-        if (context.mounted) {
-          context.go(AppRoutes.choresAvailability);
-        }
-      case AuditRefType.occurrence:
-        if (context.mounted) {
-          context.go(AppRoutes.choresOccurrence(item.refId));
-        }
-      case AuditRefType.member:
-        if (item.type == InboxType.memberApproved) {
-          context.go(AppRoutes.home);
-        }
-        return;
-    }
-  }
+  /// Opens this row once the list has loaded (a local notification tap).
+  final String? focusItemId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InboxScreen> createState() => _InboxScreenState();
+}
+
+class _InboxScreenState extends ConsumerState<InboxScreen> {
+  bool _focusHandled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final t = context.tokens;
     final formatters = ref.watch(appFormattersProvider);
@@ -188,6 +107,20 @@ class InboxScreen extends ConsumerWidget {
               item,
             );
           }
+          final focusId = widget.focusItemId;
+          if (!_focusHandled && focusId != null) {
+            final focused = items
+                .where((item) => item.id == focusId)
+                .firstOrNull;
+            if (focused != null) {
+              _focusHandled = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  unawaited(ref.openInboxItem(context, focused));
+                }
+              });
+            }
+          }
           // P4-24: the list keeps a readable measure on a tablet; the detail
           // it points at stays a route, so no pane is duplicated here.
           return Center(
@@ -239,7 +172,8 @@ class InboxScreen extends ConsumerWidget {
                         InboxTile(
                           item: item,
                           text: inboxTextOf(l10n, formatters, item, members),
-                          onTap: () => unawaited(_open(context, ref, item)),
+                          onTap: () =>
+                              unawaited(ref.openInboxItem(context, item)),
                         ),
                     ],
                 ],

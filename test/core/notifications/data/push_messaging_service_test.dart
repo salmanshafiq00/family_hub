@@ -107,6 +107,23 @@ void main() {
     },
   );
 
+  test('push inbox id opens its actionable inbox row', () async {
+    final routes = <String>[];
+    final tapRouter = NotificationTapRouter();
+    driver.initialMessage = PushMessage(
+      data: const <String, String>{'inboxId': 'inbox-1', 'route': '/inbox'},
+    );
+
+    await service.initialize(tapRouter);
+    tapRouter.attach(
+      navigate: routes.add,
+      choresEnabled: true,
+      bazarEnabled: true,
+    );
+
+    expect(routes, <String>['/inbox/inbox-1']);
+  });
+
   test('forwards FCM permission, token and foreground APIs', () async {
     await service.initialize(NotificationTapRouter());
     driver.notificationsAllowed = true;

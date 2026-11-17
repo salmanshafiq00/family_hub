@@ -75,23 +75,16 @@ class ChoresHomeScreen extends ConsumerWidget {
         ],
       ),
       body: body,
-      // Only while the calendar shows: a manager adds a chore, a member jumps
-      // to their own day (P3-29).
+      // Only a manager gets the add shortcut while the calendar shows. A
+      // member's "today" shortcut already lives in the app bar (P3-22/P3-29).
       floatingActionButton:
-          templates.hasValue && templates.requireValue.isNotEmpty
+          canManage && templates.hasValue && templates.requireValue.isNotEmpty
           ? FloatingActionButton.small(
-              key: Key(canManage ? 'chores_fab_new' : 'chores_fab_today'),
-              tooltip: canManage
-                  ? l10n.choresNewAction
-                  : l10n.choresMyTodayAction,
-              onPressed: () => unawaited(
-                context.push(
-                  canManage
-                      ? AppRoutes.choresTemplateNew
-                      : AppRoutes.choresToday,
-                ),
-              ),
-              child: Icon(canManage ? Icons.add_rounded : Icons.today_rounded),
+              key: const Key('chores_fab_new'),
+              tooltip: l10n.choresNewAction,
+              onPressed: () =>
+                  unawaited(context.push(AppRoutes.choresTemplateNew)),
+              child: const Icon(Icons.add_rounded),
             )
           : null,
     );

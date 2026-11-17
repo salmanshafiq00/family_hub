@@ -99,6 +99,29 @@ void main() {
     expect(controller.diagnostics.tokenPrefix, 'token-');
   });
 
+  test('asks once when notifications are not granted', () async {
+    service.notificationsAllowed = false;
+
+    await controller.onSessionActive(uid: 'member-1', languageCode: 'bn');
+    await controller.onResumed();
+
+    expect(service.permissionRequests, 1);
+    expect(controller.diagnostics.notificationsGranted, isTrue);
+    expect(repository.registrations, hasLength(1));
+  });
+
+  test('does not ask again after a denied permission', () async {
+    service
+      ..notificationsAllowed = false
+      ..permissionRequestResult = false;
+
+    await controller.onSessionActive(uid: 'member-1', languageCode: 'bn');
+    await controller.onResumed();
+
+    expect(service.permissionRequests, 1);
+    expect(controller.diagnostics.notificationsGranted, isFalse);
+  });
+
   test('refreshes the saved token when FCM changes it', () async {
     await controller.onSessionActive(uid: 'member-1', languageCode: 'bn');
     service.tokenRefreshes.add('refreshed-token-123');

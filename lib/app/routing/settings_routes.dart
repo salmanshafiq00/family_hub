@@ -28,6 +28,11 @@ List<RouteBase> settingsRoutes(Flavor flavor) => [
     builder: (context, state) => const InboxScreen(),
   ),
   GoRoute(
+    path: AppRoutes.inboxItemPattern,
+    builder: (context, state) =>
+        InboxScreen(focusItemId: state.pathParameters['itemId']),
+  ),
+  GoRoute(
     path: AppRoutes.activity,
     builder: (context, state) => const ActivityFeedScreen(),
   ),

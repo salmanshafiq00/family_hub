@@ -13,6 +13,7 @@ import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_p
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/today_providers.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
+import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_home_screen.dart';
@@ -57,6 +58,7 @@ Future<void> _pump(
   double textScale = 1.0,
   Widget home = const ChoresHomeScreen(),
   List<ChoresEntry>? entries,
+  bool withTemplate = false,
 }) async {
   tester.view
     ..physicalSize = const Size(320, 800)
@@ -66,6 +68,11 @@ Future<void> _pump(
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
   final fixture = ChoresFixture();
+  if (withTemplate) {
+    fixture.chores.templates[ChoresFixture.familyId] = <String, ChoreTemplate>{
+      'template-1': ChoreTemplate(id: 'template-1', draft: aTemplate()),
+    };
+  }
 
   final router = GoRouter(
     routes: [
@@ -162,6 +169,16 @@ void main() {
 
       expect(find.text('No chores yet'), findsOneWidget);
       expect(find.text('Manage'), findsNothing);
+    });
+
+    testWidgets('a member gets the Today shortcut only in the app bar', (
+      tester,
+    ) async {
+      await _pump(tester, role: Role.member, withTemplate: true);
+
+      expect(find.byKey(const Key('chores_open_today')), findsOneWidget);
+      expect(find.byKey(const Key('chores_fab_today')), findsNothing);
+      expect(find.byKey(const Key('chores_fab_new')), findsNothing);
     });
 
     testWidgets('Bangla copy is shown for the bn locale', (tester) async {

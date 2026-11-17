@@ -6,9 +6,19 @@ final class PushMessage {
   final String? body;
   final Map<String, String> data;
 
-  String? get route => data['route'];
-
   String? get inboxId => data['inboxId'];
+
+  String? get route {
+    final configuredRoute = data['route'];
+    final id = inboxId;
+    if (id == null || id.isEmpty) return configuredRoute;
+    if (configuredRoute == null ||
+        configuredRoute.isEmpty ||
+        configuredRoute == '/inbox') {
+      return '/inbox/${Uri.encodeComponent(id)}';
+    }
+    return configuredRoute;
+  }
 
   @override
   bool operator ==(Object other) =>

@@ -11,16 +11,25 @@ enum PlannedNotificationKind {
 }
 
 enum NotificationChannelId {
-  choresDue('chores_due'),
-  choresOverdue('chores_overdue'),
-  dailySummary('daily_summary'),
-  bazar('bazar'),
-  family('family'),
-  pushEvents('push_events');
+  choresDue('chores_due_v2', legacyId: 'chores_due'),
+  choresOverdue('chores_overdue_v2', legacyId: 'chores_overdue'),
+  dailySummary('daily_summary_v2', legacyId: 'daily_summary'),
+  bazar('bazar_v2', legacyId: 'bazar'),
+  family('family_v2', legacyId: 'family'),
+  pushEvents('push_events_v2', legacyId: 'push_events');
 
-  const NotificationChannelId(this.id);
+  const NotificationChannelId(this.id, {required this.legacyId});
 
+  /// The current Android channel id.
   final String id;
+
+  /// The id used before the custom sound; stored metadata may still name it.
+  final String legacyId;
+
+  static NotificationChannelId fromStoredId(String id) => values.firstWhere(
+    (channel) => channel.id == id || channel.legacyId == id,
+    orElse: () => pushEvents,
+  );
 }
 
 final class PlannedNotification {

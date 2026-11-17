@@ -60,6 +60,7 @@ final class PushController with WidgetsBindingObserver {
   String? _lastRegistrationDay;
   Future<DeviceInstallation>? _installationFuture;
   bool _observingLifecycle = false;
+  bool _permissionRequested = false;
   bool _disposed = false;
 
   PushDiagnostics get diagnostics => _diagnostics;
@@ -92,6 +93,9 @@ final class PushController with WidgetsBindingObserver {
       _languageCode = languageCode;
       _startSubscriptions();
       await _refreshPermission();
+      // Ask once per session when the OS still blocks notifications, so they
+      // actually reach the Android notification panel.
+      await _requestPermissionOnce();
       await _registerCurrentToken();
       return;
     }

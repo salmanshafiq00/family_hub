@@ -19,18 +19,24 @@ void main() {
 
     expect(driver.initializeCalls, 1);
     expect(driver.channels.map((channel) => channel.id.id), <String>[
-      'chores_due',
-      'chores_overdue',
-      'daily_summary',
-      'bazar',
-      'family',
-      'push_events',
+      'chores_due_v2',
+      'chores_overdue_v2',
+      'daily_summary_v2',
+      'bazar_v2',
+      'family_v2',
+      'push_events_v2',
     ]);
+    expect(
+      driver.channels.every(
+        (channel) => channel.soundName == 'family_hub_chime',
+      ),
+      isTrue,
+    );
     expect(driver.channels.first.highImportance, isTrue);
     expect(driver.channels.last.highImportance, isTrue);
     expect(
       driver.channels
-          .where((channel) => channel.id.id != 'push_events')
+          .where((channel) => channel.id.id != 'push_events_v2')
           .skip(1)
           .every((channel) => !channel.highImportance),
       isTrue,
@@ -56,7 +62,7 @@ void main() {
       expect(schedule.at.location.name, 'Asia/Dhaka');
       expect(schedule.at.toUtc(), notification.scheduledAt);
       expect(schedule.exact, isTrue);
-      expect(schedule.channelId, 'chores_due');
+      expect(schedule.channelId, 'chores_due_v2');
       final restarted = await _scheduler(driver, preferences: preferences);
       expect(await restarted.pending(), <PlannedNotification>[notification]);
     },

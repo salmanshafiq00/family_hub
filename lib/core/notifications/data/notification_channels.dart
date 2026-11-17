@@ -11,6 +11,9 @@ const MethodChannel _diagnosticsChannel = MethodChannel(
   'com.familyhub/notification_diagnostics',
 );
 
+/// `android/app/src/main/res/raw/family_hub_chime.wav` (a short ascending bell).
+const String kNotificationSound = 'family_hub_chime';
+
 List<NotificationChannelDefinition> notificationChannels(
   AppLocalizations localizations,
 ) => <NotificationChannelDefinition>[
@@ -19,36 +22,42 @@ List<NotificationChannelDefinition> notificationChannels(
     name: localizations.notifChannelChoresDue,
     description: localizations.notifChannelChoresDueDescription,
     highImportance: true,
+    soundName: kNotificationSound,
   ),
   NotificationChannelDefinition(
     id: NotificationChannelId.choresOverdue,
     name: localizations.notifChannelChoresOverdue,
     description: localizations.notifChannelChoresOverdueDescription,
     highImportance: false,
+    soundName: kNotificationSound,
   ),
   NotificationChannelDefinition(
     id: NotificationChannelId.dailySummary,
     name: localizations.notifChannelDailySummary,
     description: localizations.notifChannelDailySummaryDescription,
     highImportance: false,
+    soundName: kNotificationSound,
   ),
   NotificationChannelDefinition(
     id: NotificationChannelId.bazar,
     name: localizations.notifChannelBazar,
     description: localizations.notifChannelBazarDescription,
     highImportance: false,
+    soundName: kNotificationSound,
   ),
   NotificationChannelDefinition(
     id: NotificationChannelId.family,
     name: localizations.notifChannelFamily,
     description: localizations.notifChannelFamilyDescription,
     highImportance: false,
+    soundName: kNotificationSound,
   ),
   NotificationChannelDefinition(
     id: NotificationChannelId.pushEvents,
     name: localizations.notifChannelPushEvents,
     description: localizations.notifChannelPushEventsDescription,
     highImportance: true,
+    soundName: kNotificationSound,
   ),
 ];
 
@@ -103,6 +112,10 @@ final class FlutterLocalNotificationsDriver
           importance: channel.highImportance
               ? Importance.high
               : Importance.defaultImportance,
+          sound: channel.soundName == null
+              ? null
+              : RawResourceAndroidNotificationSound(channel.soundName!),
+          playSound: channel.soundName != null,
         ),
       );
     }
@@ -211,6 +224,10 @@ final class FlutterLocalNotificationsDriver
               ? Priority.high
               : Priority.defaultPriority,
           icon: 'ic_stat_family_hub',
+          playSound: channel.soundName != null,
+          sound: channel.soundName == null
+              ? null
+              : RawResourceAndroidNotificationSound(channel.soundName!),
         ),
       );
 }

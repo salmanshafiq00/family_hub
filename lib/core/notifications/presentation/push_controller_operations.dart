@@ -45,6 +45,17 @@ extension _PushControllerOperations on PushController {
     }
   }
 
+  Future<void> _requestPermissionOnce() async {
+    if (_permissionRequested || _diagnostics.notificationsGranted) return;
+    _permissionRequested = true;
+    try {
+      final granted = await _messaging.requestPermission();
+      _update(_diagnostics.copyWith(notificationsGranted: granted));
+    } on Object catch (error, stackTrace) {
+      _recordError(error, stackTrace);
+    }
+  }
+
   Future<void> _registerCurrentToken() async {
     try {
       final token = await _messaging.getToken();
