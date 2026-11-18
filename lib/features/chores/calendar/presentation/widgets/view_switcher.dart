@@ -1,12 +1,14 @@
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/shared/widgets/centered_label.dart';
 import 'package:flutter/material.dart';
 
 /// Agenda / Month / Week (B.2) as a compact three-segment pill.
 ///
-/// The pill is 36 dp high (the same visual height as the "whose chores" chip);
+/// The pill is [kCalendarControlHeight] high (the same height as the "whose
+/// chores" chip, from the same constant);
 /// every segment's touch area is 48 dp high. The order is the enum's, the labels
 /// come from ARB. [enabled] lists the views that can be chosen: the others are
 /// shown but dimmed. The selected segment is marked by its surface AND its bold
@@ -20,7 +22,7 @@ class ViewSwitcher extends StatelessWidget {
   });
 
   /// The visible height of the pill.
-  static const double pillHeight = 36;
+  static const double pillHeight = kCalendarControlHeight;
 
   final CalendarView selected;
   final Set<CalendarView> enabled;
@@ -40,7 +42,7 @@ class ViewSwitcher extends StatelessWidget {
       container: true,
       child: Stack(
         children: [
-          // The tray is 36 dp high and centred in the 48 dp touch row.
+          // The tray is [pillHeight] high and centred in the 48 dp touch row.
           Positioned.fill(
             top: (kMinInteractiveDimension - pillHeight) / 2,
             bottom: (kMinInteractiveDimension - pillHeight) / 2,
@@ -55,11 +57,13 @@ class ViewSwitcher extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (final view in CalendarViewKind.values)
-                _Segment(
-                  label: label(view),
-                  selected: view == selected,
-                  enabled: enabled.contains(view),
-                  onTap: () => onChanged(view),
+                Flexible(
+                  child: _Segment(
+                    label: label(view),
+                    selected: view == selected,
+                    enabled: enabled.contains(view),
+                    onTap: () => onChanged(view),
+                  ),
                 ),
             ],
           ),
@@ -102,20 +106,25 @@ class _Segment extends StatelessWidget {
         onTap: enabled ? onTap : null,
         child: SizedBox(
           height: kMinInteractiveDimension,
+          // widthFactor: 1 keeps the segment as wide as its text (it sits in a
+          // Flexible, so a plain Center or an aligned Container would stretch).
           child: Center(
+            widthFactor: 1,
             child: Container(
               height: ViewSwitcher.pillHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: selected ? t.accentSoft : null,
                 borderRadius: BorderRadius.circular(t.radiusPill),
               ),
-              child: CenteredLabel(
-                label,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: color,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              child: Center(
+                widthFactor: 1,
+                child: CenteredLabel(
+                  label,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: color,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  ),
                 ),
               ),
             ),

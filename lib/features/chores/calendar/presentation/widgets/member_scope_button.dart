@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_member_styles.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
@@ -134,11 +135,11 @@ class MemberScopeButton extends ConsumerWidget {
         label: label,
         excludeSemantics: true,
         child: ConstrainedBox(
-          // 36 dp to look at, 48 dp to touch.
+          // kCalendarControlHeight to look at, 48 dp to touch.
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           child: Center(
             child: Container(
-              height: 36,
+              height: kCalendarControlHeight,
               padding: const EdgeInsetsDirectional.only(start: 8, end: 2),
               decoration: BoxDecoration(
                 color: t.accentSoft,

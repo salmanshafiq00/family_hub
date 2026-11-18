@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_filters.dart';
+import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/presentation/widgets/chore_tile.dart'
@@ -14,11 +15,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The filter sheet (P3-23): groups, statuses, people, "needs attention" and
 /// a search. It writes `calendarPrefsProvider` (stored filters) and
 /// `calendarQueryProvider` (session search), the state ALL three views share.
+///
+/// Like the day panel it is a sheet, not a page: it covers at most
+/// [kCalendarFilterSheetMaxFraction] of the screen and its content scrolls when
+/// it is taller than that.
 Future<void> showCalendarFilterSheet(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
+      constraints: BoxConstraints(
+        maxHeight:
+            MediaQuery.sizeOf(context).height * kCalendarFilterSheetMaxFraction,
+      ),
       builder: (context) => const CalendarFilterSheet(),
     );
 

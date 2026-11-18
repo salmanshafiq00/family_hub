@@ -8,6 +8,15 @@ const List<double> kDayPanelSnaps = <double>[0.28, 0.55, 0.92];
 double dayPanelRestingHeight(double bodyHeight) =>
     bodyHeight * kDayPanelSnaps.first;
 
+/// The visible height of every control in the calendar toolbar: the view
+/// switcher (Agenda / Month / Week) and the "whose chores" chip. One constant,
+/// so the two can never differ. Each one is still 48 dp to touch.
+const double kCalendarControlHeight = 40;
+
+/// How much of the screen the calendar's filter sheet may cover. Taller content
+/// scrolls inside the sheet.
+const double kCalendarFilterSheetMaxFraction = 0.78;
+
 /// Space around the month / week grid, on each side.
 const double kCalendarGridSidePadding = 8;
 

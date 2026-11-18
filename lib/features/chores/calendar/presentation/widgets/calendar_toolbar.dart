@@ -29,17 +29,17 @@ class CalendarToolbar extends ConsumerWidget {
     final formatters = ref.watch(appFormattersProvider);
     return Row(
       children: [
-        // At large text the pill scales down instead of overflowing.
+        // The pill keeps its height and gets almost ALL the free space (flex
+        // 100 against the Spacer's 1), so it takes its natural width and the
+        // chip moves right. Only when even that is too little (large text) do
+        // the labels shorten with an ellipsis.
         Flexible(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: ViewSwitcher(
-              selected: view,
-              enabled: enabledViews,
-              onChanged: (next) => unawaited(
-                ref.read(calendarPrefsProvider.notifier).setView(next),
-              ),
+          flex: 100,
+          child: ViewSwitcher(
+            selected: view,
+            enabled: enabledViews,
+            onChanged: (next) => unawaited(
+              ref.read(calendarPrefsProvider.notifier).setView(next),
             ),
           ),
         ),
