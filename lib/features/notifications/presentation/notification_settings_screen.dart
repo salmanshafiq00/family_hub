@@ -18,6 +18,7 @@ import 'package:family_hub/features/notifications/presentation/widgets/summary_s
 import 'package:family_hub/features/notifications/presentation/widgets/timings_section.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
+import 'package:family_hub/shared/widgets/home_fallback_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -84,175 +85,180 @@ class _NotificationSettingsScreenState
     final canManageDefaults = ref.can(Permission.manageNotificationDefaults);
     final canManageDelivery = ref.can(Permission.editFamilySettings);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.notificationSettingsTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.notificationHelpTitle,
-            onPressed: () => context.push(AppRoutes.remindersHelp),
-            icon: const Icon(Icons.help_outline),
-          ),
-        ],
-      ),
-      body: settingsAsync.when(
-        loading: () => const LoadingView(),
-        error: (failure, _) => Center(
-          child: ErrorView(
-            message: failure is Network ? l10n.errorNetwork : l10n.errorUnknown,
-            onRetry: familyId == null
-                ? null
-                : () => ref.invalidate(familyDefaultsProvider(familyId)),
-          ),
+    return HomeFallbackBack(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: homeFallbackLeading(context),
+          title: Text(l10n.notificationSettingsTitle),
+          actions: [
+            IconButton(
+              tooltip: l10n.notificationHelpTitle,
+              onPressed: () => context.push(AppRoutes.remindersHelp),
+              icon: const Icon(Icons.help_outline),
+            ),
+          ],
         ),
-        // P4-24: switches and explanations stay readable on a wide screen
-        // instead of stretching their whole width.
-        data: (settings) => Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const PermissionBanner(),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  key: const Key('notifications_master'),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.notificationAllEnabled),
-                  subtitle: Text(l10n.notificationMasterExplanation),
-                  value: settings.globalEnabled,
-                  onChanged: _saving
-                      ? null
-                      : (value) => _savePrefs(
-                          member.copyWith(
-                            reminderOverrides: member.reminderOverrides
-                                .copyWith(globalEnabled: value),
-                          ),
-                        ),
-                ),
-                CategorySection(
-                  settings: settings,
-                  onChanged: (next) {
-                    final overrides = member.reminderOverrides.copyWith(
-                      choresEnabled:
-                          next.choresEnabled != settings.choresEnabled
-                          ? next.choresEnabled
-                          : null,
-                      bazarEnabled: next.bazarEnabled != settings.bazarEnabled
-                          ? next.bazarEnabled
-                          : null,
-                      familyEnabled:
-                          next.familyEnabled != settings.familyEnabled
-                          ? next.familyEnabled
-                          : null,
-                    );
-                    _savePrefs(member.copyWith(reminderOverrides: overrides));
-                  },
-                ),
-                const Divider(),
-                TimingsSection(
-                  settings: settings,
-                  formatters: ref.watch(appFormattersProvider),
-                  onChanged: (next) {
-                    final overrides = member.reminderOverrides.copyWith(
-                      defaultOffsetsMinutes:
-                          _sameInts(
-                            next.defaultOffsetsMinutes,
-                            settings.defaultOffsetsMinutes,
-                          )
-                          ? null
-                          : next.defaultOffsetsMinutes,
-                      overdueEnabled:
-                          next.overdueEnabled != settings.overdueEnabled
-                          ? next.overdueEnabled
-                          : null,
-                    );
-                    _savePrefs(member.copyWith(reminderOverrides: overrides));
-                  },
-                ),
-                SummarySection(
-                  summary: settings.morningSummary,
-                  onChanged: (next) {
-                    final current = settings.morningSummary;
-                    final overrides = member.reminderOverrides.copyWith(
-                      morningSummaryEnabled: next.enabled != current.enabled
-                          ? next.enabled
-                          : null,
-                      morningSummaryMinutes: next.minutes != current.minutes
-                          ? next.minutes
-                          : null,
-                    );
-                    _savePrefs(member.copyWith(reminderOverrides: overrides));
-                  },
-                ),
-                QuietHoursSection(
-                  quiet: settings.quiet,
-                  onChanged: (next) {
-                    final current = settings.quiet;
-                    final overrides = member.reminderOverrides.copyWith(
-                      quietEnabled: next.enabled != current.enabled
-                          ? next.enabled
-                          : null,
-                      quietStartMinutes:
-                          next.startMinutes != current.startMinutes
-                          ? next.startMinutes
-                          : null,
-                      quietEndMinutes: next.endMinutes != current.endMinutes
-                          ? next.endMinutes
-                          : null,
-                    );
-                    _savePrefs(member.copyWith(reminderOverrides: overrides));
-                  },
-                ),
-                SwitchListTile(
-                  key: const Key('notifications_push_member'),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.notificationPushOnPhone),
-                  subtitle: Text(
-                    FeatureFlags.pushBackend
-                        ? _effectivePushReason(context, ref, member)
-                        : l10n.notificationSenderSparkHint,
-                  ),
-                  value: member.pushEnabled,
-                  onChanged: FeatureFlags.pushBackend && !_saving
-                      ? (value) =>
-                            _savePrefs(member.copyWith(pushEnabled: value))
-                      : null,
-                ),
-                if (canManageDefaults && familyDefaultsAsync.hasValue)
-                  FamilyDefaultsSection(
-                    defaults: familyDefaultsAsync.requireValue,
-                    busy: _saving,
-                    onSave: _saveDefaults,
-                  ),
-                if (canManageDelivery)
-                  ListTile(
-                    key: const Key('notification_delivery_admin_link'),
+        body: settingsAsync.when(
+          loading: () => const LoadingView(),
+          error: (failure, _) => Center(
+            child: ErrorView(
+              message: failure is Network
+                  ? l10n.errorNetwork
+                  : l10n.errorUnknown,
+              onRetry: familyId == null
+                  ? null
+                  : () => ref.invalidate(familyDefaultsProvider(familyId)),
+            ),
+          ),
+          // P4-24: switches and explanations stay readable on a wide screen
+          // instead of stretching their whole width.
+          data: (settings) => Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const PermissionBanner(),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    key: const Key('notifications_master'),
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.compare_arrows),
-                    title: Text(l10n.notificationDeliveryTitle),
-                    onTap: () => context.push(AppRoutes.notificationDelivery),
-                  ),
-                ListTile(
-                  key: const Key('notification_help_link'),
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.help_outline),
-                  title: Text(l10n.notificationHelpTitle),
-                  onTap: () => context.push(AppRoutes.remindersHelp),
-                ),
-                const TestNotificationButton(),
-                TextButton(
-                  key: const Key('notification_use_family_defaults'),
-                  onPressed: _saving
-                      ? null
-                      : () => _savePrefs(
-                          MemberNotificationPrefs.defaults.copyWith(
-                            pushEnabled: member.pushEnabled,
+                    title: Text(l10n.notificationAllEnabled),
+                    subtitle: Text(l10n.notificationMasterExplanation),
+                    value: settings.globalEnabled,
+                    onChanged: _saving
+                        ? null
+                        : (value) => _savePrefs(
+                            member.copyWith(
+                              reminderOverrides: member.reminderOverrides
+                                  .copyWith(globalEnabled: value),
+                            ),
                           ),
-                        ),
-                  child: Text(l10n.notificationUseFamilyDefaults),
-                ),
-              ],
+                  ),
+                  CategorySection(
+                    settings: settings,
+                    onChanged: (next) {
+                      final overrides = member.reminderOverrides.copyWith(
+                        choresEnabled:
+                            next.choresEnabled != settings.choresEnabled
+                            ? next.choresEnabled
+                            : null,
+                        bazarEnabled: next.bazarEnabled != settings.bazarEnabled
+                            ? next.bazarEnabled
+                            : null,
+                        familyEnabled:
+                            next.familyEnabled != settings.familyEnabled
+                            ? next.familyEnabled
+                            : null,
+                      );
+                      _savePrefs(member.copyWith(reminderOverrides: overrides));
+                    },
+                  ),
+                  const Divider(),
+                  TimingsSection(
+                    settings: settings,
+                    formatters: ref.watch(appFormattersProvider),
+                    onChanged: (next) {
+                      final overrides = member.reminderOverrides.copyWith(
+                        defaultOffsetsMinutes:
+                            _sameInts(
+                              next.defaultOffsetsMinutes,
+                              settings.defaultOffsetsMinutes,
+                            )
+                            ? null
+                            : next.defaultOffsetsMinutes,
+                        overdueEnabled:
+                            next.overdueEnabled != settings.overdueEnabled
+                            ? next.overdueEnabled
+                            : null,
+                      );
+                      _savePrefs(member.copyWith(reminderOverrides: overrides));
+                    },
+                  ),
+                  SummarySection(
+                    summary: settings.morningSummary,
+                    onChanged: (next) {
+                      final current = settings.morningSummary;
+                      final overrides = member.reminderOverrides.copyWith(
+                        morningSummaryEnabled: next.enabled != current.enabled
+                            ? next.enabled
+                            : null,
+                        morningSummaryMinutes: next.minutes != current.minutes
+                            ? next.minutes
+                            : null,
+                      );
+                      _savePrefs(member.copyWith(reminderOverrides: overrides));
+                    },
+                  ),
+                  QuietHoursSection(
+                    quiet: settings.quiet,
+                    onChanged: (next) {
+                      final current = settings.quiet;
+                      final overrides = member.reminderOverrides.copyWith(
+                        quietEnabled: next.enabled != current.enabled
+                            ? next.enabled
+                            : null,
+                        quietStartMinutes:
+                            next.startMinutes != current.startMinutes
+                            ? next.startMinutes
+                            : null,
+                        quietEndMinutes: next.endMinutes != current.endMinutes
+                            ? next.endMinutes
+                            : null,
+                      );
+                      _savePrefs(member.copyWith(reminderOverrides: overrides));
+                    },
+                  ),
+                  SwitchListTile(
+                    key: const Key('notifications_push_member'),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.notificationPushOnPhone),
+                    subtitle: Text(
+                      FeatureFlags.pushBackend
+                          ? _effectivePushReason(context, ref, member)
+                          : l10n.notificationSenderSparkHint,
+                    ),
+                    value: member.pushEnabled,
+                    onChanged: FeatureFlags.pushBackend && !_saving
+                        ? (value) =>
+                              _savePrefs(member.copyWith(pushEnabled: value))
+                        : null,
+                  ),
+                  if (canManageDefaults && familyDefaultsAsync.hasValue)
+                    FamilyDefaultsSection(
+                      defaults: familyDefaultsAsync.requireValue,
+                      busy: _saving,
+                      onSave: _saveDefaults,
+                    ),
+                  if (canManageDelivery)
+                    ListTile(
+                      key: const Key('notification_delivery_admin_link'),
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.compare_arrows),
+                      title: Text(l10n.notificationDeliveryTitle),
+                      onTap: () => context.push(AppRoutes.notificationDelivery),
+                    ),
+                  ListTile(
+                    key: const Key('notification_help_link'),
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.help_outline),
+                    title: Text(l10n.notificationHelpTitle),
+                    onTap: () => context.push(AppRoutes.remindersHelp),
+                  ),
+                  const TestNotificationButton(),
+                  TextButton(
+                    key: const Key('notification_use_family_defaults'),
+                    onPressed: _saving
+                        ? null
+                        : () => _savePrefs(
+                            MemberNotificationPrefs.defaults.copyWith(
+                              pushEnabled: member.pushEnabled,
+                            ),
+                          ),
+                    child: Text(l10n.notificationUseFamilyDefaults),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

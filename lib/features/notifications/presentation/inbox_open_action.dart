@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/audit/audit_ref_type.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
@@ -27,8 +25,7 @@ extension InboxOpenAction on WidgetRef {
           item.id,
         ]);
         if (!saved && context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(context.l10n.errorUnknown)));
+          _showOnce(context, context.l10n.errorUnknown);
         }
       } else if (familyId != null && uid != null) {
         final result = await read(markInboxReadProvider)(
@@ -37,8 +34,7 @@ extension InboxOpenAction on WidgetRef {
           ids: <String>[item.id],
         );
         if (result.failureOrNull != null && context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(context.l10n.errorUnknown)));
+          _showOnce(context, context.l10n.errorUnknown);
         }
       }
     }
@@ -64,33 +60,31 @@ extension InboxOpenAction on WidgetRef {
     }
     switch (item.refType) {
       case AuditRefType.swapRequest:
-        final List<SwapRequest> pending;
-        try {
-          pending = await _waitForPendingSwaps();
-        } on Object catch (error) {
-          if (context.mounted) {
-            final failure = error is AppFailure ? error : Unknown(error);
-            final message = failure is Network
-                ? context.l10n.errorNetwork
-                : context.l10n.choresFailureMessage(failure);
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(message)));
-          }
+        // Load THIS request by id (a server read, cache only when offline).
+        // The old way waited for the first snapshot of the pending list, which
+        // on a cold start from a phone notification is often the local cache
+        // without the new request, so a real, open request looked "closed".
+        if (familyId == null) return;
+        final loaded = await read(swapRepositoryProvider)
+            .get(familyId, item.refId);
+        if (!context.mounted) return;
+        final failure = loaded.failureOrNull;
+        if (failure != null) {
+          final message = failure is Network
+              ? context.l10n.errorNetwork
+              : context.l10n.choresFailureMessage(failure);
+          _showOnce(context, message);
           return;
         }
-        if (!context.mounted) return;
-        for (final request in pending) {
-          if (request.id == item.refId && request.toMemberId == uid) {
-            await respondToSwapWithSheet(context, request);
-            return;
-          }
+        final request = loaded.valueOrNull;
+        if (request != null &&
+            request.status == SwapStatus.pending &&
+            request.toMemberId == uid) {
+          await respondToSwapWithSheet(context, request);
+          return;
         }
-        if (item.type == InboxType.swapRequest && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.choresFailure_swap_not_pending),
-            ),
-          );
+        if (item.type == InboxType.swapRequest) {
+          _showOnce(context, context.l10n.choresFailure_swap_not_pending);
         }
       case AuditRefType.availability:
         if (context.mounted) context.go(AppRoutes.choresAvailability);
@@ -105,17 +99,12 @@ extension InboxOpenAction on WidgetRef {
         return;
     }
   }
+}
 
-  Future<List<SwapRequest>> _waitForPendingSwaps() {
-    final result = Completer<List<SwapRequest>>();
-    final subscription = listenManual(pendingSwapsProvider, (_, next) {
-      if (result.isCompleted) return;
-      if (next.hasValue) {
-        result.complete(next.requireValue);
-      } else if (next.hasError) {
-        result.completeError(next.error!, next.stackTrace ?? StackTrace.empty);
-      }
-    }, fireImmediately: true);
-    return result.future.whenComplete(subscription.close);
-  }
+/// One message at a time: a new one replaces the one on screen, so several
+/// quick taps never queue a row of identical snackbars.
+void _showOnce(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

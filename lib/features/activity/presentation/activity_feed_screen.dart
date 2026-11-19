@@ -12,6 +12,7 @@ import 'package:family_hub/shared/widgets/activity_tile.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
+import 'package:family_hub/shared/widgets/home_fallback_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,130 +30,139 @@ class ActivityFeedScreen extends ConsumerWidget {
     final familyId = ref.watch(currentFamilyIdProvider);
     final older = olderState ?? const ActivityOlderPagesState();
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.activityTitle)),
-      // P4-24: the feed keeps a readable measure on a tablet; each row still
-      // opens its own target route.
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
-          child: Column(
-            children: [
-              ActivityFilterBar(
-                filter: filter,
-                members: members,
-                onModuleChanged: ref
-                    .read(activityFilterProvider.notifier)
-                    .setModule,
-                onActorChanged: ref
-                    .read(activityFilterProvider.notifier)
-                    .setActor,
-              ),
-              Expanded(
-                child: firstPage.when(
-                  loading: () => const LoadingView(lines: 5),
-                  error: (_, _) => ErrorView(
-                    message: l10n.activityLoadError,
-                    onRetry: () => ref.invalidate(
-                      activityFirstPageProvider(filter.actorId),
+    return HomeFallbackBack(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: homeFallbackLeading(context),
+          title: Text(l10n.activityTitle),
+        ),
+        // P4-24: the feed keeps a readable measure on a tablet; each row still
+        // opens its own target route.
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Column(
+              children: [
+                ActivityFilterBar(
+                  filter: filter,
+                  members: members,
+                  onModuleChanged: ref
+                      .read(activityFilterProvider.notifier)
+                      .setModule,
+                  onActorChanged: ref
+                      .read(activityFilterProvider.notifier)
+                      .setActor,
+                ),
+                Expanded(
+                  child: firstPage.when(
+                    loading: () => const LoadingView(lines: 5),
+                    error: (_, _) => ErrorView(
+                      message: l10n.activityLoadError,
+                      onRetry: () => ref.invalidate(
+                        activityFirstPageProvider(filter.actorId),
+                      ),
                     ),
-                  ),
-                  data: (page) {
-                    final allEntries = _mergeEntries(
-                      page.entries,
-                      older.entries,
-                    );
-                    final entries = filter.apply(allEntries);
-                    final canLoadMore = older.hasMore ?? page.hasMore;
-                    if (entries.isEmpty && !canLoadMore) {
-                      return EmptyState(
-                        icon: Icons.history_rounded,
-                        title: allEntries.isEmpty
-                            ? l10n.activityEmpty
-                            : l10n.activityNoMatches,
+                    data: (page) {
+                      final allEntries = _mergeEntries(
+                        page.entries,
+                        older.entries,
                       );
-                    }
-                    return ListView.builder(
-                      key: const Key('activity_feed'),
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                      itemCount:
-                          (entries.isEmpty ? 1 : entries.length) +
-                          (canLoadMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (entries.isEmpty && index == 0) {
-                          return Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Text(
-                              l10n.activityNoMatches,
-                              textAlign: TextAlign.center,
-                            ),
-                          );
-                        }
-                        if (index == (entries.isEmpty ? 1 : entries.length)) {
-                          if (older.isLoading) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-                          if (older.failure != null) {
+                      final entries = filter.apply(allEntries);
+                      final canLoadMore = older.hasMore ?? page.hasMore;
+                      if (entries.isEmpty && !canLoadMore) {
+                        return EmptyState(
+                          icon: Icons.history_rounded,
+                          title: allEntries.isEmpty
+                              ? l10n.activityEmpty
+                              : l10n.activityNoMatches,
+                        );
+                      }
+                      return ListView.builder(
+                        key: const Key('activity_feed'),
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                        itemCount:
+                            (entries.isEmpty ? 1 : entries.length) +
+                            (canLoadMore ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (entries.isEmpty && index == 0) {
                             return Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    l10n.activityLoadError,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  TextButton.icon(
-                                    key: const Key('activity_retry_load_more'),
-                                    onPressed: familyId == null
-                                        ? null
-                                        : () => _loadMore(
-                                            ref,
-                                            familyId,
-                                            filter.actorId,
-                                            page,
-                                          ),
-                                    icon: const Icon(Icons.refresh_rounded),
-                                    label: Text(l10n.actionRetry),
-                                  ),
-                                ],
+                              padding: const EdgeInsets.all(24),
+                              child: Text(
+                                l10n.activityNoMatches,
+                                textAlign: TextAlign.center,
                               ),
                             );
                           }
-                          return Center(
-                            child: TextButton(
-                              key: const Key('activity_load_more'),
-                              onPressed: familyId == null
-                                  ? null
-                                  : () => _loadMore(
-                                      ref,
-                                      familyId,
-                                      filter.actorId,
-                                      page,
+                          if (index == (entries.isEmpty ? 1 : entries.length)) {
+                            if (older.isLoading) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                            if (older.failure != null) {
+                              return Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      l10n.activityLoadError,
+                                      textAlign: TextAlign.center,
                                     ),
-                              child: Text(l10n.activityLoadMore),
-                            ),
+                                    TextButton.icon(
+                                      key: const Key(
+                                        'activity_retry_load_more',
+                                      ),
+                                      onPressed: familyId == null
+                                          ? null
+                                          : () => _loadMore(
+                                              ref,
+                                              familyId,
+                                              filter.actorId,
+                                              page,
+                                            ),
+                                      icon: const Icon(Icons.refresh_rounded),
+                                      label: Text(l10n.actionRetry),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return Center(
+                              child: TextButton(
+                                key: const Key('activity_load_more'),
+                                onPressed: familyId == null
+                                    ? null
+                                    : () => _loadMore(
+                                        ref,
+                                        familyId,
+                                        filter.actorId,
+                                        page,
+                                      ),
+                                child: Text(l10n.activityLoadMore),
+                              ),
+                            );
+                          }
+                          final entry = entries[index];
+                          return _ActivityRow(
+                            entry: entry,
+                            members: members,
+                            onTap: _targetFor(entry) == null
+                                ? null
+                                // The feed is a page above the shell: pushing a
+                                // tab route would duplicate the shell page key.
+                                : () => context.go(_targetFor(entry)!.location),
                           );
-                        }
-                        final entry = entries[index];
-                        return _ActivityRow(
-                          entry: entry,
-                          members: members,
-                          onTap: _targetFor(entry) == null
-                              ? null
-                              // The feed is a page above the shell: pushing a
-                              // tab route would duplicate the shell page key.
-                              : () => context.go(_targetFor(entry)!.location),
-                        );
-                      },
-                    );
-                  },
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

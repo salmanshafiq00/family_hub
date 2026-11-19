@@ -107,6 +107,14 @@ class _ResponseSheet extends StatelessWidget {
   final String line;
   final String reason;
 
+  /// Only the first press counts: a quick second tap while the sheet is closing
+  /// must not pop one screen too many.
+  static void _answer(BuildContext context, bool accept) {
+    if (ModalRoute.of(context)?.isCurrent ?? true) {
+      Navigator.of(context).pop(accept);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -134,7 +142,7 @@ class _ResponseSheet extends StatelessWidget {
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
             ),
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => _answer(context, true),
             icon: const Icon(Icons.check_rounded),
             label: Text(l10n.swapAccept),
           ),
@@ -144,7 +152,7 @@ class _ResponseSheet extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
             ),
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => _answer(context, false),
             icon: const Icon(Icons.close_rounded),
             label: Text(l10n.swapDecline),
           ),

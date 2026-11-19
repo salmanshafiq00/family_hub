@@ -7,6 +7,7 @@ import 'package:family_hub/features/notifications/domain/inbox_port.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_bell.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_providers.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_screen.dart';
+import 'package:family_hub/features/notifications/presentation/inbox_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -131,6 +132,31 @@ void main() {
     expect(fixture.inboxRows.items['i1']!.readAt, isNotNull);
     expect(find.byKey(const Key('swap_accept')), findsOneWidget);
     expect(find.byKey(const Key('swap_decline')), findsOneWidget);
+  });
+
+  testWidgets('tapping a closed request several times shows ONE message', (
+    tester,
+  ) async {
+    // No request r1 exists any more: the row can only say it is not open.
+    fixture.inboxRows.items['i1'] = row('i1');
+    await open(tester);
+
+    for (var i = 0; i < 4; i++) {
+      await tester.tap(find.byType(InboxTile).first);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('This request is no longer open.'), findsOneWidget);
+  });
+
+  testWidgets('with nothing under it the inbox still has a back button', (
+    tester,
+  ) async {
+    fixture.inboxRows.items['i1'] = row('i1');
+    await open(tester);
+
+    expect(find.byKey(const Key('home_fallback_back')), findsOneWidget);
   });
 
   testWidgets('mark all read', (tester) async {

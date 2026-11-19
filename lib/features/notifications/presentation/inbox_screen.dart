@@ -11,6 +11,7 @@ import 'package:family_hub/features/notifications/presentation/inbox_text.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_tile.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
+import 'package:family_hub/shared/widgets/home_fallback_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,6 +32,28 @@ class InboxScreen extends ConsumerStatefulWidget {
 class _InboxScreenState extends ConsumerState<InboxScreen> {
   bool _focusHandled = false;
 
+  /// True while a row is being opened, and for a moment after: further taps
+  /// are ignored, so tapping the same notification several times opens one
+  /// sheet and shows one message, not one per tap. A timestamp, not a Timer, so
+  /// nothing is left pending when the screen goes away.
+  bool _opening = false;
+  DateTime? _lastOpenEnd;
+
+  static const Duration _coolDown = Duration(milliseconds: 600);
+
+  Future<void> _open(InboxItem item) async {
+    if (_opening) return;
+    final last = _lastOpenEnd;
+    if (last != null && DateTime.now().difference(last) < _coolDown) return;
+    _opening = true;
+    try {
+      await ref.openInboxItem(context, item);
+    } finally {
+      _opening = false;
+      _lastOpenEnd = DateTime.now();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -42,8 +65,10 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     final today = ref.watch(familyDateKeysProvider);
     final now = today.today();
 
-    return Scaffold(
+    return HomeFallbackBack(
+      child: Scaffold(
       appBar: AppBar(
+        leading: homeFallbackLeading(context),
         title: Text(l10n.inboxTitle),
         actions: [
           IconButton(
@@ -116,7 +141,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
               _focusHandled = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  unawaited(ref.openInboxItem(context, focused));
+                  unawaited(_open(focused));
                 }
               });
             }
@@ -172,8 +197,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                         InboxTile(
                           item: item,
                           text: inboxTextOf(l10n, formatters, item, members),
-                          onTap: () =>
-                              unawaited(ref.openInboxItem(context, item)),
+                          onTap: () => unawaited(_open(item)),
                         ),
                     ],
                 ],
@@ -181,6 +205,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }
