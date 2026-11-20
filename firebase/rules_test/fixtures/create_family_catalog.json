@@ -217,7 +217,7 @@
       "op": "set",
       "path": "families/fixFam/settings/rotationPolicy",
       "data": {
-        "absencePolicy": "ask_cover",
+        "absencePolicy": "auto_assign",
         "createdAt": {
           "__ts": "2026-10-18T10:00:00.000Z"
         },

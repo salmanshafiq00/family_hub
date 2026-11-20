@@ -10867,19 +10867,19 @@ abstract class AppLocalizations {
   /// No description provided for @choresPolicyAutoAssignDesc.
   ///
   /// In bn, this message translates to:
-  /// **'অনুপস্থিত সদস্যের কাজ অন্য উপলব্ধ সদস্যদের মধ্যে নিজে থেকেই ভাগ হয়ে যায় (আগে একই ডিউটি গ্রুপের সদস্য)। কাউকে না পেলে কাজটি "কাভার দরকার" তালিকায় যায়।'**
+  /// **'অনুপস্থিত সদস্যের কাজ অন্য উপলব্ধ সদস্যদের মধ্যে নিজে থেকেই ভাগ হয়ে যায় (আগে একই ডিউটি গ্রুপের সদস্য)। কাউকে না পেলে কাজটি \"কাভার দরকার\" তালিকায় যায়।'**
   String get choresPolicyAutoAssignDesc;
 
   /// No description provided for @choresPolicyAutoAssignExample.
   ///
   /// In bn, this message translates to:
-  /// **'উদাহরণ: কেউ ৩ দিন অসুস্থ থাকলে তার কাজ গ্রুপের অন্য সদস্য পেয়ে যায়। ম্যানেজার চাইলে যেকোনো কাজ "কাভার দরকার"-এ সরাতে পারেন।'**
+  /// **'উদাহরণ: কেউ ৩ দিন অসুস্থ থাকলে তার কাজ গ্রুপের অন্য সদস্য পেয়ে যায়। ম্যানেজার চাইলে যেকোনো কাজ \"কাভার দরকার\"-এ সরাতে পারেন।'**
   String get choresPolicyAutoAssignExample;
 
   /// No description provided for @availabilityPolicyShare.
   ///
   /// In bn, this message translates to:
-  /// **'আপনার কাজগুলো স্বয়ংক্রিয়ভাবে অন্য সদস্যদের মধ্যে ভাগ হয়ে যাবে। কাউকে না পেলে সেগুলো "কাভার দরকার" তালিকায় যাবে। ম্যানেজারের অ্যাপ খোলা হলে ভাগ হয়।'**
+  /// **'আপনার কাজগুলো স্বয়ংক্রিয়ভাবে অন্য সদস্যদের মধ্যে ভাগ হয়ে যাবে। কাউকে না পেলে সেগুলো \"কাভার দরকার\" তালিকায় যাবে। ম্যানেজারের অ্যাপ খোলা হলে ভাগ হয়।'**
   String get availabilityPolicyShare;
 
   /// No description provided for @needsCoverWhyNobody.

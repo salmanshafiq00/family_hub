@@ -10,6 +10,7 @@ import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.d
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/reassign_occurrence.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
+import 'package:family_hub/features/chores/swaps/domain/swap_plan_helpers.dart';
 import 'package:family_hub/features/chores/swaps/domain/swap_rules.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 import 'package:family_hub/features/family/domain/family_repository.dart';
@@ -116,8 +117,8 @@ class AutoShareAbsentChores {
         const <TemplateRecord>[];
     final groupOfTemplate = <String, String>{
       for (final record in templateList)
-        if (record.template.assignee.dutyGroupId != null)
-          record.template.id: record.template.assignee.dutyGroupId!,
+        if (record.template.draft.assignee.dutyGroupId != null)
+          record.template.id: record.template.draft.assignee.dutyGroupId!,
     };
     final groupList = (await dutyGroups.list(familyId)).valueOrNull ?? const [];
     final membersOfGroup = <String, List<String>>{

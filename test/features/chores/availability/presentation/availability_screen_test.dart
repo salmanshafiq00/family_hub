@@ -131,7 +131,7 @@ void main() {
         ],
       );
       await tester.tap(find.text('open'));
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
     }
 
     testWidgets('it explains what the current policy will do', (tester) async {
