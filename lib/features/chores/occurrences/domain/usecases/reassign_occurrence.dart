@@ -147,6 +147,86 @@ class ReassignOccurrence {
     return Success<ChoreOccurrence>(applyOccurrencePatch(occurrence, patch));
   }
 
+  /// Takes the chore away from its owner and puts it on the Needs cover list
+  /// (a manager's choice, for example when an auto-shared chore should be
+  /// handled by hand). The owner becomes nobody and `needsCover` is set; the
+  /// planned owner is untouched. [reason] is optional: a blank one becomes
+  /// [defaultReason], so the history still says who moved it and why.
+  Future<Result<ChoreOccurrence>> moveToNeedsCover({
+    required String familyId,
+    required String actorUid,
+    required String occurrenceId,
+    String? reason,
+    String defaultReason = 'Moved to needs cover',
+  }) async {
+    final trimmed = reason?.trim() ?? '';
+    final validated = requireReason(
+      trimmed.length >= 3 ? trimmed : defaultReason,
+    );
+    final invalid = validated.failureOrNull;
+    if (invalid != null) return Failure<ChoreOccurrence>(invalid);
+    final note = validated.valueOrNull!;
+
+    final loaded = await loadOccurrenceContext(
+      occurrences: _occurrences,
+      templates: _templates,
+      dutyGroups: _dutyGroups,
+      settings: _choreSettings,
+      families: _families,
+      dateKeys: _dateKeys,
+      familyId: familyId,
+      occurrenceId: occurrenceId,
+      actorUid: actorUid,
+    );
+    final loadFailure = loaded.failureOrNull;
+    if (loadFailure != null) return Failure<ChoreOccurrence>(loadFailure);
+    final context = loaded.valueOrNull!;
+
+    final denied = context.require(Permission.reassignChore).failureOrNull;
+    if (denied != null) return Failure<ChoreOccurrence>(denied);
+    final blocked = stateFailure(context, OccurrenceAction.reassign);
+    if (blocked != null) return Failure<ChoreOccurrence>(blocked);
+
+    final occurrence = context.occurrence;
+    final owner = occurrence.assigneeId;
+    if (owner == null) {
+      return const Failure<ChoreOccurrence>(Conflict(code: 'already_assigned'));
+    }
+
+    final at = _clock.nowUtc();
+    final patch = OccurrencePatch(
+      occurrenceId: occurrenceId,
+      fields: <String, Object?>{
+        'assigneeId': null,
+        'assignmentSource': AssignmentSource.reassign.id,
+        'needsCover': true,
+        'updatedAt': at,
+        'updatedBy': actorUid,
+      },
+    );
+    final staged = await OccurrenceActionWriter(_occurrences).stage(
+      familyId,
+      context,
+      at: at,
+      integrity: true,
+      patch: patch,
+      event: NewEvent(
+        occurrenceId: occurrenceId,
+        type: OccurrenceEventType.reassigned,
+        reason: note,
+        fromAssigneeId: owner,
+      ),
+      audit: RequiredAudit(
+        type: AuditEventType.choresOccurrenceReassigned,
+        reason: note,
+        extra: <String, String>{'from': owner},
+      ),
+    );
+    final writeFailure = staged.failureOrNull;
+    if (writeFailure != null) return Failure<ChoreOccurrence>(writeFailure);
+    return Success<ChoreOccurrence>(applyOccurrencePatch(occurrence, patch));
+  }
+
   /// The new owner must be an active member of THIS family.
   Future<Result<void>> _checkTarget(String familyId, String memberId) async {
     final found = await _families.getMember(familyId, memberId);

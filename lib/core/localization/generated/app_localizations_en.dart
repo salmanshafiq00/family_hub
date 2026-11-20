@@ -6260,4 +6260,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activityUnknownActor => 'Unknown member';
+
+  @override
+  String get choresPolicyAutoAssignTitle => 'Share out automatically (default)';
+
+  @override
+  String get choresPolicyAutoAssignDesc =>
+      'The absent member\'s chores are handed to other available members automatically (the same duty group first). If nobody is free, the chore goes to the Needs cover list.';
+
+  @override
+  String get choresPolicyAutoAssignExample =>
+      'Example: someone is sick for 3 days and their chores go to the others in the group. A manager can move any chore back to Needs cover.';
+
+  @override
+  String get availabilityPolicyShare =>
+      'Your chores will be shared out to other members automatically. Any that nobody can take go to the Needs cover list. Sharing happens when a manager\'s app is open.';
+
+  @override
+  String get needsCoverWhyNobody => 'Nobody assigned';
+
+  @override
+  String get needsCoverWhyAbsent => 'Absent';
+
+  @override
+  String get needsCoverShareNow => 'Share out now';
+
+  @override
+  String get needsCoverShareDone => 'Chores were shared with other members.';
+
+  @override
+  String get needsCoverShareNone => 'Nothing could be shared out right now.';
+
+  @override
+  String get needsCoverCommentTitle => 'Comment (optional)';
+
+  @override
+  String get needsCoverDefaultComment => 'Assigned from the Needs cover list';
+
+  @override
+  String get occurrenceActionNeedsCover => 'Move to needs cover';
+
+  @override
+  String get needsCoverMoveTitle => 'Why does it need a cover? (optional)';
+
+  @override
+  String get needsCoverMoveDefaultReason => 'Moved to Needs cover by a manager';
 }

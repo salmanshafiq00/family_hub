@@ -29,6 +29,7 @@ class OccurrenceActionsBar extends ConsumerWidget {
     required this.onUnskip,
     required this.onException,
     this.onSwap,
+    this.onNeedsCover,
     this.busy = false,
     super.key,
   });
@@ -48,6 +49,9 @@ class OccurrenceActionsBar extends ConsumerWidget {
 
   /// The swap entry point; null until P3-27 supplies the sheet.
   final VoidCallback? onSwap;
+
+  /// A manager moves an owned chore back to the Needs cover list.
+  final VoidCallback? onNeedsCover;
   final bool busy;
 
   @override
@@ -118,6 +122,16 @@ class OccurrenceActionsBar extends ConsumerWidget {
           Icons.swap_horiz_rounded,
           l10n.occurrenceActionReassign,
           onReassign,
+        ),
+      if (open &&
+          canReassign &&
+          onNeedsCover != null &&
+          item.assigneeId != null)
+        _BarAction(
+          const ValueKey('action_needs_cover'),
+          Icons.person_search_outlined,
+          l10n.occurrenceActionNeedsCover,
+          onNeedsCover!,
         ),
       if (open && canManage)
         _BarAction(

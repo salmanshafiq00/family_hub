@@ -45,6 +45,7 @@ class AbsencePolicyCards extends StatelessWidget {
         AbsencePolicy.askCover => l10n.choresPolicyAskCoverTitle,
         AbsencePolicy.autoCover => l10n.choresPolicyAutoCoverTitle,
         AbsencePolicy.skip => l10n.choresPolicySkipTitle,
+        AbsencePolicy.autoAssign => l10n.choresPolicyAutoAssignTitle,
       };
 
   static String _description(AppLocalizations l10n, AbsencePolicy policy) =>
@@ -52,6 +53,7 @@ class AbsencePolicyCards extends StatelessWidget {
         AbsencePolicy.askCover => l10n.choresPolicyAskCoverDesc,
         AbsencePolicy.autoCover => l10n.choresPolicyAutoCoverDesc,
         AbsencePolicy.skip => l10n.choresPolicySkipDesc,
+        AbsencePolicy.autoAssign => l10n.choresPolicyAutoAssignDesc,
       };
 
   static String _example(AppLocalizations l10n, AbsencePolicy policy) =>
@@ -59,6 +61,7 @@ class AbsencePolicyCards extends StatelessWidget {
         AbsencePolicy.askCover => l10n.choresPolicyAskCoverExample,
         AbsencePolicy.autoCover => l10n.choresPolicyAutoCoverExample,
         AbsencePolicy.skip => l10n.choresPolicySkipExample,
+        AbsencePolicy.autoAssign => l10n.choresPolicyAutoAssignExample,
       };
 }
 

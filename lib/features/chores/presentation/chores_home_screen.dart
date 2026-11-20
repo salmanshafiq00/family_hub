@@ -65,6 +65,15 @@ class ChoresHomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.today_rounded),
             onPressed: () => unawaited(context.push(AppRoutes.choresToday)),
           ),
+          // Every member records their OWN absence from here; the Manage hub
+          // below is for managers only.
+          IconButton(
+            key: const Key('chores_open_absence'),
+            tooltip: l10n.availabilityTitle,
+            icon: const Icon(Icons.event_busy_outlined),
+            onPressed: () =>
+                unawaited(context.push(AppRoutes.choresAvailability)),
+          ),
           if (canManage)
             IconButton(
               key: const Key('chores_open_manage'),

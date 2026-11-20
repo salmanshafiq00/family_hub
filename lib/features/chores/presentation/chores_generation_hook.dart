@@ -1,4 +1,5 @@
 import 'package:family_hub/core/localization/l10n_ext.dart';
+import 'package:family_hub/features/chores/availability/presentation/availability_providers.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/swaps/presentation/swap_providers.dart';
@@ -44,6 +45,9 @@ class ChoresGenerationHook extends ConsumerWidget {
     if (familyId != null) {
       // P3-27: lapsed swap requests are closed once per start (best effort).
       ref.watch(expireSwapsOnOpenProvider(familyId));
+      // Policy `auto_assign`: a manager's app shares out the chores of members
+      // who are away (best effort, once per start).
+      ref.watch(autoShareOnOpenProvider(familyId));
       ref.listen(ensureOccurrencesOnOpenProvider(familyId), (_, next) {
         final failure = next.hasValue ? next.value : null;
         if (failure == null) return;

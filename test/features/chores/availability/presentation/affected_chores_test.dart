@@ -61,6 +61,7 @@ void main() {
 
   test('each policy has its own line', () {
     expect(policyLineOf(AbsencePolicy.askCover), PolicyLine.ask);
+    expect(policyLineOf(AbsencePolicy.autoAssign), PolicyLine.share);
     expect(policyLineOf(AbsencePolicy.autoCover), PolicyLine.auto);
     expect(policyLineOf(AbsencePolicy.skip), PolicyLine.skip);
   });

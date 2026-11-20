@@ -6227,4 +6227,51 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get activityUnknownActor => 'অজানা সদস্য';
+
+  @override
+  String get choresPolicyAutoAssignTitle => 'স্বয়ংক্রিয় বণ্টন (ডিফল্ট)';
+
+  @override
+  String get choresPolicyAutoAssignDesc =>
+      'অনুপস্থিত সদস্যের কাজ অন্য উপলব্ধ সদস্যদের মধ্যে নিজে থেকেই ভাগ হয়ে যায় (আগে একই ডিউটি গ্রুপের সদস্য)। কাউকে না পেলে কাজটি "কাভার দরকার" তালিকায় যায়।';
+
+  @override
+  String get choresPolicyAutoAssignExample =>
+      'উদাহরণ: কেউ ৩ দিন অসুস্থ থাকলে তার কাজ গ্রুপের অন্য সদস্য পেয়ে যায়। ম্যানেজার চাইলে যেকোনো কাজ "কাভার দরকার"-এ সরাতে পারেন।';
+
+  @override
+  String get availabilityPolicyShare =>
+      'আপনার কাজগুলো স্বয়ংক্রিয়ভাবে অন্য সদস্যদের মধ্যে ভাগ হয়ে যাবে। কাউকে না পেলে সেগুলো "কাভার দরকার" তালিকায় যাবে। ম্যানেজারের অ্যাপ খোলা হলে ভাগ হয়।';
+
+  @override
+  String get needsCoverWhyNobody => 'কেউ নির্ধারিত নেই';
+
+  @override
+  String get needsCoverWhyAbsent => 'অনুপস্থিত';
+
+  @override
+  String get needsCoverShareNow => 'এখনই ভাগ করুন';
+
+  @override
+  String get needsCoverShareDone =>
+      'কাজগুলো অন্য সদস্যদের মধ্যে ভাগ করা হয়েছে।';
+
+  @override
+  String get needsCoverShareNone => 'এখন ভাগ করার মতো কিছু পাওয়া যায়নি।';
+
+  @override
+  String get needsCoverCommentTitle => 'মন্তব্য (ঐচ্ছিক)';
+
+  @override
+  String get needsCoverDefaultComment => 'কাভার তালিকা থেকে বরাদ্দ করা হয়েছে';
+
+  @override
+  String get occurrenceActionNeedsCover => 'কাভার দরকারে সরান';
+
+  @override
+  String get needsCoverMoveTitle => 'কেন কাভার দরকার? (ঐচ্ছিক)';
+
+  @override
+  String get needsCoverMoveDefaultReason =>
+      'ম্যানেজার কাজটি কাভার দরকারে সরিয়েছেন';
 }

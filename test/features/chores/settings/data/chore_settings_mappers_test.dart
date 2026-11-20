@@ -152,16 +152,16 @@ void main() {
       }
     });
 
-    test('an absent or unknown value means ask_cover', () {
+    test('an absent or unknown value means auto_assign', () {
       expect(
         ChoreSettingsMappers.absencePolicyFromMap(null),
-        AbsencePolicy.askCover,
+        AbsencePolicy.autoAssign,
       );
       expect(
         ChoreSettingsMappers.absencePolicyFromMap(<String, dynamic>{
           'absencePolicy': 'whatever',
         }),
-        AbsencePolicy.askCover,
+        AbsencePolicy.autoAssign,
       );
     });
   });

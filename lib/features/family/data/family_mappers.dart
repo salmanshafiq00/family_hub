@@ -284,7 +284,7 @@ abstract final class FamilyMappers {
   /// Defaults written once when a family is created.
   static Map<String, dynamic> rotationPolicyMap(BaseDocumentMetadata m) =>
       <String, dynamic>{
-        'absencePolicy': 'ask_cover',
+        'absencePolicy': 'auto_assign',
         ...BaseMapper.metadataToMap(m),
       };
 

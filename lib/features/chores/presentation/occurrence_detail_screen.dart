@@ -204,6 +204,10 @@ class _OccurrenceDetailScreenState
               onReassign: () => _run(
                 (_) => ref.reassignWithSheets(context, occurrenceId: _id),
               ),
+              onNeedsCover: () => _run(
+                (_) =>
+                    ref.moveToNeedsCoverWithSheet(context, occurrenceId: _id),
+              ),
               onSkip: () =>
                   _run((_) => ref.skipWithSheet(context, occurrenceId: _id)),
               onUnskip: () => _run(

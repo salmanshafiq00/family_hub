@@ -58,13 +58,8 @@ class ChoresEntry {
 /// Each Phase 3 step appends its entry (templates P3-16, settings P3-17, duty
 /// groups P3-18, ...); keep the order of the road map's route table (3.10).
 final List<ChoresEntry> choresEntries = <ChoresEntry>[
-  ChoresEntry(
-    id: 'today',
-    icon: Icons.today_outlined,
-    title: (l10n) => l10n.todayTitle,
-    subtitle: (l10n) => l10n.todayScopeMine,
-    route: AppRoutes.choresToday,
-  ),
+  // "Today" is NOT here: the Chores tab already has its own Today shortcut in
+  // the app bar, so a second tile only duplicated it.
   ChoresEntry(
     id: 'verify',
     icon: Icons.fact_check_outlined,

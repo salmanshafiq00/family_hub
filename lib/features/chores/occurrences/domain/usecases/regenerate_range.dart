@@ -123,7 +123,7 @@ class RegenerateRange {
       range: DateKeyRange(from, to),
       dateKeys: _dateKeys,
       availabilityIndex: availabilityIndex,
-      policy: policy.valueOrNull ?? AbsencePolicy.askCover,
+      policy: policy.valueOrNull ?? AbsencePolicy.autoAssign,
     );
 
     final byId = <String, ChoreOccurrence>{

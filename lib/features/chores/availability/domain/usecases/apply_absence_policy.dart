@@ -6,6 +6,7 @@ import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_index.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_repository.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_write_plan.dart';
+import 'package:family_hub/features/chores/availability/domain/usecases/auto_share_absent_chores.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/cover_picker.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
@@ -69,6 +70,7 @@ class ApplyAbsencePolicy {
     required this.swaps,
     required this.clock,
     this.inbox = const NoopInboxPort(),
+    this.autoShare,
   });
 
   /// Most chores one run handles (3 documents each; the batch limit is 500).
@@ -81,6 +83,12 @@ class ApplyAbsencePolicy {
   final SwapRepository swaps;
   final Clock clock;
   final InboxPort inbox;
+
+  /// Policy D (`auto_assign`): runs before the affected chores are listed, so
+  /// whatever it moved is no longer "affected". Only a member who may reassign
+  /// chores moves anything; for everybody else it is a no-op and the rest of
+  /// this use case reports the chores like policy A.
+  final AutoShareAbsentChores? autoShare;
 
   Future<Result<AbsenceOutcome>> call({
     required String familyId,
@@ -113,7 +121,13 @@ class ApplyAbsencePolicy {
 
     final policy =
         (await choreSettings.getAbsencePolicy(familyId)).valueOrNull ??
-        AbsencePolicy.askCover;
+        AbsencePolicy.autoAssign;
+    if (policy == AbsencePolicy.autoAssign) {
+      final share = autoShare;
+      if (share != null) {
+        await share(familyId: familyId, actorUid: actorUid);
+      }
+    }
     final listed = await occurrences.listRange(
       familyId,
       from: record.startDate,

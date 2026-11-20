@@ -62,10 +62,10 @@ final absenceReasonsProvider = Provider<List<AbsenceReason>>(
   (ref) => ref.watch(choreCatalogsProvider).activeAbsenceReasons,
 );
 
-/// The live `settings/rotationPolicy` absence policy (default `ask_cover`).
+/// The live `settings/rotationPolicy` absence policy (default `auto_assign`).
 final _absencePolicyStreamProvider = StreamProvider<AbsencePolicy>((ref) {
   final familyId = ref.watch(currentFamilyIdProvider);
-  if (familyId == null) return Stream.value(AbsencePolicy.askCover);
+  if (familyId == null) return Stream.value(AbsencePolicy.autoAssign);
   return ref
       .watch(choreSettingsRepositoryProvider)
       .watchAbsencePolicy(familyId);
@@ -74,7 +74,7 @@ final _absencePolicyStreamProvider = StreamProvider<AbsencePolicy>((ref) {
 /// Synchronous absence policy.
 final rotationPolicyProvider = Provider<AbsencePolicy>(
   (ref) =>
-      ref.watch(_absencePolicyStreamProvider).value ?? AbsencePolicy.askCover,
+      ref.watch(_absencePolicyStreamProvider).value ?? AbsencePolicy.autoAssign,
 );
 
 final updateChoreSettingsProvider = Provider<UpdateChoreSettings>(

@@ -10857,6 +10857,90 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'অজানা সদস্য'**
   String get activityUnknownActor;
+
+  /// No description provided for @choresPolicyAutoAssignTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বয়ংক্রিয় বণ্টন (ডিফল্ট)'**
+  String get choresPolicyAutoAssignTitle;
+
+  /// No description provided for @choresPolicyAutoAssignDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুপস্থিত সদস্যের কাজ অন্য উপলব্ধ সদস্যদের মধ্যে নিজে থেকেই ভাগ হয়ে যায় (আগে একই ডিউটি গ্রুপের সদস্য)। কাউকে না পেলে কাজটি "কাভার দরকার" তালিকায় যায়।'**
+  String get choresPolicyAutoAssignDesc;
+
+  /// No description provided for @choresPolicyAutoAssignExample.
+  ///
+  /// In bn, this message translates to:
+  /// **'উদাহরণ: কেউ ৩ দিন অসুস্থ থাকলে তার কাজ গ্রুপের অন্য সদস্য পেয়ে যায়। ম্যানেজার চাইলে যেকোনো কাজ "কাভার দরকার"-এ সরাতে পারেন।'**
+  String get choresPolicyAutoAssignExample;
+
+  /// No description provided for @availabilityPolicyShare.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার কাজগুলো স্বয়ংক্রিয়ভাবে অন্য সদস্যদের মধ্যে ভাগ হয়ে যাবে। কাউকে না পেলে সেগুলো "কাভার দরকার" তালিকায় যাবে। ম্যানেজারের অ্যাপ খোলা হলে ভাগ হয়।'**
+  String get availabilityPolicyShare;
+
+  /// No description provided for @needsCoverWhyNobody.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ নির্ধারিত নেই'**
+  String get needsCoverWhyNobody;
+
+  /// No description provided for @needsCoverWhyAbsent.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুপস্থিত'**
+  String get needsCoverWhyAbsent;
+
+  /// No description provided for @needsCoverShareNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনই ভাগ করুন'**
+  String get needsCoverShareNow;
+
+  /// No description provided for @needsCoverShareDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজগুলো অন্য সদস্যদের মধ্যে ভাগ করা হয়েছে।'**
+  String get needsCoverShareDone;
+
+  /// No description provided for @needsCoverShareNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখন ভাগ করার মতো কিছু পাওয়া যায়নি।'**
+  String get needsCoverShareNone;
+
+  /// No description provided for @needsCoverCommentTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মন্তব্য (ঐচ্ছিক)'**
+  String get needsCoverCommentTitle;
+
+  /// No description provided for @needsCoverDefaultComment.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাভার তালিকা থেকে বরাদ্দ করা হয়েছে'**
+  String get needsCoverDefaultComment;
+
+  /// No description provided for @occurrenceActionNeedsCover.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাভার দরকারে সরান'**
+  String get occurrenceActionNeedsCover;
+
+  /// No description provided for @needsCoverMoveTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন কাভার দরকার? (ঐচ্ছিক)'**
+  String get needsCoverMoveTitle;
+
+  /// No description provided for @needsCoverMoveDefaultReason.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার কাজটি কাভার দরকারে সরিয়েছেন'**
+  String get needsCoverMoveDefaultReason;
 }
 
 class _AppLocalizationsDelegate

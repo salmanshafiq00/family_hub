@@ -67,145 +67,145 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
 
     return HomeFallbackBack(
       child: Scaffold(
-      appBar: AppBar(
-        leading: homeFallbackLeading(context),
-        title: Text(l10n.inboxTitle),
-        actions: [
-          IconButton(
-            key: const Key('inbox_mark_all'),
-            tooltip: l10n.inboxMarkAllRead,
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            icon: const Icon(Icons.done_all_rounded),
-            onPressed: () {
-              final familyId = ref.read(currentFamilyIdProvider);
-              final uid = ref.read(currentUidProvider);
-              final unread = visibleItems
-                  .where((item) => item.isUnread)
-                  .toList(growable: false);
-              if (unread.isEmpty) return;
-              if (familyId != null && uid != null) {
+        appBar: AppBar(
+          leading: homeFallbackLeading(context),
+          title: Text(l10n.inboxTitle),
+          actions: [
+            IconButton(
+              key: const Key('inbox_mark_all'),
+              tooltip: l10n.inboxMarkAllRead,
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: const Icon(Icons.done_all_rounded),
+              onPressed: () {
+                final familyId = ref.read(currentFamilyIdProvider);
+                final uid = ref.read(currentUidProvider);
+                final unread = visibleItems
+                    .where((item) => item.isUnread)
+                    .toList(growable: false);
+                if (unread.isEmpty) return;
+                if (familyId != null && uid != null) {
+                  unawaited(
+                    ref
+                        .read(markAllReadProvider)(
+                          familyId: familyId,
+                          actorUid: uid,
+                          items: unread,
+                        )
+                        .then((result) {
+                          if (result.failureOrNull != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.errorUnknown)),
+                            );
+                          }
+                        }),
+                  );
+                }
                 unawaited(
                   ref
-                      .read(markAllReadProvider)(
-                        familyId: familyId,
-                        actorUid: uid,
-                        items: unread,
+                      .read(markVirtualInboxReadProvider)(
+                        unread.map((item) => item.id).toList(growable: false),
                       )
-                      .then((result) {
-                        if (result.failureOrNull != null && context.mounted) {
+                      .then((saved) {
+                        if (!saved && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(l10n.errorUnknown)),
                           );
                         }
                       }),
                 );
-              }
-              unawaited(
-                ref
-                    .read(markVirtualInboxReadProvider)(
-                      unread.map((item) => item.id).toList(growable: false),
-                    )
-                    .then((saved) {
-                      if (!saved && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.errorUnknown)),
-                        );
-                      }
-                    }),
-              );
-            },
-          ),
-        ],
-      ),
-      body: inbox.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (failure, _) => ErrorView(
-          message: failure is Network ? l10n.errorNetwork : l10n.errorUnknown,
-          onRetry: () => ref.invalidate(inboxProvider),
+              },
+            ),
+          ],
         ),
-        data: (_) {
-          final items = visibleItems;
-          final todays = <InboxItem>[];
-          final earlier = <InboxItem>[];
-          for (final item in items) {
-            (today.dateKeyOf(item.createdAt) == now ? todays : earlier).add(
-              item,
-            );
-          }
-          final focusId = widget.focusItemId;
-          if (!_focusHandled && focusId != null) {
-            final focused = items
-                .where((item) => item.id == focusId)
-                .firstOrNull;
-            if (focused != null) {
-              _focusHandled = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  unawaited(_open(focused));
-                }
-              });
+        body: inbox.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (failure, _) => ErrorView(
+            message: failure is Network ? l10n.errorNetwork : l10n.errorUnknown,
+            onRetry: () => ref.invalidate(inboxProvider),
+          ),
+          data: (_) {
+            final items = visibleItems;
+            final todays = <InboxItem>[];
+            final earlier = <InboxItem>[];
+            for (final item in items) {
+              (today.dateKeyOf(item.createdAt) == now ? todays : earlier).add(
+                item,
+              );
             }
-          }
-          // P4-24: the list keeps a readable measure on a tablet; the detail
-          // it points at stays a route, so no pane is duplicated here.
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 720),
-              child: ListView(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          size: 18,
-                          color: t.textSecondary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l10n.inboxSparkNote,
-                            style: TextStyle(
-                              color: t.textSecondary,
-                              fontSize: 12,
+            final focusId = widget.focusItemId;
+            if (!_focusHandled && focusId != null) {
+              final focused = items
+                  .where((item) => item.id == focusId)
+                  .firstOrNull;
+              if (focused != null) {
+                _focusHandled = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    unawaited(_open(focused));
+                  }
+                });
+              }
+            }
+            // P4-24: the list keeps a readable measure on a tablet; the detail
+            // it points at stays a route, so no pane is duplicated here.
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            size: 18,
+                            color: t.textSecondary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.inboxSparkNote,
+                              style: TextStyle(
+                                color: t.textSecondary,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (items.isEmpty)
-                    EmptyState(
-                      icon: Icons.notifications_none_rounded,
-                      title: l10n.inboxEmpty,
-                    ),
-                  for (final group in <(String, List<InboxItem>)>[
-                    (l10n.inboxToday, todays),
-                    (l10n.inboxEarlier, earlier),
-                  ])
-                    if (group.$2.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                        child: Text(
-                          group.$1,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(color: t.textSecondary),
-                        ),
+                        ],
                       ),
-                      for (final item in group.$2)
-                        InboxTile(
-                          item: item,
-                          text: inboxTextOf(l10n, formatters, item, members),
-                          onTap: () => unawaited(_open(item)),
+                    ),
+                    if (items.isEmpty)
+                      EmptyState(
+                        icon: Icons.notifications_none_rounded,
+                        title: l10n.inboxEmpty,
+                      ),
+                    for (final group in <(String, List<InboxItem>)>[
+                      (l10n.inboxToday, todays),
+                      (l10n.inboxEarlier, earlier),
+                    ])
+                      if (group.$2.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                          child: Text(
+                            group.$1,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(color: t.textSecondary),
+                          ),
                         ),
-                    ],
-                ],
+                        for (final item in group.$2)
+                          InboxTile(
+                            item: item,
+                            text: inboxTextOf(l10n, formatters, item, members),
+                            onTap: () => unawaited(_open(item)),
+                          ),
+                      ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
       ),
     );
   }

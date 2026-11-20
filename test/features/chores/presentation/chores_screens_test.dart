@@ -177,6 +177,8 @@ void main() {
       await _pump(tester, role: Role.member, withTemplate: true);
 
       expect(find.byKey(const Key('chores_open_today')), findsOneWidget);
+      // Every member can reach their own absences from the app bar.
+      expect(find.byKey(const Key('chores_open_absence')), findsOneWidget);
       expect(find.byKey(const Key('chores_fab_today')), findsNothing);
       expect(find.byKey(const Key('chores_fab_new')), findsNothing);
     });

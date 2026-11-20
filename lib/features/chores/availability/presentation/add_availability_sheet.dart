@@ -76,6 +76,7 @@ String policyLineText(AppLocalizations l10n, PolicyLine line) => switch (line) {
   PolicyLine.ask => l10n.availabilityPolicyAsk,
   PolicyLine.auto => l10n.availabilityPolicyAuto,
   PolicyLine.skip => l10n.availabilityPolicySkip,
+  PolicyLine.share => l10n.availabilityPolicyShare,
 };
 
 class _AddSheet extends ConsumerStatefulWidget {

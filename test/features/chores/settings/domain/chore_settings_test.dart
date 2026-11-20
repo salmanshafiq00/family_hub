@@ -423,10 +423,11 @@ void main() {
         'ask_cover',
         'auto_cover',
         'skip',
+        'auto_assign',
       ]);
       expect(AbsencePolicy.fromId('skip'), AbsencePolicy.skip);
-      expect(AbsencePolicy.fromId('nonsense'), AbsencePolicy.askCover);
-      expect(AbsencePolicy.fromId(null), AbsencePolicy.askCover);
+      expect(AbsencePolicy.fromId('nonsense'), AbsencePolicy.autoAssign);
+      expect(AbsencePolicy.fromId(null), AbsencePolicy.autoAssign);
     });
   });
 }

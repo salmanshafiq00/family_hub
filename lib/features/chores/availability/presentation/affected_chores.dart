@@ -42,10 +42,11 @@ List<MonthKey> monthsOfRange(DateKey start, DateKey end, {int limit = 3}) {
 }
 
 /// Which message tells what the family's policy does for a new absence.
-enum PolicyLine { ask, auto, skip }
+enum PolicyLine { ask, auto, skip, share }
 
 PolicyLine policyLineOf(AbsencePolicy policy) => switch (policy) {
   AbsencePolicy.askCover => PolicyLine.ask,
   AbsencePolicy.autoCover => PolicyLine.auto,
   AbsencePolicy.skip => PolicyLine.skip,
+  AbsencePolicy.autoAssign => PolicyLine.share,
 };

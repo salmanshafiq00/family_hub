@@ -649,7 +649,7 @@ service cloud.firestore {
     }
     function rotationPolicyOk(d) {
       return settingsOk(d)
-        && d.get('absencePolicy', 'ask_cover') in ['ask_cover', 'auto_cover', 'skip'];
+        && d.get('absencePolicy', 'auto_assign') in ['ask_cover', 'auto_cover', 'skip', 'auto_assign'];
     }
     // P3-08: choreTemplates/{id}.  The exact fields ChoreTemplateMappers.toMap
     // writes.  List SIZES are checked here; the per-row shape of `slots`,

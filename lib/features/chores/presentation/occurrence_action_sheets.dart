@@ -48,9 +48,15 @@ extension OccurrenceActionSheets on WidgetRef {
   }
 
   /// Pick a member, then a reason, then move the chore.
+  ///
+  /// The Needs cover list passes [reasonRequired] false: the comment is
+  /// optional there, [initialReason] prefills it (the absence reason) and an
+  /// empty one becomes the default text, so the history never has a blank.
   Future<Result<Object?>?> reassignWithSheets(
     BuildContext context, {
     required String occurrenceId,
+    bool reasonRequired = true,
+    String? initialReason,
   }) async {
     final members = read(membersProvider).value ?? const [];
     final chosen = await showDialog<String>(
@@ -84,11 +90,20 @@ extension OccurrenceActionSheets on WidgetRef {
       ),
     );
     if (chosen == null || !context.mounted) return null;
-    final reason = await showReasonSheet(
+    final asked = await showReasonSheet(
       context,
-      title: context.l10n.occurrenceReassignReasonTitle,
+      title: reasonRequired
+          ? context.l10n.occurrenceReassignReasonTitle
+          : context.l10n.needsCoverCommentTitle,
+      required: reasonRequired,
+      initialText: initialReason == null || initialReason.length <= 300
+          ? initialReason
+          : initialReason.substring(0, 300),
     );
-    if (reason == null || !context.mounted) return null;
+    if (asked == null || !context.mounted) return null;
+    final reason = asked.trim().length >= 3
+        ? asked
+        : context.l10n.needsCoverDefaultComment;
     final familyId = read(currentFamilyIdProvider);
     final uid = read(currentUidProvider);
     if (familyId == null || uid == null) return null;
@@ -100,6 +115,31 @@ extension OccurrenceActionSheets on WidgetRef {
       reason: reason,
     );
     return result;
+  }
+
+  /// A manager moves an owned chore to the Needs cover list. The reason is
+  /// optional (a blank one becomes the default text).
+  Future<Result<Object?>?> moveToNeedsCoverWithSheet(
+    BuildContext context, {
+    required String occurrenceId,
+  }) async {
+    final l10n = context.l10n;
+    final asked = await showReasonSheet(
+      context,
+      title: l10n.needsCoverMoveTitle,
+      required: false,
+    );
+    if (asked == null || !context.mounted) return null;
+    final familyId = read(currentFamilyIdProvider);
+    final uid = read(currentUidProvider);
+    if (familyId == null || uid == null) return null;
+    return read(reassignOccurrenceProvider).moveToNeedsCover(
+      familyId: familyId,
+      actorUid: uid,
+      occurrenceId: occurrenceId,
+      reason: asked,
+      defaultReason: l10n.needsCoverMoveDefaultReason,
+    );
   }
 
   /// Skip with a reason (manager only).

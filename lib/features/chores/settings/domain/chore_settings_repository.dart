@@ -11,7 +11,12 @@ enum AbsencePolicy {
   autoCover('auto_cover'),
 
   /// C: the manager marks the occurrence skipped.
-  skip('skip');
+  skip('skip'),
+
+  /// D (the default): the absent member's chores are handed to other available
+  /// members (the same duty group first) without asking; a chore nobody can
+  /// take lands on the Needs cover list. A manager can move any chore back.
+  autoAssign('auto_assign');
 
   const AbsencePolicy(this.id);
 
@@ -21,7 +26,7 @@ enum AbsencePolicy {
     for (final policy in values) {
       if (policy.id == id) return policy;
     }
-    return AbsencePolicy.askCover;
+    return AbsencePolicy.autoAssign;
   }
 }
 
@@ -49,7 +54,7 @@ abstract interface class ChoreSettingsRepository {
   /// Live `settings/rotationPolicy`.
   Stream<AbsencePolicy> watchAbsencePolicy(String familyId);
 
-  /// One-shot read of `settings/rotationPolicy` (default `ask_cover`).
+  /// One-shot read of `settings/rotationPolicy` (default `auto_assign`).
   Future<Result<AbsencePolicy>> getAbsencePolicy(String familyId);
 
   /// Writes the absence policy and the audit entry in one batch.

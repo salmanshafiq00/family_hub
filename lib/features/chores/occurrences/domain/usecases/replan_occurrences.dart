@@ -116,7 +116,7 @@ class ReplanOccurrences {
       range: DateKeyRange(from, last),
       dateKeys: _dateKeys,
       availabilityIndex: availabilityIndex,
-      policy: policy.valueOrNull ?? AbsencePolicy.askCover,
+      policy: policy.valueOrNull ?? AbsencePolicy.autoAssign,
     );
     final byId = <String, OccurrenceDraft>{
       for (final draft in drafts) draft.id: draft,

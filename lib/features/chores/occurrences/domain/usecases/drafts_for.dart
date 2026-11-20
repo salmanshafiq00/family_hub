@@ -58,7 +58,7 @@ Future<Result<List<OccurrenceDraft>>> draftsFor({
       range: range,
       dateKeys: dateKeys,
       availabilityIndex: availabilityIndex,
-      policy: policy.valueOrNull ?? AbsencePolicy.askCover,
+      policy: policy.valueOrNull ?? AbsencePolicy.autoAssign,
     ),
   );
 }

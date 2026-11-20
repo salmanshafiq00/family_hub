@@ -131,7 +131,7 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
             absenceNeedsApproval: d.absenceNeedsApproval,
             workloadVisibleToMembers: d.workloadVisibleToMembers,
           ),
-          policy: AbsencePolicy.askCover,
+          policy: AbsencePolicy.autoAssign,
           completeForOthers: mayEditPermissions
               ? PermissionSettings.defaults.membersCanCompleteForOthers
               : state.completeForOthers,
