@@ -4717,6 +4717,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get inboxMarkAllRead => 'সব পড়া হয়েছে';
 
   @override
+  String get inboxClearAll => 'সব বিজ্ঞপ্তি মুছুন';
+
+  @override
+  String get inboxClearAllConfirm =>
+      'এটি সব বিজ্ঞপ্তি লুকিয়ে ফেলবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।';
+
+  @override
+  String get inboxClearAllAction => 'সব মুছুন';
+
+  @override
   String get inboxUnreadSemantics => 'অপঠিত';
 
   @override

@@ -13,6 +13,7 @@ import 'package:family_hub/features/notifications/domain/inbox_repository.dart';
 import 'package:family_hub/features/notifications/domain/no_inbox_repository.dart';
 import 'package:family_hub/features/notifications/domain/inbox_visibility.dart';
 import 'package:family_hub/features/notifications/domain/usecases/archive_inbox_item.dart';
+import 'package:family_hub/features/notifications/domain/usecases/clear_all_inbox_items.dart';
 import 'package:family_hub/features/notifications/domain/usecases/mark_all_read.dart';
 import 'package:family_hub/features/notifications/domain/usecases/mark_inbox_read.dart';
 import 'package:family_hub/features/notifications/domain/virtual_inbox.dart';
@@ -171,6 +172,14 @@ final markVirtualInboxReadProvider =
 
 final archiveInboxItemProvider = Provider<ArchiveInboxItem>(
   (ref) => ArchiveInboxItem(
+    inbox: ref.watch(inboxRepositoryProvider),
+    families: ref.watch(familyRepositoryProvider),
+    clock: ref.watch(clockProvider),
+  ),
+);
+
+final clearAllInboxItemsProvider = Provider<ClearAllInboxItems>(
+  (ref) => ClearAllInboxItems(
     inbox: ref.watch(inboxRepositoryProvider),
     families: ref.watch(familyRepositoryProvider),
     clock: ref.watch(clockProvider),

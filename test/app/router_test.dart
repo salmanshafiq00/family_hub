@@ -346,6 +346,60 @@ void main() {
       expect(h.path(tester), '/home');
     });
 
+    testWidgets('member: activity page redirects to Home', (tester) async {
+      final h = await _pumpApp(
+        tester,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        role: MemberRole.member,
+      );
+      h.router(tester).go(AppRoutes.activity);
+      await tester.pumpAndSettle();
+      expect(h.path(tester), '/home');
+    });
+
+    testWidgets('member: dev gallery redirects to Home', (tester) async {
+      final h = await _pumpApp(
+        tester,
+        flavor: Flavor.dev,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        role: MemberRole.member,
+      );
+      h.router(tester).go(AppRoutes.devGallery);
+      await tester.pumpAndSettle();
+      expect(h.path(tester), '/home');
+    });
+
+    testWidgets('admin: can open activity page', (tester) async {
+      final h = await _pumpApp(
+        tester,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        role: MemberRole.admin,
+      );
+      h.router(tester).go(AppRoutes.activity);
+      await tester.pumpAndSettle();
+      expect(h.path(tester), AppRoutes.activity);
+    });
+
+    testWidgets('admin: can open dev gallery', (tester) async {
+      final h = await _pumpApp(
+        tester,
+        flavor: Flavor.dev,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        role: MemberRole.admin,
+      );
+      h.router(tester).go(AppRoutes.devGallery);
+      await tester.pumpAndSettle();
+      expect(h.path(tester), AppRoutes.devGallery);
+    });
+
     testWidgets('an unknown path shows the not-found screen', (tester) async {
       final h = await _pumpApp(
         tester,
@@ -638,6 +692,8 @@ void main() {
         user: _verified,
         hasProfile: true,
         membership: MembershipStatus.active,
+        role: MemberRole.admin,
+        size: const Size(400, 1400),
       );
       await _openTab(tester, 'family');
       expect(find.byKey(const Key('family_dev_tokens')), findsOneWidget);
@@ -650,10 +706,28 @@ void main() {
         user: _verified,
         hasProfile: true,
         membership: MembershipStatus.active,
+        role: MemberRole.admin,
         flavor: Flavor.prod,
+        size: const Size(400, 1400),
       );
       await _openTab(tester, 'family');
       expect(find.byKey(const Key('family_dev_tokens')), findsNothing);
+      expect(find.byKey(const Key('family_dev_gallery')), findsNothing);
+    });
+
+    testWidgets('member does not see activity or dev gallery in Family tab', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        user: _verified,
+        hasProfile: true,
+        membership: MembershipStatus.active,
+        role: MemberRole.member,
+        size: const Size(400, 1400),
+      );
+      await _openTab(tester, 'family');
+      expect(find.byKey(const Key('family_activity')), findsNothing);
       expect(find.byKey(const Key('family_dev_gallery')), findsNothing);
     });
   });

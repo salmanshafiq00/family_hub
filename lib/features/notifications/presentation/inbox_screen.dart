@@ -9,6 +9,7 @@ import 'package:family_hub/features/notifications/presentation/inbox_open_action
 import 'package:family_hub/features/notifications/presentation/inbox_providers.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_text.dart';
 import 'package:family_hub/features/notifications/presentation/inbox_tile.dart';
+import 'package:family_hub/features/notifications/presentation/reminder_providers.dart';
 import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/home_fallback_back.dart';
@@ -51,6 +52,67 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     } finally {
       _opening = false;
       _lastOpenEnd = DateTime.now();
+    }
+  }
+
+  Future<void> _confirmClearAll(
+    BuildContext context,
+    List<InboxItem> items,
+  ) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.inboxClearAll),
+        content: Text(l10n.inboxClearAllConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.inboxClearAllAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    final familyId = ref.read(currentFamilyIdProvider);
+    final uid = ref.read(currentUidProvider);
+    if (familyId == null || uid == null) return;
+
+    // Prefer clearing read notification items if any exist; otherwise clear all.
+    final readItems =
+        items.where((item) => !item.isUnread).toList(growable: false);
+    final itemsToClear = readItems.isNotEmpty ? readItems : items;
+
+    // Dismiss virtual items locally.
+    final virtualIds =
+        itemsToClear.map((item) => item.id).toList(growable: false);
+    unawaited(ref.read(markVirtualInboxReadProvider)(virtualIds));
+
+    // Hide all notifications from the system tray.
+    try {
+      unawaited(ref.read(reminderSchedulerProvider).cancelAll());
+    } catch (_) {
+      // Ignored if reminderSchedulerProvider is not wired in test environment.
+    }
+
+    // Archive stored items in one batch (soft delete).
+    final result = await ref.read(clearAllInboxItemsProvider)(
+      familyId: familyId,
+      actorUid: uid,
+      items: itemsToClear,
+    );
+
+    if (!mounted) return;
+    if (result.failureOrNull != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.errorUnknown)),
+      );
     }
   }
 
@@ -115,6 +177,15 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 );
               },
             ),
+            if (visibleItems.isNotEmpty)
+              IconButton(
+                key: const Key('inbox_clear_all'),
+                tooltip: l10n.inboxClearAll,
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                icon: const Icon(Icons.delete_sweep_rounded),
+                onPressed: () =>
+                    unawaited(_confirmClearAll(context, visibleItems)),
+              ),
           ],
         ),
         body: inbox.when(

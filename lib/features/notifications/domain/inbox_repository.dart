@@ -27,4 +27,12 @@ abstract interface class InboxRepository {
     required String id,
     required DateTime at,
   });
+
+  /// Sets `archivedAt` on every id in [ids] (one batch, EVERYDAY write).
+  Future<Result<void>> archiveAll(
+    String familyId, {
+    required String actorId,
+    required List<String> ids,
+    required DateTime at,
+  });
 }

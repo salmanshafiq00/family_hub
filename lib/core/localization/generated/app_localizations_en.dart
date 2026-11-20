@@ -4735,6 +4735,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inboxMarkAllRead => 'Mark all as read';
 
   @override
+  String get inboxClearAll => 'Clear all notifications';
+
+  @override
+  String get inboxClearAllConfirm =>
+      'This will hide all notifications. This cannot be undone.';
+
+  @override
+  String get inboxClearAllAction => 'Clear all';
+
+  @override
   String get inboxUnreadSemantics => 'Unread';
 
   @override

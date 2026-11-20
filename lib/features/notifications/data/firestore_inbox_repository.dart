@@ -73,4 +73,21 @@ class FirestoreInboxRepository implements InboxRepository {
       ),
     ),
   );
+
+  @override
+  Future<Result<void>> archiveAll(
+    String familyId, {
+    required String actorId,
+    required List<String> ids,
+    required DateTime at,
+  }) => guardWrite(
+    () => _tx.runBatch((batch) {
+      for (final id in ids) {
+        batch.update(
+          FirestorePaths.inboxDoc(familyId, id),
+          InboxMappers.archiveMap(actorId: actorId, at: at),
+        );
+      }
+    }),
+  );
 }

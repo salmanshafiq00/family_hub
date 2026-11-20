@@ -119,14 +119,19 @@ class FamilyScreen extends ConsumerWidget {
                   ),
                 ),
                 // The feed is otherwise reachable only from a dashboard card,
-                // which is off by default; admins need a stable entry to it.
-                FamilySettingsTile(
-                  key: const Key('family_activity'),
-                  icon: Icons.history_rounded,
-                  label: l10n.activityTitle,
-                  onTap: () => context.push(AppRoutes.activity),
+                // which is off by default; admins and finance managers need a stable entry to it.
+                PermissionGate(
+                  allowed: ref.can(Permission.manageDashboardLayout),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: FamilySettingsTile(
+                      key: const Key('family_activity'),
+                      icon: Icons.history_rounded,
+                      label: l10n.activityTitle,
+                      onTap: () => context.push(AppRoutes.activity),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
                 FamilySettingsTile(
                   key: const Key('family_dashboard_customize'),
                   icon: Icons.dashboard_customize_outlined,
@@ -192,11 +197,17 @@ class FamilyScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   // The component gallery (Step 11).  A route alone is not reachable
                   // on a phone, so the dev flavor gets an entry next to the tokens.
-                  FamilySettingsTile(
-                    key: const Key('family_dev_gallery'),
-                    icon: Icons.widgets_outlined,
-                    label: l10n.devGalleryTitle,
-                    onTap: () => context.push(AppRoutes.devGallery),
+                  PermissionGate(
+                    allowed: ref.can(Permission.manageDashboardLayout),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: FamilySettingsTile(
+                        key: const Key('family_dev_gallery'),
+                        icon: Icons.widgets_outlined,
+                        label: l10n.devGalleryTitle,
+                        onTap: () => context.push(AppRoutes.devGallery),
+                      ),
+                    ),
                   ),
                 ],
                 const SizedBox(height: 24),

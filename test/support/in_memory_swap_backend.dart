@@ -257,4 +257,18 @@ class InMemoryInboxBackend implements InboxRepository {
     if (item != null) items[id] = item.copyWith(archivedAt: at);
     return const Success<void>(null);
   }
+
+  @override
+  Future<Result<void>> archiveAll(
+    String familyId, {
+    required String actorId,
+    required List<String> ids,
+    required DateTime at,
+  }) async {
+    for (final id in ids) {
+      final item = items[id];
+      if (item != null) items[id] = item.copyWith(archivedAt: at);
+    }
+    return const Success<void>(null);
+  }
 }

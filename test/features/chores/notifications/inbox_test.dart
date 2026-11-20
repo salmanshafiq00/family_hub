@@ -10,6 +10,7 @@ import 'package:family_hub/features/notifications/domain/inbox_item.dart';
 import 'package:family_hub/features/notifications/domain/inbox_port.dart';
 import 'package:family_hub/features/notifications/domain/inbox_writer.dart';
 import 'package:family_hub/features/notifications/domain/usecases/archive_inbox_item.dart';
+import 'package:family_hub/features/notifications/domain/usecases/clear_all_inbox_items.dart';
 import 'package:family_hub/features/notifications/domain/usecases/mark_all_read.dart';
 import 'package:family_hub/features/notifications/domain/usecases/mark_inbox_read.dart';
 import 'package:family_hub/features/notifications/domain/virtual_inbox.dart';
@@ -124,6 +125,34 @@ void main() {
       itemId: 'nope',
     );
     expect(missing.failureOrNull, isA<NotFound>());
+  });
+
+  test('clear all archives stored rows of actor and ignores virtual rows', () async {
+    final clearAll = ClearAllInboxItems(
+      inbox: fixture.inboxRows,
+      families: fixture.families,
+      clock: fixture.clock,
+    );
+    final result = await clearAll(
+      familyId: familyId,
+      actorUid: 'cara',
+      items: <InboxItem>[
+        fixture.inboxRows.items['i1']!,
+        fixture.inboxRows.items['i2']!,
+        InboxItem(
+          id: 'v:budget:2026-10',
+          toMemberId: 'cara',
+          type: VirtualInboxType.budgetAlert,
+          refType: 'budget',
+          refId: '2026-10',
+          createdAt: fixture.clock.nowUtc(),
+        ),
+      ],
+    );
+
+    expect(result.valueOrNull, 1);
+    expect(fixture.inboxRows.items['i1']!.isArchived, isTrue);
+    expect(fixture.inboxRows.items['i2']!.isArchived, isFalse);
   });
 
   test('the writer enforces the closed type list and six parameters', () {

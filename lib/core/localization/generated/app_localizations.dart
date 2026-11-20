@@ -8254,6 +8254,24 @@ abstract class AppLocalizations {
   /// **'সব পড়া হয়েছে'**
   String get inboxMarkAllRead;
 
+  /// No description provided for @inboxClearAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব বিজ্ঞপ্তি মুছুন'**
+  String get inboxClearAll;
+
+  /// No description provided for @inboxClearAllConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'এটি সব বিজ্ঞপ্তি লুকিয়ে ফেলবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।'**
+  String get inboxClearAllConfirm;
+
+  /// No description provided for @inboxClearAllAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব মুছুন'**
+  String get inboxClearAllAction;
+
   /// No description provided for @inboxUnreadSemantics.
   ///
   /// In bn, this message translates to:

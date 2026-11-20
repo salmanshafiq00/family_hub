@@ -2,6 +2,7 @@ import 'package:family_hub/app/flavor.dart';
 import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/app/routing/modal_route_tracker.dart';
 import 'package:family_hub/app/routing/not_found_screen.dart';
+import 'package:family_hub/app/routing/onboarding_routes.dart';
 import 'package:family_hub/app/routing/redirect_rules.dart';
 import 'package:family_hub/app/routing/settings_routes.dart';
 import 'package:family_hub/app/routing/session_phase.dart';
@@ -10,21 +11,12 @@ import 'package:family_hub/app/routing/splash_screen.dart';
 import 'package:family_hub/app/shell/app_shell.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
-import 'package:family_hub/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:family_hub/features/auth/presentation/screens/login_screen.dart';
-import 'package:family_hub/features/auth/presentation/screens/sign_up_screen.dart';
-import 'package:family_hub/features/auth/presentation/screens/verify_email_screen.dart';
-import 'package:family_hub/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:family_hub/features/dashboard/presentation/home_screen.dart';
 import 'package:family_hub/features/family/presentation/family_screen.dart';
-import 'package:family_hub/features/family/presentation/screens/create_family_screen.dart';
-import 'package:family_hub/features/family/presentation/screens/family_choice_screen.dart';
 import 'package:family_hub/features/family/presentation/screens/family_settings_screen.dart';
 import 'package:family_hub/features/family/presentation/screens/invitations_screen.dart';
-import 'package:family_hub/features/family/presentation/screens/join_family_screen.dart';
 import 'package:family_hub/features/family/presentation/screens/member_profile_screen.dart';
 import 'package:family_hub/features/family/presentation/screens/members_screen.dart';
-import 'package:family_hub/features/family/presentation/screens/pending_screen.dart';
 import 'package:family_hub/features/family/presentation/screens/relationships_screen.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:family_hub/features/family/presentation/screens/roles_screen.dart';
@@ -180,6 +172,23 @@ final routerProvider = Provider<GoRouter>((ref) {
             )) {
           return AppRoutes.home;
         }
+        // Activity feed and Dev Gallery: only admin and finance manager.
+        if (path == AppRoutes.activity &&
+            !ref.read(
+              canProvider(
+                const PermissionQuery(Permission.manageDashboardLayout),
+              ),
+            )) {
+          return AppRoutes.home;
+        }
+        if (path == AppRoutes.devGallery &&
+            !ref.read(
+              canProvider(
+                const PermissionQuery(Permission.manageDashboardLayout),
+              ),
+            )) {
+          return AppRoutes.home;
+        }
         for (final module in disabled) {
           final base = module.basePath;
           if (path == base || path.startsWith('$base/')) return AppRoutes.home;
@@ -193,56 +202,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // ── Auth ────────────────────────────────────────────────────────────
-      GoRoute(
-        path: AppRoutes.welcome,
-        builder: (context, state) => const WelcomeScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.signUp,
-        builder: (context, state) => const SignUpScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.verifyEmail,
-        builder: (context, state) => const VerifyEmailScreen(),
-      ),
-
-      // ── Onboarding gates ────────────────────────────────────────────────
-      GoRoute(
-        path: AppRoutes.profileSetup,
-        builder: (context, state) => const ProfileSetupScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.familyChoice,
-        builder: (context, state) => const FamilyChoiceScreen(),
-        routes: [
-          GoRoute(
-            path: 'create',
-            builder: (context, state) => const CreateFamilyScreen(),
-          ),
-          GoRoute(
-            path: 'join',
-            builder: (context, state) => const JoinFamilyScreen(),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: AppRoutes.pending,
-        builder: (context, state) => const PendingScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.disabled,
-        builder: (context, state) => const DisabledScreen(),
-      ),
-
+      ...authAndOnboardingRoutes(),
       ...settingsRoutes(flavor),
 
       // ── The shell ───────────────────────────────────────────────────────

@@ -173,6 +173,22 @@ void main() {
     );
   });
 
+  testWidgets('clear all notifications dismisses them after confirmation', (tester) async {
+    fixture.inboxRows.items['i1'] = row('i1', read: true);
+    await open(tester);
+
+    expect(find.byKey(const Key('inbox_clear_all')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('inbox_clear_all')));
+    await tester.pumpAndSettle();
+
+    // Confirm dialog is shown
+    expect(find.text('Clear all notifications'), findsOneWidget);
+    await tester.tap(find.text('Clear all'));
+    await tester.pumpAndSettle();
+
+    expect(fixture.inboxRows.items['i1']!.isArchived, isTrue);
+  });
+
   testWidgets('an empty inbox says so', (tester) async {
     await open(tester);
     expect(find.text('No notifications yet'), findsOneWidget);

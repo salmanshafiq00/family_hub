@@ -31,4 +31,12 @@ final class NoInboxRepository implements InboxRepository {
     required String id,
     required DateTime at,
   }) async => const Failure<void>(Unknown('inbox repository not wired'));
+
+  @override
+  Future<Result<void>> archiveAll(
+    String familyId, {
+    required String actorId,
+    required List<String> ids,
+    required DateTime at,
+  }) async => const Failure<void>(Unknown('inbox repository not wired'));
 }
