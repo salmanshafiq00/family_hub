@@ -39,6 +39,8 @@ final class StarterTemplate {
     this.instructions = '',
     this.subtasks = const <TemplateSubtask>[],
     this.verification = VerificationMode.off,
+    this.iconKey,
+    this.colorIndex,
   });
 
   /// `[a-z0-9_]{1,24}`; the template id is `tpl_<seedKey>`.
@@ -55,6 +57,11 @@ final class StarterTemplate {
   final List<TemplateSubtask> subtasks;
   final VerificationMode verification;
   final Confidence confidence;
+
+  /// A key of `choreIcons` and an index into the 24-colour palette; null means
+  /// "follow the group".
+  final String? iconKey;
+  final int? colorIndex;
 
   /// The deterministic id the apply use case writes (`tpl_sweep`, …).
   String get templateId => 'tpl_$seedKey';
@@ -78,6 +85,8 @@ final class StarterTemplate {
         subtasks: subtasks,
         verification: verification,
         startDate: startDate,
+        iconKey: iconKey,
+        colorIndex: colorIndex,
       );
 
   @override
@@ -92,6 +101,8 @@ final class StarterTemplate {
       other.instructions == instructions &&
       other.subtasks.length == subtasks.length &&
       other.verification == verification &&
+      other.iconKey == iconKey &&
+      other.colorIndex == colorIndex &&
       other.confidence == confidence;
 
   @override
@@ -105,6 +116,8 @@ final class StarterTemplate {
     instructions,
     Object.hashAll(subtasks),
     verification,
+    iconKey,
+    colorIndex,
     confidence,
   );
 

@@ -46,7 +46,7 @@ void main() {
     expect(find.byKey(const ValueKey<String>('starter_next')), findsNothing);
   });
 
-  testWidgets('the review shows the confidence legend and ticks only High', (
+  testWidgets('the review shows the confidence legend and ticks every line', (
     tester,
   ) async {
     await open(tester);
@@ -56,7 +56,9 @@ void main() {
       find.byKey(const ValueKey<String>('starter_confidence_legend')),
       findsOneWidget,
     );
-    final sweep = find.byKey(const ValueKey<String>('starter_template_sweep'));
+    final sweep = find.byKey(
+      const ValueKey<String>('starter_template_living_room'),
+    );
     expect(tester.widget<Checkbox>(sweep).value, isTrue);
 
     final dinner = find.byKey(
@@ -67,8 +69,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(tester.widget<Checkbox>(dinner).value, isFalse);
-    expect(find.text('please confirm'), findsWidgets);
+    expect(tester.widget<Checkbox>(dinner).value, isTrue);
   });
 
   testWidgets('applying creates the chores, then shows Open Today', (
@@ -85,8 +86,8 @@ void main() {
       findsOneWidget,
     );
     final templates = fixture.chores.templates[ChoresFixture.familyId]!;
-    expect(templates.keys, contains('tpl_sweep'));
-    expect(templates['tpl_dinner'], isNull);
+    expect(templates.keys, contains('tpl_living_room'));
+    expect(templates['tpl_dinner'], isNotNull);
     expect(fixture.chores.dutyGroups.groups[ChoresFixture.familyId], isNotNull);
   });
 
@@ -109,7 +110,7 @@ void main() {
       anyOf(isNull, isEmpty),
     );
     final template =
-        fixture.chores.templates[ChoresFixture.familyId]!['tpl_sweep']!;
+        fixture.chores.templates[ChoresFixture.familyId]!['tpl_living_room']!;
     expect(template.draft.assignee.strategy, AssigneeStrategy.manual);
     expect(template.draft.assignee.dutyGroupId, isNull);
   });

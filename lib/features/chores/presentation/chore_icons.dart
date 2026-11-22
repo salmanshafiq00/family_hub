@@ -229,6 +229,22 @@ const List<ChoreIconDef> choreIcons = <ChoreIconDef>[
   ChoreIconDef('paint', Icons.format_paint_outlined, 'রং', 'Paint'),
   ChoreIconDef('carpentry', Icons.carpenter_outlined, 'কাঠের কাজ', 'Carpentry'),
   ChoreIconDef('pest', Icons.cruelty_free_outlined, 'প্রাণী', 'Animal'),
+  // ── Starter pack ────────────────────────────────────────────────────────
+  ChoreIconDef('dinner', Icons.dinner_dining_outlined, 'রাতের খাবার', 'Dinner'),
+  ChoreIconDef(
+    'trash_sweep',
+    Icons.delete_sweep_outlined,
+    'ময়লার বেলচা',
+    'Dustpan',
+  ),
+  ChoreIconDef(
+    'countertops',
+    Icons.countertops_outlined,
+    'কাউন্টারটপ',
+    'Countertop',
+  ),
+  ChoreIconDef('filter', Icons.filter_alt_outlined, 'ফিল্টার', 'Filter'),
+  ChoreIconDef('shelves', Icons.shelves, 'তাক', 'Shelves'),
 ];
 
 final Map<String, ChoreIconDef> _iconsByKey = <String, ChoreIconDef>{

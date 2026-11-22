@@ -56,12 +56,12 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
   }
 
   Future<void> _confirmClearAll(
-    BuildContext context,
+    BuildContext dialogContext,
     List<InboxItem> items,
   ) async {
-    final l10n = context.l10n;
+    final l10n = dialogContext.l10n;
     final confirmed = await showDialog<bool>(
-      context: context,
+      context: dialogContext,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.inboxClearAll),
         content: Text(l10n.inboxClearAllConfirm),
@@ -78,6 +78,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
       ),
     );
     if (confirmed != true) return;
+    // Guard State.context, not the passed-in one, after the await.
     if (!mounted) return;
 
     final familyId = ref.read(currentFamilyIdProvider);
@@ -85,13 +86,15 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     if (familyId == null || uid == null) return;
 
     // Prefer clearing read notification items if any exist; otherwise clear all.
-    final readItems =
-        items.where((item) => !item.isUnread).toList(growable: false);
+    final readItems = items
+        .where((item) => !item.isUnread)
+        .toList(growable: false);
     final itemsToClear = readItems.isNotEmpty ? readItems : items;
 
     // Dismiss virtual items locally.
-    final virtualIds =
-        itemsToClear.map((item) => item.id).toList(growable: false);
+    final virtualIds = itemsToClear
+        .map((item) => item.id)
+        .toList(growable: false);
     unawaited(ref.read(markVirtualInboxReadProvider)(virtualIds));
 
     // Hide all notifications from the system tray.
@@ -110,9 +113,8 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
 
     if (!mounted) return;
     if (result.failureOrNull != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.errorUnknown)),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.errorUnknown)));
     }
   }
 

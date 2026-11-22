@@ -173,7 +173,9 @@ void main() {
     );
   });
 
-  testWidgets('clear all notifications dismisses them after confirmation', (tester) async {
+  testWidgets('clear all notifications dismisses them after confirmation', (
+    tester,
+  ) async {
     fixture.inboxRows.items['i1'] = row('i1', read: true);
     await open(tester);
 

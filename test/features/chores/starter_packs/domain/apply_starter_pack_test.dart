@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../chores_test_helpers.dart';
 
 /// P3-19: [ApplyStarterPack] against the in-memory backend — idempotence,
-/// "Medium is unticked", family edits win, the rotation choice and the audit.
+/// "every line ticked", family edits win, the rotation choice and the audit.
 void main() {
   late ChoresFixture fixture;
   late ApplyStarterPack apply;
@@ -82,12 +82,16 @@ void main() {
       final templates = fixture.chores.templates[familyId]!;
       expect(
         templates.keys,
-        containsAll(<String>['tpl_sweep', 'tpl_fridge_weekly']),
+        containsAll(<String>['tpl_living_room', 'tpl_fridge_monthly']),
       );
-      expect(templates['tpl_dinner'], isNull, reason: 'Medium is unticked');
-      final sweep = templates['tpl_sweep']!;
+      expect(templates, hasLength(17));
+      final sweep = templates['tpl_living_room']!;
       expect(sweep.builtIn, isTrue);
-      expect(sweep.seedKey, 'sweep');
+      expect(sweep.seedKey, 'living_room');
+      expect(sweep.draft.iconKey, 'living');
+      expect(sweep.draft.colorIndex, 5);
+      expect(sweep.draft.slots, hasLength(3));
+      expect(sweep.draft.subtasks, hasLength(5));
       expect(sweep.draft.assignee.strategy, AssigneeStrategy.rotation);
       expect(sweep.draft.assignee.dutyGroupId, 'duty_family_pdf');
 
@@ -125,18 +129,15 @@ void main() {
     },
   );
 
-  test(
-    'only the selected lines are created; a Medium line stays unticked',
-    () async {
-      expect(high, isNot(contains('dinner')));
-      final outcome = await run(selection: <String>{'sweep'});
+  test('only the selected lines are created', () async {
+    final outcome = await run(selection: <String>{'living_room'});
 
-      expect(outcome.templatesCreated, 1);
-      expect(fixture.chores.templates[familyId]!.keys, <String>['tpl_sweep']);
-      expect(fixture.chores.templates[familyId]!['tpl_dinner'], isNull);
-      expect(fixture.chores.templates[familyId]!['tpl_doormat'], isNull);
-    },
-  );
+    expect(outcome.templatesCreated, 1);
+    expect(fixture.chores.templates[familyId]!.keys, <String>[
+      'tpl_living_room',
+    ]);
+    expect(fixture.chores.templates[familyId]!['tpl_dinner'], isNull);
+  });
 
   test(
     'a family-edited group keeps its name while missing groups are added',
@@ -166,18 +167,18 @@ void main() {
       fixture.chores.dutyGroups.groups[familyId]?['duty_family_pdf'],
       isNull,
     );
-    final template = fixture.chores.templates[familyId]!['tpl_sweep']!;
+    final template = fixture.chores.templates[familyId]!['tpl_living_room']!;
     expect(template.draft.assignee.strategy, AssigneeStrategy.manual);
     expect(template.draft.assignee.dutyGroupId, isNull);
   });
 
   test('a family-edited template is skipped, not overwritten', () async {
     fixture.chores.templates[familyId] = <String, ChoreTemplate>{
-      'tpl_sweep': ChoreTemplate(
-        id: 'tpl_sweep',
+      'tpl_living_room': ChoreTemplate(
+        id: 'tpl_living_room',
         draft: aTemplate(nameBn: 'আমাদের নিজের ঝাড়ু'),
         builtIn: true,
-        seedKey: 'sweep',
+        seedKey: 'living_room',
       ),
     };
 
@@ -186,7 +187,7 @@ void main() {
     expect(outcome.templatesCreated, high.length - 1);
     expect(outcome.templatesSkipped, 1);
     expect(
-      fixture.chores.templates[familyId]!['tpl_sweep']!.draft.nameBn,
+      fixture.chores.templates[familyId]!['tpl_living_room']!.draft.nameBn,
       'আমাদের নিজের ঝাড়ু',
     );
   });
