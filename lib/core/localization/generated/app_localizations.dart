@@ -7234,6 +7234,66 @@ abstract class AppLocalizations {
   /// **'স্টার্টার প্যাক'**
   String get starterPackTitle;
 
+  /// No description provided for @starterListTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্টার্টার প্যাকের তালিকা'**
+  String get starterListTitle;
+
+  /// No description provided for @starterListEdit.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা বদলান'**
+  String get starterListEdit;
+
+  /// No description provided for @starterListBuiltInNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'এটি অ্যাপের নিজস্ব তালিকা। কাজ যোগ, বদল বা মুছতে \"নিজের মতো করুন\" চাপুন।'**
+  String get starterListBuiltInNote;
+
+  /// No description provided for @starterListCustomNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'এটি আপনার পরিবারের নিজের তালিকা। স্টার্টার প্যাক এটিই ব্যবহার করে।'**
+  String get starterListCustomNote;
+
+  /// No description provided for @starterListCustomise.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজের মতো করুন'**
+  String get starterListCustomise;
+
+  /// No description provided for @starterListReset.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপের তালিকায় ফিরুন'**
+  String get starterListReset;
+
+  /// No description provided for @starterListResetTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা রিসেট করবেন?'**
+  String get starterListResetTitle;
+
+  /// No description provided for @starterListResetMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নিজের তালিকা মুছে যাবে এবং অ্যাপের তালিকা আবার ব্যবহার হবে। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।'**
+  String get starterListResetMessage;
+
+  /// No description provided for @starterListDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা থেকে মুছবেন?'**
+  String get starterListDeleteTitle;
+
+  /// No description provided for @starterListDeleteMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজটি আর স্টার্টার প্যাকে দেখানো হবে না। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।'**
+  String get starterListDeleteMessage;
+
   /// No description provided for @starterPackSubtitle.
   ///
   /// In bn, this message translates to:

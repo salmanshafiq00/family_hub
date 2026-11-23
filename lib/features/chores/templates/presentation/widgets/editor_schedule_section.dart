@@ -20,12 +20,17 @@ class EditorScheduleSection extends ConsumerWidget {
     required this.draft,
     required this.controller,
     required this.enabled,
+    this.showDates = true,
     super.key,
   });
 
   final TemplateDraft draft;
   final TemplateEditorController controller;
   final bool enabled;
+
+  /// False in the starter-pack editor: a pack line has no start or end date
+  /// (a pack is applied "from today").
+  final bool showDates;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,59 +78,64 @@ class EditorScheduleSection extends ConsumerWidget {
           today: today,
           formatters: formatters,
         ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              key: const ValueKey<String>('start_date'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: enabled
-                  ? () async {
-                      final picked = await _pickDate(
-                        context,
-                        draft.startDate,
-                        first: today.addDays(-366),
-                      );
-                      if (picked != null) controller.setStartDate(picked);
-                    }
-                  : null,
-              icon: const Icon(Icons.event_available_outlined),
-              label: Text(
-                l10n.choreEditorStartDate(_text(formatters, draft.startDate)),
+        if (showDates) const SizedBox(height: 16),
+        if (showDates)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                key: const ValueKey<String>('start_date'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+                onPressed: enabled
+                    ? () async {
+                        final picked = await _pickDate(
+                          context,
+                          draft.startDate,
+                          first: today.addDays(-366),
+                        );
+                        if (picked != null) controller.setStartDate(picked);
+                      }
+                    : null,
+                icon: const Icon(Icons.event_available_outlined),
+                label: Text(
+                  l10n.choreEditorStartDate(_text(formatters, draft.startDate)),
+                ),
               ),
-            ),
-            OutlinedButton.icon(
-              key: const ValueKey<String>('end_date'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: enabled
-                  ? () async {
-                      final picked = await _pickDate(
-                        context,
-                        draft.endDate ?? draft.startDate,
-                        first: draft.startDate,
-                      );
-                      if (picked != null) controller.setEndDate(picked);
-                    }
-                  : null,
-              icon: const Icon(Icons.event_busy_outlined),
-              label: Text(
-                draft.endDate == null
-                    ? l10n.choreEditorEndDateNone
-                    : l10n.choreEditorEndDate(
-                        _text(formatters, draft.endDate!),
-                      ),
+              OutlinedButton.icon(
+                key: const ValueKey<String>('end_date'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                ),
+                onPressed: enabled
+                    ? () async {
+                        final picked = await _pickDate(
+                          context,
+                          draft.endDate ?? draft.startDate,
+                          first: draft.startDate,
+                        );
+                        if (picked != null) controller.setEndDate(picked);
+                      }
+                    : null,
+                icon: const Icon(Icons.event_busy_outlined),
+                label: Text(
+                  draft.endDate == null
+                      ? l10n.choreEditorEndDateNone
+                      : l10n.choreEditorEndDate(
+                          _text(formatters, draft.endDate!),
+                        ),
+                ),
               ),
-            ),
-            if (draft.endDate != null)
-              TextButton(
-                key: const ValueKey<String>('end_date_clear'),
-                onPressed: enabled ? () => controller.setEndDate(null) : null,
-                child: Text(l10n.choreEditorEndDateClear),
-              ),
-          ],
-        ),
+              if (draft.endDate != null)
+                TextButton(
+                  key: const ValueKey<String>('end_date_clear'),
+                  onPressed: enabled ? () => controller.setEndDate(null) : null,
+                  child: Text(l10n.choreEditorEndDateClear),
+                ),
+            ],
+          ),
         const SizedBox(height: 20),
         Text(l10n.choreEditorTimes, style: label),
         const SizedBox(height: 8),

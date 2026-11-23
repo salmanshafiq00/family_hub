@@ -16,6 +16,8 @@ import 'package:family_hub/features/chores/presentation/occurrence_detail_screen
 import 'package:family_hub/features/chores/presentation/today_screen.dart';
 import 'package:family_hub/features/chores/presentation/verify_queue_screen.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_screen.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_item_editor_screen.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_list_screen.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_wizard_screen.dart';
 import 'package:family_hub/features/chores/swaps/presentation/needs_cover_board.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_editor_screen.dart';
@@ -101,6 +103,25 @@ class ChoresModule extends FamilyModule {
         GoRoute(
           path: 'starter-pack',
           builder: (context, state) => const StarterPackWizardScreen(),
+          routes: [
+            GoRoute(
+              path: 'list',
+              builder: (context, state) => const StarterPackListScreen(),
+              routes: [
+                // `new` BEFORE `:id`, or it would be read as a line id.
+                GoRoute(
+                  path: 'new',
+                  builder: (context, state) => const StarterItemEditorScreen(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => StarterItemEditorScreen(
+                    itemId: state.pathParameters['id'],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         GoRoute(
           path: 'duty-groups',

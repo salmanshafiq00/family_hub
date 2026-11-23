@@ -4144,6 +4144,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get starterPackTitle => 'Starter pack';
 
   @override
+  String get starterListTitle => 'Starter pack list';
+
+  @override
+  String get starterListEdit => 'Edit the list';
+
+  @override
+  String get starterListBuiltInNote =>
+      'This is the built-in list. Tap Customise to add, edit or delete chores in it.';
+
+  @override
+  String get starterListCustomNote =>
+      'This is your family\'s own list. The starter pack uses it.';
+
+  @override
+  String get starterListCustomise => 'Customise';
+
+  @override
+  String get starterListReset => 'Reset to built-in list';
+
+  @override
+  String get starterListResetTitle => 'Reset the list?';
+
+  @override
+  String get starterListResetMessage =>
+      'Your own list will be removed and the built-in list will be used again. Chores already created are not changed.';
+
+  @override
+  String get starterListDeleteTitle => 'Delete from the list?';
+
+  @override
+  String get starterListDeleteMessage =>
+      'This chore will no longer be offered in the starter pack. Chores already created are not changed.';
+
+  @override
   String get starterPackSubtitle => 'Add the family\'s usual chores in one go';
 
   @override

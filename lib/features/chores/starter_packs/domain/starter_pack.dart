@@ -190,6 +190,19 @@ final class StarterPack {
       if (template.confidence == Confidence.high) template,
   ];
 
+  /// The same pack with other lines (the family's own list).
+  StarterPack copyWithTemplates(List<StarterTemplate> templates) => StarterPack(
+    id: id,
+    titleKey: titleKey,
+    descriptionKey: descriptionKey,
+    groups: groups,
+    dueTimePresets: dueTimePresets,
+    templates: templates,
+    dutyGroup: dutyGroup,
+    houseRulesBn: houseRulesBn,
+    houseRulesEn: houseRulesEn,
+  );
+
   StarterTemplate? templateBySeedKey(String seedKey) {
     for (final template in templates) {
       if (template.seedKey == seedKey) return template;

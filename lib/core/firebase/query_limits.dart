@@ -26,6 +26,9 @@ const int kMaxReportDocs = 5000;
 /// magnitude; a family with 200 templates is already far past the design).
 const int kMaxChoreTemplates = 200;
 
+/// One starter-pack list listener (the family's own editable pack).
+const int kMaxStarterItems = 100;
+
 /// One duty-group listener.
 const int kMaxDutyGroups = 50;
 

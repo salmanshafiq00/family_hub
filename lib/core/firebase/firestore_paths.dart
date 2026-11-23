@@ -34,6 +34,7 @@ abstract final class FirestorePaths {
   static const String memberAdvancesSubcollection = 'memberAdvances';
   static const String settlementsSubcollection = 'settlements';
   static const String choreTemplatesSubcollection = 'choreTemplates';
+  static const String starterPackItemsSubcollection = 'starterPackItems';
   static const String dutyGroupsSubcollection = 'dutyGroups';
   static const String choreOccurrencesSubcollection = 'choreOccurrences';
   static const String memberAvailabilitySubcollection = 'memberAvailability';
@@ -170,6 +171,11 @@ abstract final class FirestorePaths {
       '${familyDoc(familyId)}/$choreTemplatesSubcollection';
   static String choreTemplateDoc(String familyId, String templateId) =>
       '${choreTemplates(familyId)}/$templateId';
+
+  static String starterPackItems(String familyId) =>
+      '${familyDoc(familyId)}/$starterPackItemsSubcollection';
+  static String starterPackItemDoc(String familyId, String itemId) =>
+      '${starterPackItems(familyId)}/$itemId';
 
   static String dutyGroups(String familyId) =>
       '${familyDoc(familyId)}/$dutyGroupsSubcollection';

@@ -4,7 +4,7 @@ import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
-import 'package:family_hub/features/chores/starter_packs/domain/packs/family_pdf_pack.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_item_providers.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_wizard_controller.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_wizard_state.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/widgets/starter_pack_pick_step.dart';
@@ -35,6 +35,7 @@ class StarterPackWizardScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final canManage = ref.can(Permission.manageChoreTemplates);
     final members = ref.watch(membersProvider);
+    final items = ref.watch(starterItemsStreamProvider);
 
     final Widget body;
     if (!canManage) {
@@ -49,14 +50,27 @@ class StarterPackWizardScreen extends ConsumerWidget {
         retryLabel: l10n.actionRetry,
         onRetry: () => ref.invalidate(membersProvider),
       );
-    } else if (!members.hasValue) {
+    } else if (!members.hasValue || (!items.hasValue && !items.hasError)) {
+      // The wizard's choices start from the pack, so wait for the family's
+      // own list (a failed list falls back to the built-in pack).
       body = const LoadingView(lines: 4);
     } else {
       body = const _WizardBody();
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.starterPackTitle)),
+      appBar: AppBar(
+        title: Text(l10n.starterPackTitle),
+        actions: [
+          if (canManage)
+            IconButton(
+              key: const ValueKey<String>('starter_edit_list'),
+              tooltip: l10n.starterListEdit,
+              icon: const Icon(Icons.edit_note_rounded),
+              onPressed: () => context.push(AppRoutes.choresStarterList),
+            ),
+        ],
+      ),
       body: body,
     );
   }
@@ -71,6 +85,7 @@ class _WizardBody extends ConsumerWidget {
     final state = ref.watch(starterPackWizardProvider);
     final formatters = ref.watch(appFormattersProvider);
     final roster = ref.watch(dutyRosterProvider);
+    final pack = ref.watch(starterPackProvider);
 
     if (state.done) {
       return StarterPackResultView(
@@ -91,11 +106,11 @@ class _WizardBody extends ConsumerWidget {
         Expanded(
           child: switch (state.step) {
             StarterPackWizardStep.pick => StarterPackPickStep(
-              pack: familyPdfPack,
+              pack: pack,
               formatters: formatters,
             ),
             StarterPackWizardStep.review => StarterPackReviewStep(
-              templates: familyPdfPack.templates,
+              templates: pack.templates,
               selected: state.selectedSeedKeys,
               onToggle: controller.toggleTemplate,
               houseRules: state.houseRules,

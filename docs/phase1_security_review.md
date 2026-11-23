@@ -57,17 +57,21 @@ ledger rows and settlements in a closed month. Tests planned in
 Collections: `expenses` (with nested `revisions`), `bazarTrips`,
 `fundTransactions`, `memberAdvances`, `settlements`, `monthClosings`.
 
-## Phase 3 additions (P3-08, P3-10)
+## Phase 3 additions (P3-08, P3-10, starter pack)
 
-`choreTemplates` and `dutyGroups` have closed key sets
+`choreTemplates`, `dutyGroups`, and `starterPackItems` have closed key sets
 (`templateKeys`/`templateOk`, `dutyGroupKeys`/`dutyGroupOk`), manager-or-admin
-writes, any active member reads, and `allow delete: if false`. A template's
+writes, and any active member reads. `choreTemplates` and `dutyGroups` enforce
+`allow delete: if false`. `starterPackItems` documents share the chore template
+document shape guarded by `templateOk`, but may be deleted by managers when
+customizing or resetting the family starter pack catalogue. A template's
 `revision` must increase by exactly one and its `seedKey`/`builtIn` are
 immutable; a duty group's `rotation` is capped at 20 versions, with the first
 and last version shape-checked (rules cannot loop, so `RotationValidator` is the
 authority for every version in between). Tests:
-`firebase/rules_test/chore_templates.test.mjs` and
-`firebase/rules_test/duty_groups.test.mjs`.
+`firebase/rules_test/chore_templates.test.mjs`,
+`firebase/rules_test/duty_groups.test.mjs`, and
+`firebase/rules_test/starter_pack_items.test.mjs`.
 
 ## Phase 3 additions (P3-13)
 

@@ -1,8 +1,8 @@
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
-import 'package:family_hub/features/chores/starter_packs/domain/packs/family_pdf_pack.dart';
 import 'package:family_hub/features/chores/starter_packs/domain/starter_pack.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_item_providers.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_providers.dart';
 import 'package:family_hub/features/chores/starter_packs/presentation/starter_pack_wizard_state.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
@@ -23,7 +23,7 @@ final starterPackWizardProvider =
 class StarterPackWizardController extends Notifier<StarterPackWizardState> {
   @override
   StarterPackWizardState build() {
-    final pack = familyPdfPack;
+    final pack = ref.read(starterPackProvider);
     final active = _activeMemberIds();
     final bangla = ref.watch(appFormattersProvider).languageCode == 'bn';
     final rules = bangla ? pack.houseRulesBn : pack.houseRulesEn;
@@ -59,7 +59,10 @@ class StarterPackWizardController extends Notifier<StarterPackWizardState> {
   void setAllTemplates(bool selected) {
     state = state.copyWith(
       selectedSeedKeys: selected
-          ? <String>{for (final t in familyPdfPack.templates) t.seedKey}
+          ? <String>{
+              for (final t in ref.read(starterPackProvider).templates)
+                t.seedKey,
+            }
           : <String>{},
       clearFailure: true,
     );
@@ -207,6 +210,7 @@ class StarterPackWizardController extends Notifier<StarterPackWizardState> {
       final result = await ref.read(applyStarterPackProvider)(
         actorUid: uid,
         familyId: familyId,
+        pack: ref.read(starterPackProvider),
         selectedSeedKeys: state.selectedSeedKeys,
         rotation: state.useRotation
             ? StarterRotationConfig(

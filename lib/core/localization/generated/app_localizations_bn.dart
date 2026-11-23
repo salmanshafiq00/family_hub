@@ -4125,6 +4125,40 @@ class AppLocalizationsBn extends AppLocalizations {
   String get starterPackTitle => 'স্টার্টার প্যাক';
 
   @override
+  String get starterListTitle => 'স্টার্টার প্যাকের তালিকা';
+
+  @override
+  String get starterListEdit => 'তালিকা বদলান';
+
+  @override
+  String get starterListBuiltInNote =>
+      'এটি অ্যাপের নিজস্ব তালিকা। কাজ যোগ, বদল বা মুছতে \"নিজের মতো করুন\" চাপুন।';
+
+  @override
+  String get starterListCustomNote =>
+      'এটি আপনার পরিবারের নিজের তালিকা। স্টার্টার প্যাক এটিই ব্যবহার করে।';
+
+  @override
+  String get starterListCustomise => 'নিজের মতো করুন';
+
+  @override
+  String get starterListReset => 'অ্যাপের তালিকায় ফিরুন';
+
+  @override
+  String get starterListResetTitle => 'তালিকা রিসেট করবেন?';
+
+  @override
+  String get starterListResetMessage =>
+      'আপনার নিজের তালিকা মুছে যাবে এবং অ্যাপের তালিকা আবার ব্যবহার হবে। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।';
+
+  @override
+  String get starterListDeleteTitle => 'তালিকা থেকে মুছবেন?';
+
+  @override
+  String get starterListDeleteMessage =>
+      'কাজটি আর স্টার্টার প্যাকে দেখানো হবে না। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।';
+
+  @override
   String get starterPackSubtitle => 'পরিবারের নিয়মিত কাজগুলো একবারে যোগ করুন';
 
   @override

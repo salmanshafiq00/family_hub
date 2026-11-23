@@ -2696,6 +2696,23 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      // ── starterPackItems/{seedKey} — the family's own starter pack ───────
+      // Same document shape as a chore template, so `templateOk` guards it.
+      // Manager or admin write; any active member reads; unlike templates
+      // these lines MAY be deleted (they are a catalogue, not history).
+      match /starterPackItems/{itemId} {
+        allow read: if isActiveMember(f);
+        allow create: if verified()
+          && isManager(f)
+          && createsAsSelf()
+          && templateOk(request.resource.data);
+        allow update: if verified()
+          && isManager(f)
+          && writesAsSelf()
+          && templateOk(request.resource.data);
+        allow delete: if verified() && isManager(f);
+      }
+
       // ── dutyGroups/{id} — groups are never deleted (P3-10) ──────────────
       // Manager or admin write.  Switching a group off is ALLOWED even while
       // templates point at it: the use case warns, it does not forbid.

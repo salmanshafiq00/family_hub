@@ -60,6 +60,8 @@ import 'package:family_hub/features/notifications/presentation/reminder_provider
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/occurrences/data/firestore_occurrence_repository.dart';
 import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
+import 'package:family_hub/features/chores/starter_packs/data/firestore_starter_item_repository.dart';
+import 'package:family_hub/features/chores/starter_packs/presentation/starter_item_providers.dart';
 import 'package:family_hub/features/chores/templates/data/firestore_chore_template_repository.dart';
 import 'package:family_hub/features/chores/templates/presentation/template_providers.dart';
 import 'package:family_hub/features/chores/settings/data/firestore_chore_settings_repository.dart';
@@ -164,6 +166,7 @@ Future<void> bootstrap(Flavor flavor) async {
       tx: tx,
       clock: clock,
     );
+    final starterItems = FirestoreStarterItemRepository(tx: tx, clock: clock);
     final choreSettings = FirestoreChoreSettingsRepository(
       tx: tx,
       clock: clock,
@@ -239,6 +242,7 @@ Future<void> bootstrap(Flavor flavor) async {
           advanceRepositoryProvider.overrideWithValue(advances),
           contributionRepositoryProvider.overrideWithValue(contributions),
           templateRepositoryProvider.overrideWithValue(choreTemplates),
+          starterItemRepositoryProvider.overrideWithValue(starterItems),
           choreSettingsRepositoryProvider.overrideWithValue(choreSettings),
           dutyGroupRepositoryProvider.overrideWithValue(dutyGroups),
           // One object serves both ports (occurrences + the generation marker).
