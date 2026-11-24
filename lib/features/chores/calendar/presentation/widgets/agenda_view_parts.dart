@@ -33,6 +33,7 @@ class _DayHeader extends ConsumerWidget {
     required this.selected,
     required this.expanded,
     required this.onToggle,
+    this.showToggle = true,
   });
 
   final AgendaDay day;
@@ -40,6 +41,10 @@ class _DayHeader extends ConsumerWidget {
   final bool selected;
   final bool expanded;
   final VoidCallback onToggle;
+
+  /// False while a filter is on: every day starts open, so the arrow would
+  /// promise a fold that the filter keeps re-opening.
+  final bool showToggle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,15 +104,16 @@ class _DayHeader extends ConsumerWidget {
                     ),
                   ),
                   if (day.items.isNotEmpty)
-                    ExcludeSemantics(
-                      child: Icon(
-                        expanded
-                            ? Icons.expand_less_rounded
-                            : Icons.expand_more_rounded,
-                        size: 20,
-                        color: t.textSecondary,
+                    if (showToggle)
+                      ExcludeSemantics(
+                        child: Icon(
+                          expanded
+                              ? Icons.expand_less_rounded
+                              : Icons.expand_more_rounded,
+                          size: 20,
+                          color: t.textSecondary,
+                        ),
                       ),
-                    ),
                 ],
               ),
             ),
@@ -153,8 +159,8 @@ class _OverdueBlock extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${l10n.todaySectionOverdue} · '
-                      '${formatters.number(overdue.total)}',
+                      '${l10n.calendarAgendaOverdueToday} · '
+                      '${formatters.number(overdue.items.length)}',
                       style: TextStyle(
                         color: t.statusOverdueOn,
                         fontWeight: FontWeight.w700,

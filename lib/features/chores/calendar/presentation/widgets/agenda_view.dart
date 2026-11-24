@@ -6,10 +6,12 @@ import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/agenda_model.dart';
+import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/presentation/widgets/today_row.dart';
+import 'package:family_hub/shared/widgets/empty_state.dart';
 import 'package:family_hub/shared/widgets/error_view.dart';
 import 'package:family_hub/shared/widgets/loading_view.dart';
 import 'package:flutter/material.dart';
@@ -78,9 +80,12 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
   }
 
   /// Open near today, closed further away, unless the person tapped the header.
-  bool _isOpen(DateKey day, DateKey today) =>
+  /// While a filter (or "Mine") is on, every day with a match opens: a folded
+  /// result would look like "nothing found".
+  bool _isOpen(DateKey day, DateKey today, {required bool filtering}) =>
+      filtering ||
       (today.daysUntil(day).abs() <= _kOpenDaysAroundToday) !=
-      _toggledDays.contains(day);
+          _toggledDays.contains(day);
 
   void _toggleDay(DateKey day) => setState(() {
     if (!_toggledDays.remove(day)) _toggledDays.add(day);
@@ -104,17 +109,30 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final model = ref.watch(agendaWindowModelProvider(_window));
+    // A filter or "Mine" keeps the same date-wise list, but every matching day
+    // is open, the window reaches further back, and an empty result says so.
+    final filtering =
+        !ref.watch(calendarFiltersProvider).isEmpty ||
+        ref.watch(calendarScopeProvider) == CalendarScope.mine;
+    final window = filtering
+        ? _window.atLeastBack(AgendaWindow.filteringWeeksBack)
+        : _window;
+    final model = ref.watch(agendaWindowModelProvider(window));
     final Widget body;
     if (model.hasValue) {
-      body = _list(context, model.requireValue);
+      body = _list(
+        context,
+        model.requireValue,
+        filtering: filtering,
+        window: window,
+      );
     } else if (model.hasError) {
       final error = model.error;
       body = ErrorView(
         message: l10n.choresFailureMessage(
           error is AppFailure ? error : Unknown(error),
         ),
-        onRetry: () => ref.invalidate(agendaWindowModelProvider(_window)),
+        onRetry: () => ref.invalidate(agendaWindowModelProvider(window)),
       );
     } else {
       body = const LoadingView();
@@ -137,13 +155,34 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     );
   }
 
-  Widget _list(BuildContext context, AgendaModel model) {
+  Widget _list(
+    BuildContext context,
+    AgendaModel model, {
+    required bool filtering,
+    required AgendaWindow window,
+  }) {
     final l10n = context.l10n;
     final formatters = ref.watch(appFormattersProvider);
     final today = ref.watch(todayKeyProvider);
     final selected = ref.watch(selectedDayProvider);
     final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
     final headerExtent = 48 * scale.clamp(1.0, 2.0);
+
+    final hasDayItems = model.entries.any(
+      (entry) => entry is AgendaDay && entry.items.isNotEmpty,
+    );
+    if (filtering && !hasDayItems && model.overdue == null) {
+      return EmptyState(
+        key: const Key('calendar_agenda_no_match'),
+        icon: Icons.filter_alt_off_outlined,
+        title: l10n.calendarAgendaNoMatch,
+        actionLabel: l10n.calendarClearFilters,
+        onAction: () {
+          ref.read(calendarQueryProvider.notifier).clear();
+          unawaited(ref.read(calendarPrefsProvider.notifier).clearFilters());
+        },
+      );
+    }
 
     final past = <AgendaEntry>[];
     final future = <AgendaEntry>[];
@@ -162,12 +201,18 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     // is built newest-first and its last child ("earlier weeks") is the top.
     final reversedRows = <Widget>[
       for (final entry in past.reversed)
-        ..._rowsOf(entry, formatters, selected, today).reversed,
-      if (_window.canGoEarlier)
+        ..._rowsOf(
+          entry,
+          formatters,
+          selected,
+          today,
+          filtering: filtering,
+        ).reversed,
+      if (window.canGoEarlier)
         _MoreButton(
           key: const Key('calendar_load_earlier'),
           label: l10n.calendarLoadEarlier,
-          onPressed: () => setState(() => _window = _window.earlier()),
+          onPressed: () => setState(() => _window = window.earlier()),
         ),
     ];
 
@@ -197,7 +242,13 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
                   pinned: true,
                   delegate: _DayHeaderDelegate(
                     extent: headerExtent,
-                    child: _headerOf(day, formatters, selected, today),
+                    child: _headerOf(
+                      day,
+                      formatters,
+                      selected,
+                      today,
+                      filtering: filtering,
+                    ),
                   ),
                 ),
                 SliverList(
@@ -206,7 +257,8 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                       child: TodayRow(item: day.items[index]),
                     ),
-                    childCount: _isOpen(day.dateKey, today)
+                    childCount:
+                        _isOpen(day.dateKey, today, filtering: filtering)
                         ? day.items.length
                         : 0,
                   ),
@@ -219,11 +271,11 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
             AgendaOverdue() => const SliverToBoxAdapter(),
           },
         SliverToBoxAdapter(
-          child: _window.canGoLater
+          child: window.canGoLater
               ? _MoreButton(
                   key: const Key('calendar_load_later'),
                   label: l10n.calendarLoadLater,
-                  onPressed: () => setState(() => _window = _window.later()),
+                  onPressed: () => setState(() => _window = window.later()),
                 )
               : const SizedBox(height: 24),
         ),
@@ -238,13 +290,15 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     AgendaDay day,
     AppFormatters formatters,
     DateKey selected,
-    DateKey today,
-  ) => _DayHeader(
+    DateKey today, {
+    required bool filtering,
+  }) => _DayHeader(
     day: day,
     formatters: formatters,
     selected: day.dateKey == selected,
-    expanded: _isOpen(day.dateKey, today),
+    expanded: _isOpen(day.dateKey, today, filtering: filtering),
     onToggle: () => _toggleDay(day.dateKey),
+    showToggle: !filtering,
   );
 
   /// The rows of one past entry in reading order (header first).
@@ -252,11 +306,12 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
     AgendaEntry entry,
     AppFormatters formatters,
     DateKey selected,
-    DateKey today,
-  ) => switch (entry) {
+    DateKey today, {
+    required bool filtering,
+  }) => switch (entry) {
     final AgendaDay day => <Widget>[
-      _headerOf(day, formatters, selected, today),
-      if (_isOpen(day.dateKey, today))
+      _headerOf(day, formatters, selected, today, filtering: filtering),
+      if (_isOpen(day.dateKey, today, filtering: filtering))
         for (final item in day.items)
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),

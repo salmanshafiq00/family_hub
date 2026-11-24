@@ -114,6 +114,16 @@ abstract interface class InboxPort {
     required String status,
     required String byMemberId,
   });
+
+  /// ONE row for a bulk move ("N chores from A to B were given to you").
+  NewInboxItem? choresAssignedSummary({
+    required String batchId,
+    required String toMemberId,
+    required String byMemberId,
+    required int count,
+    required String from,
+    required String to,
+  });
 }
 
 /// The port used before P3-26: it builds nothing, so a test can tell "no inbox
@@ -192,6 +202,16 @@ final class NoopInboxPort implements InboxPort {
     required String toMemberId,
     required String status,
     required String byMemberId,
+  }) => null;
+
+  @override
+  NewInboxItem? choresAssignedSummary({
+    required String batchId,
+    required String toMemberId,
+    required String byMemberId,
+    required int count,
+    required String from,
+    required String to,
   }) => null;
 }
 

@@ -64,6 +64,7 @@ class ReassignOccurrence {
     required String occurrenceId,
     required String toMemberId,
     required String reason,
+    bool notify = true,
   }) async {
     final validated = requireReason(reason);
     final invalid = validated.failureOrNull;
@@ -126,13 +127,15 @@ class ReassignOccurrence {
         fromAssigneeId: occurrence.assigneeId,
         toAssigneeId: toMemberId,
       ),
-      inbox: _inbox.choreReassigned(
-        occurrenceId: occurrenceId,
-        toMemberId: toMemberId,
-        choreName: occurrence.nameBn,
-        dateKey: occurrence.dateKey.toString(),
-        byMemberId: actorUid,
-      ),
+      inbox: notify
+          ? _inbox.choreReassigned(
+              occurrenceId: occurrenceId,
+              toMemberId: toMemberId,
+              choreName: occurrence.nameBn,
+              dateKey: occurrence.dateKey.toString(),
+              byMemberId: actorUid,
+            )
+          : null,
       audit: RequiredAudit(
         type: AuditEventType.choresOccurrenceReassigned,
         reason: note,

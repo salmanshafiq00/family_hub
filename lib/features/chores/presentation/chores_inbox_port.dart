@@ -151,4 +151,28 @@ class ChoresInboxPort implements InboxPort {
     refId: availabilityId,
     params: <String, String>{'status': status, 'by': byMemberId},
   );
+
+  @override
+  NewInboxItem? choresAssignedSummary({
+    required String batchId,
+    required String toMemberId,
+    required String byMemberId,
+    required int count,
+    required String from,
+    required String to,
+  }) => NewInboxItem(
+    toMemberId: toMemberId,
+    type: InboxType.choreAssigned,
+    // Any 1-40 character refType is accepted by the rules; the row is about
+    // the bulk move, not one chore.
+    refType: AuditRefType.choreSettings,
+    refId: batchId,
+    params: <String, String>{
+      'kind': 'summary',
+      'count': '$count',
+      'from': from,
+      'to': to,
+      'by': byMemberId,
+    },
+  );
 }

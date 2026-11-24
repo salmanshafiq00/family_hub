@@ -1,8 +1,7 @@
 import 'package:family_hub/app/theme/app_tokens.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/features/chores/templates/domain/template_parts.dart';
-import 'package:family_hub/features/chores/templates/presentation/widgets/draft_text_field.dart';
-import 'package:family_hub/shared/widgets/reorder_move_buttons.dart';
+import 'package:family_hub/features/chores/templates/presentation/widgets/subtask_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -84,7 +83,7 @@ class SubtasksEditor extends ConsumerWidget {
                 Padding(
                   key: ValueKey<String>('subtask_${subtasks[i].id}'),
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _SubtaskRow(
+                  child: SubtaskRow(
                     index: i,
                     subtask: subtasks[i],
                     enabled: enabled,
@@ -131,110 +130,6 @@ class SubtasksEditor extends ConsumerWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _SubtaskRow extends StatelessWidget {
-  const _SubtaskRow({
-    required this.index,
-    required this.subtask,
-    required this.enabled,
-    required this.onChanged,
-    required this.onRemove,
-    this.onMoveUp,
-    this.onMoveDown,
-  });
-
-  final int index;
-  final TemplateSubtask subtask;
-  final bool enabled;
-  final ValueChanged<TemplateSubtask> onChanged;
-  final VoidCallback onRemove;
-
-  /// Rule 71: the non-drag twin of the handle.
-  final VoidCallback? onMoveUp;
-  final VoidCallback? onMoveDown;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final t = context.tokens;
-    final hint = subtask.hint;
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: t.outline),
-        borderRadius: BorderRadius.circular(t.radiusMd),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (enabled)
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Icon(Icons.drag_handle_rounded, color: t.outline),
-                  ),
-                ),
-              ReorderMoveButtons(
-                index: index,
-                onMoveUp: onMoveUp,
-                onMoveDown: onMoveDown,
-              ),
-              Expanded(
-                child: DraftTextField(
-                  key: ValueKey<String>('subtask_title_${subtask.id}'),
-                  value: subtask.title,
-                  label: l10n.choreSubtaskTitle,
-                  maxLength: 120,
-                  enabled: enabled,
-                  onChanged: (text) => onChanged(subtask.copyWith(title: text)),
-                ),
-              ),
-              IconButton(
-                key: ValueKey<String>('subtask_remove_${subtask.id}'),
-                tooltip: l10n.choreSubtaskRemove,
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                onPressed: enabled ? onRemove : null,
-                icon: const Icon(Icons.delete_outline_rounded),
-              ),
-            ],
-          ),
-          SwitchListTile(
-            key: ValueKey<String>('subtask_required_${subtask.id}'),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-            value: subtask.required,
-            title: Text(l10n.choreSubtaskRequired),
-            onChanged: enabled
-                ? (v) => onChanged(subtask.copyWith(required: v))
-                : null,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: DraftTextField(
-              key: ValueKey<String>('subtask_hint_${subtask.id}'),
-              value: hint ?? '',
-              label: l10n.choreSubtaskHint,
-              maxLength: 200,
-              enabled: enabled,
-              // `copyWith` cannot clear a hint, so an empty text rebuilds the
-              // step without one (keeps "unsaved changes" honest).
-              onChanged: (text) => onChanged(
-                TemplateSubtask(
-                  id: subtask.id,
-                  title: subtask.title,
-                  required: subtask.required,
-                  hint: text.isEmpty ? null : text,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

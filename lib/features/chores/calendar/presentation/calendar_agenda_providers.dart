@@ -14,8 +14,20 @@ final class AgendaWindow {
   static const int maxBack = 8;
   static const int maxAhead = 48;
 
+  /// A filtered agenda reaches at least this far back, so a chore that has been
+  /// overdue for weeks is in the list without tapping "Show earlier weeks".
+  static const int filteringWeeksBack = 4;
+
   final int weeksBack;
   final int weeksAhead;
+
+  /// The same window, widened to at least [weeks] weeks back.
+  AgendaWindow atLeastBack(int weeks) => weeksBack >= weeks
+      ? this
+      : AgendaWindow(
+          weeksBack: weeks.clamp(1, maxBack).toInt(),
+          weeksAhead: weeksAhead,
+        );
 
   AgendaWindow earlier() => AgendaWindow(
     weeksBack: (weeksBack + 2).clamp(1, maxBack).toInt(),
@@ -41,8 +53,8 @@ final class AgendaWindow {
 }
 
 /// The agenda around today: [AgendaWindow.weeksBack] weeks before, the days up
-/// to [AgendaWindow.weeksAhead] weeks after, and the open chores of the previous
-/// month in the Overdue block (older ones are out of reach on purpose).
+/// to [AgendaWindow.weeksAhead] weeks after, and today's overdue chores in the
+/// pinned block (an earlier day's chore stays under its own date).
 ///
 /// Reads one month listener per month in the window (retained 60 s); scope and
 /// filters never start a read.

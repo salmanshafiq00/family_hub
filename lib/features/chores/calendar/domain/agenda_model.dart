@@ -13,17 +13,11 @@ sealed class AgendaEntry {
   const AgendaEntry();
 }
 
-/// The pinned block of open chores from days before today.
+/// The pinned block of TODAY's open chores whose deadline has passed.
 final class AgendaOverdue extends AgendaEntry {
-  const AgendaOverdue({required this.items, required this.total});
+  const AgendaOverdue({required this.items});
 
-  /// The newest [AgendaModel.overdueCap] at most, newest first.
   final List<ChoreItem> items;
-
-  /// All of them; `total > items.length` shows "see all".
-  final int total;
-
-  bool get hasMore => total > items.length;
 }
 
 /// One day with its chores in deadline order.
@@ -51,21 +45,19 @@ final class AgendaFreeDays extends AgendaEntry {
   int get count => from.daysUntil(to) + 1;
 }
 
-/// The agenda list: Overdue pinned first, then today and the following days,
-/// empty stretches collapsed (P3-20, Appendix B.2).
+/// The agenda list: today's overdue pinned first, then today and the following
+/// days, empty stretches collapsed (P3-20, Appendix B.2).
 final class AgendaModel {
   const AgendaModel({required this.entries});
-
-  /// The most overdue chores listed before "see all".
-  static const int overdueCap = 100;
 
   /// The longest stretch one build covers (guards a runaway range).
   static const int maxDays = 400;
 
   /// [from]..[to] is the stretch of days to list (the screen starts at today
   /// and extends it by whole weeks). Today is never collapsed, so an empty
-  /// "today" is still visible. A chore of a day before [today] that is still
-  /// open belongs to the Overdue block, not to its own day.
+  /// "today" is still visible. A chore of an EARLIER day stays under its own
+  /// date; only today's overdue chores are pinned, and only while no status
+  /// filter is on.
   factory AgendaModel.build({
     required Iterable<ChoreItem> items,
     required DateKey today,
@@ -85,19 +77,21 @@ final class AgendaModel {
     );
     final visible = builder.visibleByDay(items);
 
-    final overdue = <ChoreItem>[
-      for (final entry in visible.entries)
-        if (entry.key.isBefore(today))
-          for (final item in entry.value)
-            if (_isLate(item)) item,
-    ]..sort(_newestFirst);
+    // A status filter lists every matching chore under its own date; the block
+    // would only repeat today's.
+    final pinOverdue = filters.statuses.isEmpty;
+    final overdue = pinOverdue
+        ? <ChoreItem>[
+            for (final item in visible[today] ?? const <ChoreItem>[])
+              if (item.status == ChoreStatus.overdue) item,
+          ]
+        : const <ChoreItem>[];
 
     final entries = <AgendaEntry>[];
     if (overdue.isNotEmpty) {
       entries.add(
         AgendaOverdue(
-          items: List<ChoreItem>.unmodifiable(overdue.take(overdueCap)),
-          total: overdue.length,
+          items: List<ChoreItem>.unmodifiable(sortByDeadline(overdue)),
         ),
       );
     }
@@ -119,7 +113,10 @@ final class AgendaModel {
       final isToday = day == today;
       final dayItems = <ChoreItem>[
         for (final item in visible[day] ?? const <ChoreItem>[])
-          if (!(day.isBefore(today) && _isLate(item))) item,
+          if (!(pinOverdue &&
+              day == today &&
+              item.status == ChoreStatus.overdue))
+            item,
       ];
       if (dayItems.isEmpty && !isToday) {
         freeFrom ??= day;
@@ -168,18 +165,5 @@ final class AgendaModel {
       }
     }
     return null;
-  }
-
-  /// Open work whose day has passed. The provider already marks a late chore
-  /// `overdue`; a chore still `scheduled`/`in progress` on a past day (inside
-  /// the grace window) is listed here too, because it is still undone.
-  static bool _isLate(ChoreItem item) =>
-      item.status == ChoreStatus.overdue || item.status.isOpen;
-
-  static int _newestFirst(ChoreItem a, ChoreItem b) {
-    final byDay = b.dateKey.compareTo(a.dateKey);
-    if (byDay != 0) return byDay;
-    final byDue = b.dueAt.compareTo(a.dueAt);
-    return byDue != 0 ? byDue : a.id.compareTo(b.id);
   }
 }

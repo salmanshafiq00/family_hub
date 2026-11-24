@@ -1,5 +1,6 @@
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
+import 'package:family_hub/core/utils/clock.dart';
 import 'package:family_hub/core/utils/family_date_keys.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_index.dart';
 import 'package:family_hub/features/chores/availability/domain/availability_repository.dart';
@@ -8,6 +9,7 @@ import 'package:family_hub/features/chores/duty_groups/domain/cover_picker.dart'
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group_repository.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_repository.dart';
+import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_plan.dart';
 import 'package:family_hub/features/chores/occurrences/domain/usecases/reassign_occurrence.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
 import 'package:family_hub/features/chores/swaps/domain/swap_plan_helpers.dart';
@@ -15,6 +17,7 @@ import 'package:family_hub/features/chores/swaps/domain/swap_rules.dart';
 import 'package:family_hub/features/chores/templates/domain/template_repository.dart';
 import 'package:family_hub/features/family/domain/family_repository.dart';
 import 'package:family_hub/features/family/domain/permission_access.dart';
+import 'package:family_hub/features/notifications/domain/inbox_port.dart';
 
 /// Shares out the chores of members who are away (policy `auto_assign`).
 ///
@@ -39,6 +42,8 @@ class AutoShareAbsentChores {
     required this.dutyGroups,
     required this.reassign,
     required this.dateKeys,
+    required this.inbox,
+    required this.clock,
   });
 
   /// Most chores moved by one run (each move is its own server write).
@@ -55,6 +60,8 @@ class AutoShareAbsentChores {
   final DutyGroupRepository dutyGroups;
   final ReassignOccurrence reassign;
   final FamilyDateKeys dateKeys;
+  final InboxPort inbox;
+  final Clock clock;
 
   /// The number of chores moved.
   Future<Result<int>> call({
@@ -127,6 +134,7 @@ class AutoShareAbsentChores {
     };
 
     final load = <String, int>{};
+    final movedTo = <String, List<ChoreOccurrence>>{};
     var moved = 0;
     for (final occurrence in affected.take(maxPerRun)) {
       final absent = occurrence.assigneeId!;
@@ -161,11 +169,38 @@ class AutoShareAbsentChores {
         occurrenceId: occurrence.id,
         toMemberId: to,
         reason: _reasonFor(activeRecords, absent, occurrence),
+        notify: false,
       );
       if (result.failureOrNull == null) {
         moved++;
         load[to] = (load[to] ?? 0) + 1;
+        movedTo.putIfAbsent(to, () => <ChoreOccurrence>[]).add(occurrence);
       }
+    }
+
+    // ONE row per recipient instead of one per chore: 40 moves used to become
+    // 40 phone notifications. Best effort: the moves already happened, so a
+    // failed summary must not change the count the caller gets back.
+    final rows = <NewInboxItem>[];
+    for (final entry in movedTo.entries) {
+      final to = entry.key;
+      if (to == actorUid) continue;
+      final list = entry.value..sort((a, b) => a.dateKey.compareTo(b.dateKey));
+      final row = inbox.choresAssignedSummary(
+        batchId: 'as_${list.first.id}',
+        toMemberId: to,
+        byMemberId: actorUid,
+        count: list.length,
+        from: list.first.dateKey.toString(),
+        to: list.last.dateKey.toString(),
+      );
+      if (row != null) rows.add(row.withId('ib_as_${list.first.id}'));
+    }
+    if (rows.isNotEmpty) {
+      await occurrences.stageIntegrity(
+        familyId,
+        OccurrenceWritePlan(actorId: actorUid, at: clock.nowUtc(), inbox: rows),
+      );
     }
     return Success<int>(moved);
   }

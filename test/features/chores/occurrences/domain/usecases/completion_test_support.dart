@@ -284,6 +284,26 @@ class RecordingInboxPort implements InboxPort {
     ),
   );
 
+  @override
+  NewInboxItem? choresAssignedSummary({
+    required String batchId,
+    required String toMemberId,
+    required String byMemberId,
+    required int count,
+    required String from,
+    required String to,
+  }) {
+    sent.add('chore_assigned_summary -> $toMemberId x$count');
+    return _real.choresAssignedSummary(
+      batchId: batchId,
+      toMemberId: toMemberId,
+      byMemberId: byMemberId,
+      count: count,
+      from: from,
+      to: to,
+    );
+  }
+
   NewInboxItem _record(
     String type,
     String toMemberId,

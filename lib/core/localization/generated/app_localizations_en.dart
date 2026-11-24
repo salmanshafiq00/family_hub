@@ -3983,6 +3983,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String choreSubtaskStepNumber(String n) {
+    return 'Step $n';
+  }
+
+  @override
   String get choreInstructionsBold => 'Bold';
 
   @override
@@ -4194,7 +4199,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick a pack. Every line becomes one of your family\'s own chores; nothing is locked.';
 
   @override
-  String get starterPackFamilyPdfTitle => 'Our family chore list (PDF)';
+  String get starterPackFamilyPdfTitle => 'Our family chore list';
 
   @override
   String get starterPackFamilyPdfDescription =>
@@ -4400,6 +4405,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarClearFilters => 'Clear filters';
+
+  @override
+  String get calendarAgendaOverdueToday => 'Overdue today';
+
+  @override
+  String get calendarAgendaNoMatch => 'No chores match these filters';
 
   @override
   String get calendarDayEmptyTitle => 'No chores this day';
@@ -4946,6 +4957,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inboxMemberApproved =>
       'Your request to join the family was approved.';
+
+  @override
+  String inboxChoresAssignedSummary(
+    String name,
+    String count,
+    String from,
+    String to,
+  ) {
+    return '$name assigned you $count chore(s) from $from to $to';
+  }
 
   @override
   String inboxNeedsCover(String name, String count, String from, String to) {

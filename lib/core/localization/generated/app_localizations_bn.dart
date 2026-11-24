@@ -3964,6 +3964,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String choreSubtaskStepNumber(String n) {
+    return 'ধাপ $n';
+  }
+
+  @override
   String get choreInstructionsBold => 'গাঢ়';
 
   @override
@@ -4175,7 +4180,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'একটি প্যাক বাছুন। প্রতিটি কাজ আপনার পরিবারের নিজের তালিকায় যোগ হবে; কোনো কিছু লক থাকবে না।';
 
   @override
-  String get starterPackFamilyPdfTitle => 'পরিবারের কাজের তালিকা (PDF)';
+  String get starterPackFamilyPdfTitle => 'পরিবারের কাজের তালিকা';
 
   @override
   String get starterPackFamilyPdfDescription =>
@@ -4381,6 +4386,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get calendarClearFilters => 'ফিল্টার মুছুন';
+
+  @override
+  String get calendarAgendaOverdueToday => 'আজকের বিলম্বিত কাজ';
+
+  @override
+  String get calendarAgendaNoMatch => 'এই ফিল্টারে কোনো কাজ পাওয়া যায়নি';
 
   @override
   String get calendarDayEmptyTitle => 'এই দিনে কোনো কাজ নেই';
@@ -4927,6 +4938,16 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get inboxMemberApproved =>
       'পরিবারে যোগ দেওয়ার আপনার অনুরোধ অনুমোদিত হয়েছে।';
+
+  @override
+  String inboxChoresAssignedSummary(
+    String name,
+    String count,
+    String from,
+    String to,
+  ) {
+    return '$name $from থেকে $to পর্যন্ত আপনাকে $countটি কাজ দিয়েছেন';
+  }
 
   @override
   String inboxNeedsCover(String name, String count, String from, String to) {

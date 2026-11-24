@@ -68,6 +68,8 @@ final autoShareAbsentChoresProvider = Provider<AutoShareAbsentChores>(
     dutyGroups: ref.watch(dutyGroupRepositoryProvider),
     reassign: ref.watch(reassignOccurrenceProvider),
     dateKeys: ref.watch(familyDateKeysProvider),
+    inbox: ref.watch(inboxPortProvider),
+    clock: ref.watch(clockProvider),
   ),
 );
 
