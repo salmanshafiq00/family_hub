@@ -6940,6 +6940,12 @@ abstract class AppLocalizations {
   /// **'সর্বোচ্চ {max}টি ধাপ।'**
   String choreSubtaskLimit(String max);
 
+  /// No description provided for @choreSubtaskStepNumber.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপ {n}'**
+  String choreSubtaskStepNumber(String n);
+
   /// No description provided for @choreInstructionsBold.
   ///
   /// In bn, this message translates to:
@@ -7321,7 +7327,7 @@ abstract class AppLocalizations {
   /// No description provided for @starterPackFamilyPdfTitle.
   ///
   /// In bn, this message translates to:
-  /// **'পরিবারের কাজের তালিকা (PDF)'**
+  /// **'পরিবারের কাজের তালিকা'**
   String get starterPackFamilyPdfTitle;
 
   /// No description provided for @starterPackFamilyPdfDescription.
@@ -7665,6 +7671,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ফিল্টার মুছুন'**
   String get calendarClearFilters;
+
+  /// No description provided for @calendarAgendaOverdueToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের বিলম্বিত কাজ'**
+  String get calendarAgendaOverdueToday;
+
+  /// No description provided for @calendarAgendaNoMatch.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ফিল্টারে কোনো কাজ পাওয়া যায়নি'**
+  String get calendarAgendaNoMatch;
 
   /// No description provided for @calendarDayEmptyTitle.
   ///
@@ -8625,6 +8643,17 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পরিবারে যোগ দেওয়ার আপনার অনুরোধ অনুমোদিত হয়েছে।'**
   String get inboxMemberApproved;
+
+  /// No description provided for @inboxChoresAssignedSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {from} থেকে {to} পর্যন্ত আপনাকে {count}টি কাজ দিয়েছেন'**
+  String inboxChoresAssignedSummary(
+    String name,
+    String count,
+    String from,
+    String to,
+  );
 
   /// No description provided for @inboxNeedsCover.
   ///

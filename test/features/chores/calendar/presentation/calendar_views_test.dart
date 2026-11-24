@@ -66,13 +66,30 @@ void main() {
       expect(find.byKey(const Key('calendar_view_switcher')), findsOneWidget);
     });
 
-    testWidgets('pins an overdue chore of last month at the top', (
-      tester,
-    ) async {
-      await pump(tester, occurrences: [on(1, DateKey(2026, 9, 30))]);
+    testWidgets("pins today's overdue chore at the top", (tester) async {
+      await pump(tester, occurrences: [on(1, DateKey(2026, 10, 24))]);
 
       expect(find.byKey(const Key('calendar_agenda_overdue')), findsOneWidget);
       expect(find.byType(TodayRow), findsOneWidget);
+    });
+
+    testWidgets('an earlier day keeps its overdue chore under its own date', (
+      tester,
+    ) async {
+      await pump(tester, occurrences: [on(1, DateKey(2026, 10, 23))]);
+
+      expect(find.byKey(const Key('calendar_agenda_overdue')), findsNothing);
+
+      await tester.fling(
+        find.byType(CustomScrollView),
+        const Offset(0, 800),
+        2000,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey<String>('calendar_agenda_day_2026-10-23')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('collapses days without chores into a free-days chip', (
@@ -357,6 +374,82 @@ void main() {
 
       expect(find.text('What the symbols mean'), findsOneWidget);
       expect(find.text('Overdue'), findsWidgets);
+    });
+
+    Future<void> filterByStatus(WidgetTester tester, String status) async {
+      await tester.tap(find.byKey(const Key('calendar_filter_button')));
+      await tester.pumpAndSettle();
+      final option = find.byKey(Key('calendar_filter_status_$status'));
+      await tester.ensureVisible(option);
+      await tester.tap(option);
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byType(CalendarFilterSheet))).pop();
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> scrollToTheTop(WidgetTester tester) async {
+      for (var i = 0; i < 4; i++) {
+        await tester.fling(
+          find.byType(CustomScrollView),
+          const Offset(0, 1500),
+          3000,
+        );
+        await tester.pumpAndSettle();
+      }
+    }
+
+    testWidgets('a filter looks further back than the plain agenda', (
+      tester,
+    ) async {
+      // 2026-10-16 is eight days back: outside the default one-week window,
+      // inside the four weeks a filter reaches.
+      final old = anOccurrence(
+        id: 'tpl_9_20261016',
+        templateId: 'tpl_9',
+        dateKey: DateKey(2026, 10, 16),
+        status: OccurrenceStatus.completed,
+        completedAt: DateTime.utc(2026, 10, 16, 4),
+        completedBy: 'cara',
+      );
+
+      await pump(tester, occurrences: [old]);
+      await scrollToTheTop(tester);
+      expect(
+        find.byKey(const ValueKey<String>('calendar_agenda_day_2026-10-16')),
+        findsNothing,
+      );
+
+      await filterByStatus(tester, 'completed');
+      await scrollToTheTop(tester);
+
+      expect(
+        find.byKey(const ValueKey<String>('calendar_agenda_day_2026-10-16')),
+        findsOneWidget,
+      );
+      // Every matching day opens while filtering, and the fold arrow goes.
+      expect(find.byType(TodayRow), findsOneWidget);
+    });
+
+    testWidgets('a filter with no match says so and clears back', (
+      tester,
+    ) async {
+      await pump(tester, occurrences: [on(1, DateKey(2026, 10, 24))]);
+
+      await filterByStatus(tester, 'completed');
+
+      expect(
+        find.byKey(const Key('calendar_agenda_no_match')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Clear filters'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('calendar_agenda_no_match')), findsNothing);
+      expect(
+        find.byKey(const ValueKey<String>('calendar_agenda_day_2026-10-24')),
+        findsOneWidget,
+      );
     });
   });
 

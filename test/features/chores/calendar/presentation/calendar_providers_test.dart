@@ -7,6 +7,7 @@ import 'package:family_hub/core/utils/clock_provider.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/agenda_model.dart';
 import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
+import 'package:family_hub/features/chores/calendar/domain/calendar_filters.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/duty_groups/presentation/duty_group_providers.dart';
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
@@ -396,16 +397,68 @@ void main() {
       expect(backend.subscriptions, 2);
     });
 
-    test('the agenda pins an open chore of last month as overdue', () async {
+    test('an earlier overdue chore stays under its own date, not pinned', () async {
       seed(anOccurrence(id: 'tpl_1_20260930', dateKey: DateKey(2026, 9, 30)));
       final container = make();
-      container.listen(agendaModelProvider(2), (_, _) {});
+      const window = AgendaWindow(weeksBack: 4, weeksAhead: 1);
+      container.listen(agendaWindowModelProvider(window), (_, _) {});
       await settle(container);
 
-      final agenda = container.read(agendaModelProvider(2)).value!;
-      final first = agenda.entries.first;
-      expect(first, isA<AgendaOverdue>());
-      expect((first as AgendaOverdue).items.single.id, 'tpl_1_20260930');
+      final agenda = container.read(agendaWindowModelProvider(window)).value!;
+      expect(agenda.overdue, isNull);
+      final day = agenda.entries.whereType<AgendaDay>().firstWhere(
+        (entry) => entry.dateKey == DateKey(2026, 9, 30),
+      );
+      expect(day.items.single.id, 'tpl_1_20260930');
+    });
+
+    test('a filter reaches four weeks back, one listener per month', () async {
+      seed(
+        anOccurrence(
+          id: 'tpl_1_20261004',
+          dateKey: DateKey(2026, 10, 4),
+          status: OccurrenceStatus.completed,
+          completedAt: DateTime.utc(2026, 10, 4, 4),
+          completedBy: 'cara',
+        ),
+      );
+      final container = make();
+      container.listen(calendarPrefsProvider, (_, _) {});
+      await settle(container);
+      await container
+          .read(calendarPrefsProvider.notifier)
+          .setFilters(
+            const CalendarFilters(
+              statuses: <ChoreStatus>{ChoreStatus.completed},
+            ),
+          );
+      await settle(container);
+
+      // The default window stops a week back...
+      const plain = AgendaWindow(weeksAhead: 1);
+      container.listen(agendaWindowModelProvider(plain), (_, _) {});
+      await settle(container);
+      final narrow = container.read(agendaWindowModelProvider(plain)).value!;
+      expect(
+        narrow.entries.whereType<AgendaDay>().expand((day) => day.items),
+        isEmpty,
+      );
+
+      // ...the filtered one reaches four weeks (the view applies this).
+      final widened = plain.atLeastBack(4);
+      expect(widened.weeksBack, 4);
+      container.listen(agendaWindowModelProvider(widened), (_, _) {});
+      await settle(container);
+      final wide = container.read(agendaWindowModelProvider(widened)).value!;
+      expect(
+        wide.entries
+            .whereType<AgendaDay>()
+            .expand((day) => day.items)
+            .map((item) => item.id),
+        <String>['tpl_1_20261004'],
+      );
+      // September + October: one listener per month, never one per filter.
+      expect(backend.subscriptions, 2);
     });
   });
 

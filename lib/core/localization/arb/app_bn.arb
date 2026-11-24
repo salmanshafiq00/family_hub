@@ -3616,6 +3616,14 @@
       }
     }
   },
+  "choreSubtaskStepNumber": "ধাপ {n}",
+  "@choreSubtaskStepNumber": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "choreInstructionsBold": "গাঢ়",
   "@choreInstructionsBold": {},
   "choreInstructionsBullet": "তালিকা",
@@ -3782,7 +3790,7 @@
   "@starterPackManagersOnly": {},
   "starterPackPickBody": "একটি প্যাক বাছুন। প্রতিটি কাজ আপনার পরিবারের নিজের তালিকায় যোগ হবে; কোনো কিছু লক থাকবে না।",
   "@starterPackPickBody": {},
-  "starterPackFamilyPdfTitle": "পরিবারের কাজের তালিকা (PDF)",
+  "starterPackFamilyPdfTitle": "পরিবারের কাজের তালিকা",
   "@starterPackFamilyPdfTitle": {},
   "starterPackFamilyPdfDescription": "পরিবারের হাতে লেখা তালিকা থেকে দৈনিক, সাপ্তাহিক ও মাসিক কাজ।",
   "@starterPackFamilyPdfDescription": {},
@@ -3973,6 +3981,10 @@
   "@calendarFiltersNone": {},
   "calendarClearFilters": "ফিল্টার মুছুন",
   "@calendarClearFilters": {},
+  "calendarAgendaOverdueToday": "আজকের বিলম্বিত কাজ",
+  "@calendarAgendaOverdueToday": {},
+  "calendarAgendaNoMatch": "এই ফিল্টারে কোনো কাজ পাওয়া যায়নি",
+  "@calendarAgendaNoMatch": {},
   "calendarDayEmptyTitle": "এই দিনে কোনো কাজ নেই",
   "@calendarDayEmptyTitle": {},
   "calendarDayEmptyMessage": "এই দিনের জন্য কিছু ঠিক করা নেই।",
@@ -4482,6 +4494,23 @@
   },
   "inboxMemberApproved": "পরিবারে যোগ দেওয়ার আপনার অনুরোধ অনুমোদিত হয়েছে।",
   "@inboxMemberApproved": {},
+  "inboxChoresAssignedSummary": "{name} {from} থেকে {to} পর্যন্ত আপনাকে {count}টি কাজ দিয়েছেন",
+  "@inboxChoresAssignedSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "inboxNeedsCover": "{name} {from} থেকে {to} পর্যন্ত নেই: {count}টি কাজে বদলি দরকার",
   "@inboxNeedsCover": {
     "placeholders": {

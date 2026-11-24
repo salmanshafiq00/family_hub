@@ -58,6 +58,11 @@ extension InboxOpenAction on WidgetRef {
         context.go(AppRoutes.choresVerify);
         return;
     }
+    if (item.type == InboxType.choreAssigned &&
+        item.params['kind'] == 'summary') {
+      context.go(AppRoutes.chores);
+      return;
+    }
     switch (item.refType) {
       case AuditRefType.swapRequest:
         // Load THIS request by id (a server read, cache only when offline).

@@ -3617,6 +3617,14 @@
       }
     }
   },
+  "choreSubtaskStepNumber": "Step {n}",
+  "@choreSubtaskStepNumber": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "choreInstructionsBold": "Bold",
   "@choreInstructionsBold": {},
   "choreInstructionsBullet": "Bullet list",
@@ -3783,7 +3791,7 @@
   "@starterPackManagersOnly": {},
   "starterPackPickBody": "Pick a pack. Every line becomes one of your family's own chores; nothing is locked.",
   "@starterPackPickBody": {},
-  "starterPackFamilyPdfTitle": "Our family chore list (PDF)",
+  "starterPackFamilyPdfTitle": "Our family chore list",
   "@starterPackFamilyPdfTitle": {},
   "starterPackFamilyPdfDescription": "The daily, weekly and monthly chores from the family's handwritten list.",
   "@starterPackFamilyPdfDescription": {},
@@ -3974,6 +3982,10 @@
   "@calendarFiltersNone": {},
   "calendarClearFilters": "Clear filters",
   "@calendarClearFilters": {},
+  "calendarAgendaOverdueToday": "Overdue today",
+  "@calendarAgendaOverdueToday": {},
+  "calendarAgendaNoMatch": "No chores match these filters",
+  "@calendarAgendaNoMatch": {},
   "calendarDayEmptyTitle": "No chores this day",
   "@calendarDayEmptyTitle": {},
   "calendarDayEmptyMessage": "Nothing is planned for this day.",
@@ -4483,6 +4495,23 @@
   },
   "inboxMemberApproved": "Your request to join the family was approved.",
   "@inboxMemberApproved": {},
+  "inboxChoresAssignedSummary": "{name} assigned you {count} chore(s) from {from} to {to}",
+  "@inboxChoresAssignedSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "inboxNeedsCover": "{name} is away from {from} to {to}: {count} chores need a cover",
   "@inboxNeedsCover": {
     "placeholders": {

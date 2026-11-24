@@ -62,6 +62,14 @@ String inboxTextOf(
         _ => l10n.inboxUnknown,
       };
     case InboxType.choreAssigned:
+      if (item.params['kind'] == 'summary') {
+        return l10n.inboxChoresAssignedSummary(
+          who('by'),
+          formatters.number(int.tryParse(item.params['count'] ?? '') ?? 0),
+          _day(formatters, item.params['from']),
+          _day(formatters, item.params['to']),
+        );
+      }
       return l10n.inboxReassigned(who('by'), chore, date);
     case InboxType.memberApproved:
       return l10n.inboxMemberApproved;
