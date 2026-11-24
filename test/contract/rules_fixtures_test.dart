@@ -52,6 +52,8 @@ import 'package:family_hub/features/chores/occurrences/domain/occurrence_write_p
 import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/occurrences/domain/occurrence_status.dart';
 import 'package:family_hub/features/chores/duty_groups/domain/duty_group.dart';
+import 'package:family_hub/features/chores/starter_packs/domain/packs/family_pdf_pack.dart';
+import 'package:family_hub/features/chores/starter_packs/domain/starter_item_mapping.dart';
 import 'package:family_hub/features/chores/templates/data/chore_template_mappers.dart';
 import 'package:family_hub/features/chores/templates/domain/chore_template.dart';
 import 'package:family_hub/features/chores/templates/domain/recurrence/recurrence.dart';
@@ -119,6 +121,7 @@ BaseDocumentMetadata _meta(String uid) =>
 List<Map<String, dynamic>> _fixtures() => <Map<String, dynamic>>[
   _createFamily(),
   _createFamilyCatalog(),
+  _starterPackCustomise(),
   _join(),
   _approve(),
   _roleChange(),
@@ -242,6 +245,39 @@ Map<String, dynamic> _createFamily() {
     _write('merge', FirestorePaths.userDoc(_admin), <String, dynamic>{
       'familyId': _familyId,
     }),
+  ]);
+}
+
+/// The real starter-pack CUSTOMISE batch: every built-in pack line copied into
+/// `starterPackItems` plus its audit entry, exactly as [ManageStarterItems]
+/// builds it.  A line is stored as a chore template, so this also shows that
+/// 17 pack lines stay well inside Firestore's 500-write batch limit.
+///
+/// The rules tests fixture (`starter_pack_items.test.mjs`) uses a 4-character
+/// family id; this fixture uses the REAL 20-character `randomId()` shape that
+/// a family id has, which is the one that matters in production.
+Map<String, dynamic> _starterPackCustomise() {
+  final items = <ChoreTemplate>[
+    for (var i = 0; i < familyPdfPack.templates.length; i++)
+      familyPdfPack.templates[i].toItem(sortOrder: i),
+  ];
+  final event = AuditEvent(
+    id: 'ev14',
+    type: AuditEventType.choresSettingsUpdated,
+    actorId: _admin,
+    refType: AuditRefType.choreSettings,
+    refId: _familyId,
+    at: _at,
+    params: const <String, String>{'name': 'starter_list'},
+  );
+  return _fixture('starter_pack_customise', _admin, <Map<String, dynamic>>[
+    for (final item in items)
+      _write(
+        'set',
+        FirestorePaths.starterPackItemDoc(_familyId, item.id),
+        ChoreTemplateMappers.toMap(item, _meta(_admin)),
+      ),
+    ..._eventWrites(event),
   ]);
 }
 

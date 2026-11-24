@@ -4152,6 +4152,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার নিজের তালিকা মুছে যাবে এবং অ্যাপের তালিকা আবার ব্যবহার হবে। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।';
 
   @override
+  String starterListSaveFailed(Object reason) {
+    return 'সেভ হয়নি, স্টার্টার তালিকা আগের মতোই আছে: $reason';
+  }
+
+  @override
   String get starterListDeleteTitle => 'তালিকা থেকে মুছবেন?';
 
   @override

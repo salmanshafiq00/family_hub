@@ -7282,6 +7282,12 @@ abstract class AppLocalizations {
   /// **'আপনার নিজের তালিকা মুছে যাবে এবং অ্যাপের তালিকা আবার ব্যবহার হবে। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।'**
   String get starterListResetMessage;
 
+  /// No description provided for @starterListSaveFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেভ হয়নি, স্টার্টার তালিকা আগের মতোই আছে: {reason}'**
+  String starterListSaveFailed(Object reason);
+
   /// No description provided for @starterListDeleteTitle.
   ///
   /// In bn, this message translates to:

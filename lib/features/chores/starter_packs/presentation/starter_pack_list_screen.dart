@@ -26,6 +26,10 @@ class StarterPackListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // BUILD MARKER (temporary diagnosis): if this never prints while the screen
+    // is on screen, the screen was not rebuilt after `customise` and the list
+    // still shows the built-in pack even though the write went through.
+    debugPrint('STARTER_LIST_BUILD');
     final l10n = context.l10n;
     final t = context.tokens;
     final canManage = ref.can(Permission.manageChoreTemplates);
@@ -175,11 +179,19 @@ class StarterPackListScreen extends ConsumerWidget {
     if (uid == null || familyId == null) return;
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
+    debugPrint('STARTER_LIST_ACTION start uid=$uid family=$familyId');
     final result = await action(uid, familyId);
     final failure = result.failureOrNull;
+    debugPrint('STARTER_LIST_ACTION failure=$failure');
     if (failure != null) {
+      // The write is atomic - Firestore rejects the whole batch - so say plainly
+      // that nothing changed instead of leaving a silently stale list.
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.choresFailureMessage(failure))),
+        SnackBar(
+          content: Text(
+            l10n.starterListSaveFailed(l10n.choresFailureMessage(failure)),
+          ),
+        ),
       );
     }
   }

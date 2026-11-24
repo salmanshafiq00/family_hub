@@ -4171,6 +4171,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your own list will be removed and the built-in list will be used again. Chores already created are not changed.';
 
   @override
+  String starterListSaveFailed(Object reason) {
+    return 'Not saved, the starter list is unchanged: $reason';
+  }
+
+  @override
   String get starterListDeleteTitle => 'Delete from the list?';
 
   @override

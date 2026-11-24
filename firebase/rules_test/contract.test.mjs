@@ -70,6 +70,9 @@ const rehydrate = (value) => {
 const seeders = {
   create_family: async () => {},
   create_family_catalog: async () => {},
+  starter_pack_customise: async (db) => {
+    await seedFamilyWithAdmin(db);
+  },
   profile: async () => {},
   join: async (db) => {
     await setDoc(doc(db, `families/${FAMILY}`), familyDoc(ADMIN));

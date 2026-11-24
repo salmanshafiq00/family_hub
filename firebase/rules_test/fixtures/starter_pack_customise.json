@@ -1,0 +1,1575 @@
+{
+  "scenario": "starter_pack_customise",
+  "actor": "fixAdmin",
+  "writes": [
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/living_room",
+      "data": {
+        "nameBn": "বসার রুম পরিষ্কার",
+        "nameEn": "Living Room Cleaning",
+        "groupId": "living",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": "সকাল",
+            "labelEn": "Morning",
+            "dueMinutes": 540
+          },
+          {
+            "key": "noon",
+            "labelBn": "দুপুর",
+            "labelEn": "Noon",
+            "dueMinutes": 840
+          },
+          {
+            "key": "evening",
+            "labelBn": "সন্ধ্যা",
+            "labelEn": "Evening",
+            "dueMinutes": 1080
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- আগে জিনিস গুছিয়ে, তারপর ঝাড়ু, সবশেষে মোছা — এই ক্রমে করুন।\n- ঝাড়ু দেওয়ার সময় সোফা ও টেবিলের নিচ পর্যন্ত পরিষ্কার করুন।\n- ঘর মোছা দিনে একবার, দুপুরে সব কাজ শেষ হওয়ার পর।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "সোফা ও কুশন গোছানো",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "টি টেবিল গোছানো",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ডাইনিং টেবিল গোছানো ও মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "ঝাড়ু দেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "মোছা (শুধু দুপুরের বারে, অন্য সব কাজ শেষে)",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 5,
+        "iconKey": "living",
+        "sortOrder": 0,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "living_room",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/breakfast",
+      "data": {
+        "nameBn": "সকালের নাস্তা বানানো",
+        "nameEn": "Prepare Breakfast",
+        "groupId": "cooking",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 540
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- সকাল ৯টার মধ্যে নাস্তা প্রস্তুত রাখুন।\n- রান্না শুরুর আগে ফ্রিজের বাসি খাবার দেখে নিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "দরকারি উপকরণ বের করে ঠিক করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "নাস্তা রান্না করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ঢেকে ডাইনিং টেবিলে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 11,
+        "iconKey": "breakfast",
+        "sortOrder": 1,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "breakfast",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/lunch",
+      "data": {
+        "nameBn": "দুপুরের রান্না",
+        "nameEn": "Cook Lunch",
+        "groupId": "cooking",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 840
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- দুপুর ২টার মধ্যে রান্না শেষ করুন।\n- রান্না শেষে চুলা, রান্নাঘর ও ময়লার বেলচা পরিষ্কারের কাজগুলোও করুন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "উপকরণ কাটা ও ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ভাত ও তরকারি রান্না করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ঢেকে ডাইনিং টেবিলে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 2,
+        "iconKey": "lunch",
+        "sortOrder": 2,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "lunch",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/dinner",
+      "data": {
+        "nameBn": "রাতের রান্না",
+        "nameEn": "Cook Dinner",
+        "groupId": "cooking",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 1260
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- রাত ৯টার মধ্যে রান্না শেষ করার চেষ্টা করুন।\n- রাতের ভাত রান্নার সময় আগের তরকারি গরম করে ফেলুন, যাতে নষ্ট না হয়।\n- রান্না শেষে চুলার সব নব বন্ধ আছে কিনা দেখে নিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "উপকরণ কাটা ও ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "রাতের ভাত ও তরকারি রান্না করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "আগের তরকারি থাকলে গরম করে নেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "ঢেকে ডাইনিং টেবিলে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 19,
+        "iconKey": "dinner",
+        "sortOrder": 3,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "dinner",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/water",
+      "data": {
+        "nameBn": "ফিল্টারে পানি ভরা",
+        "nameEn": "Refill Water Filter",
+        "groupId": "water",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 1200
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- পানি দেওয়ার আগে ওপরের স্টোরেজ ও ঢাকনা পরিষ্কার করুন।\n- হাত ধুয়ে ফিল্টারে হাত দিন এবং ভরার পর সবসময় ঢাকনা দিয়ে রাখুন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "ফিল্টারের ঢাকনা ও ওপরের স্টোরেজ ধুয়ে নেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "পরিষ্কার পানি ভরা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ঢাকনা ভালোভাবে লাগানো",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 1,
+        "iconKey": "water",
+        "sortOrder": 4,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "water",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/dishes",
+      "data": {
+        "nameBn": "থালা বাসন পরিষ্কার",
+        "nameEn": "Wash Dishes",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": "নাস্তার পর",
+            "labelEn": "After breakfast",
+            "dueMinutes": 600
+          },
+          {
+            "key": "noon",
+            "labelBn": "দুপুরের পর",
+            "labelEn": "After lunch",
+            "dueMinutes": 900
+          },
+          {
+            "key": "night",
+            "labelBn": "রাতের পর",
+            "labelEn": "After dinner",
+            "dueMinutes": 1320
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- বেসিনে কেউ নিজের থালা-বাটি জমিয়ে রাখবে না।\n- রাতের বাসন রাতেই ধুয়ে ফেলুন; এঁটো বাসন রাতভর থাকলে তেলাপোকা ও পোকা আসে।\n- ধোয়ার পর বাসন র‍্যাকে রেখে শুকাতে দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "নাস্তার পরের থালা-বাসন ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "দুপুরের খাবারের পরের থালা-বাসন ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "রাতের খাবারের পরের থালা-বাসন ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "সিঙ্কের ছাঁকনির ময়লা ফেলে বেসিন খালি রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 18,
+        "iconKey": "handwash",
+        "sortOrder": 5,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "dishes",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/fridge_check",
+      "data": {
+        "nameBn": "ফ্রিজের খাবার দেখভাল",
+        "nameEn": "Check Fridge Food",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 540
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- যার রান্না থাকবে, সে রান্না শুরুর আগে ফ্রিজ দেখে নেবে।\n- গন্ধ, রং বা স্বাদ বদলালে খাবার ফেলে দিন; রান্না করা খাবার সাধারণত ২–৩ দিনের বেশি রাখবেন না।\n- সন্দেহ হলে খাবেন না, ফেলে দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "বাসি ও পুরনো খাবার দেখা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "নষ্ট বা গন্ধ হওয়া খাবার ফেলে দেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "খাবার ঢাকনাসহ পাত্রে গুছিয়ে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 18,
+        "iconKey": "box",
+        "sortOrder": 6,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "fridge_check",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/kitchen_after",
+      "data": {
+        "nameBn": "রান্নার পর রান্নাঘর পরিষ্কার",
+        "nameEn": "Clean Kitchen After Cooking",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": 900
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- চুলা ঠান্ডা হলে মুছুন; গ্যাসের নব বন্ধ আছে কিনা নিশ্চিত হোন। ইন্ডাকশন হলে প্লাগ খুলে মুছুন।\n- বেসিনে কেউ কিছু জমিয়ে রাখবে না।\n- তেল-চর্বি জমলে কুসুম গরম পানি ও ডিশ সাবান ব্যবহার করুন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "চুলা ও চুলার আশপাশ মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "রান্নাঘরের বেসিন (উপর ও নিচ) পরিষ্কার করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "কাউন্টারটপ মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "মেঝের তেল ও পানি মুছে ফেলা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 0,
+        "iconKey": "cleaning",
+        "sortOrder": 7,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "kitchen_after",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/scoop",
+      "data": {
+        "nameBn": "ময়লার বেলচা পরিষ্কার",
+        "nameEn": "Clean Garbage Scoop (Dustpan)",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "daily"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- প্রতিদিন রান্নার শেষে ধুয়ে পরিষ্কার করে ফেলবে।\n- ভেজা ময়লা লেগে থাকলে দুর্গন্ধ হয়, তাই ধুয়ে শুকিয়ে রাখুন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "বেলচার ময়লা বালতিতে ফেলা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "পানি ও সাবান দিয়ে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "শুকিয়ে নির্দিষ্ট জায়গায় রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 15,
+        "iconKey": "trash_sweep",
+        "sortOrder": 8,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "scoop",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/kitchen_weekly",
+      "data": {
+        "nameBn": "রান্নাঘর পুরো পরিষ্কার",
+        "nameEn": "Weekly Kitchen Deep Clean",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "weekdays",
+          "weekdays": [
+            6
+          ]
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- রেক, বেসিন ও তাক সহ পুরো রান্নাঘর ভালোভাবে পরিষ্কার করুন।\n- ওপর থেকে নিচের দিকে করুন: আগে রেক ও তাক, সবশেষে মেঝে।\n- ইন্ডাকশন পরিষ্কারের আগে প্লাগ খুলে ঠান্ডা হতে দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "রেক খালি করে মুছে গুছিয়ে রাখা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "গ্যাসের চুলা ও ইন্ডাকশনের ওপরের অংশ পরিষ্কার",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "বেসিন ও কল ঘষে পরিষ্কার",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "তাকগুলোর ধুলা ও তেল মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "বেসিনের নিচ ও পাইপের আশপাশ পরিষ্কার",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s6",
+            "title": "মেঝে ঘষে ধুয়ে/মুছে নেওয়া",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 0,
+        "iconKey": "countertops",
+        "sortOrder": 9,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "kitchen_weekly",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/bin",
+      "data": {
+        "nameBn": "ময়লার বালতি পরিষ্কার",
+        "nameEn": "Wash Garbage Bin",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "weekdays",
+          "weekdays": [
+            6
+          ]
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- প্রতি সপ্তাহে শনিবার ময়লার বালতি পরিষ্কার করে ফেলবে।\n- ঢাকনা থাকলে ঢাকনাও ধুয়ে নিন।\n- ভেজা বালতিতে নতুন পলিথিন লাগাবেন না; আগে শুকিয়ে নিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "বালতির ময়লা খালি করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ডিটারজেন্ট ও ব্রাশ দিয়ে ভেতর-বাইরে ঘষে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "পানিতে ভালোভাবে ধুয়ে নেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "রোদে বা বাতাসে শুকিয়ে নতুন পলিথিন লাগানো",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 3,
+        "iconKey": "trash",
+        "sortOrder": 10,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "bin",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/filter_clean",
+      "data": {
+        "nameBn": "পানির ফিল্টার পরিষ্কার",
+        "nameEn": "Clean Water Filter",
+        "groupId": "water",
+        "recurrence": {
+          "kind": "weekdays",
+          "weekdays": [
+            6
+          ]
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- ফিল্টারের ভেতর ও ওপর ভালোভাবে পরিষ্কার করুন।\n- ক্যান্ডেল বা ফিল্টার অংশে সাবান বা কড়া রাসায়নিক ব্যবহার করবেন না; ফিল্টারের নিয়ম অনুযায়ী করুন।\n- ধোয়ার পর প্রথম এক-দুই দফা পানি ফেলে দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "ফিল্টারের পানি খালি করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ঢাকনা, ওপরের ও নিচের স্টোরেজ খুলে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ক্যান্ডেল/ফিল্টার অংশ নরম ব্রাশ দিয়ে পরিষ্কার করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "কল ও বাইরের অংশ মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "সব জোড়া লাগিয়ে পরিষ্কার পানি ভরা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 1,
+        "iconKey": "filter",
+        "sortOrder": 11,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "filter_clean",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/fridge_monthly",
+      "data": {
+        "nameBn": "ফ্রিজ পরিষ্কার",
+        "nameEn": "Deep Clean Fridge",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "days_of_month",
+          "days": [
+            1
+          ],
+          "monthEnd": "clamp"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- আগে খাবার বের করে ঠান্ডা রাখুন, তারপর ফ্রিজ আনপ্লাগ করুন।\n- তাক ও ড্রয়ার কুসুম গরম পানিতে মৃদু সাবান মিশিয়ে ধুয়ে বাতাসে শুকিয়ে নিন।\n- দাগ দূর করতে বেকিং সোডা বা হালকা ভিনেগার মিশ্রণ ব্যবহার করুন; ব্লিচ বা কড়া রাসায়নিক নয়।\n- রাবার গ্যাসকেট, হ্যান্ডেল, ফ্রিজের ওপর ও ড্রেন লাইন নরম সুতি কাপড়ে মুছুন।\n- ফ্রিজারে বরফ জমে থাকলে গলতে দিয়ে মুছে নিন।\n- সম্পূর্ণ শুকানোর পরই প্লাগ দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "ভেতরের খাবার বের করে ঠান্ডা বক্স/বরফসহ রাখা ও মেয়াদ দেখা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ফ্রিজ বন্ধ করে প্লাগ খোলা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "তাক, ড্রয়ার ও ট্রে খুলে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "ভেতরের দেয়াল ও রাবার গ্যাসকেট পরিষ্কার করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "হ্যান্ডেল, ফ্রিজের ওপর ও ড্রেন লাইন মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s6",
+            "title": "সব শুকিয়ে তাক বসানো ও প্লাগ দিয়ে চালু করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s7",
+            "title": "ঠান্ডা হতে শুরু করলে খাবার সাজিয়ে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 18,
+        "iconKey": "kitchen",
+        "sortOrder": 12,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "fridge_monthly",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/covers",
+      "data": {
+        "nameBn": "সোফার কভার, টেবিলের কভার ও পাপোস ধোয়া",
+        "nameEn": "Wash Sofa Covers, Table Covers & Doormats",
+        "groupId": "living",
+        "recurrence": {
+          "kind": "days_of_month",
+          "days": [
+            1
+          ],
+          "monthEnd": "clamp"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- ডিটারজেন্ট পাউডার দিয়ে ধুয়ে নিন।\n- রঙিন কভার আলাদা ধুবেন, যাতে রং না ছড়ায়।\n- পুরোপুরি না শুকানো পর্যন্ত আবার লাগাবেন না।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "কভার ও পাপোস খুলে নেওয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ঝেড়ে ধুলা ফেলা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "ডিটারজেন্ট পাউডারে ভিজিয়ে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "পানিতে ভালোভাবে ধুয়ে শুকানো",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "সম্পূর্ণ শুকালে আবার লাগানো/বিছানো",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 5,
+        "iconKey": "laundry",
+        "sortOrder": 13,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "covers",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/shoe_cabinet",
+      "data": {
+        "nameBn": "জুতার বাক্স পরিষ্কার",
+        "nameEn": "Clean Shoe Cabinet",
+        "groupId": "living",
+        "recurrence": {
+          "kind": "days_of_month",
+          "days": [
+            1
+          ],
+          "monthEnd": "clamp"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- জুতার বাক্সের ড্রয়ারগুলো এবং প্রতিটি তাক পরিষ্কার করুন।\n- জুতা ভেজা থাকলে রোদে শুকিয়ে তারপর রাখুন।\n- দুর্গন্ধ হলে তাকে বেকিং সোডা ছড়িয়ে কিছুক্ষণ পর মুছে নিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "জুতা বের করে আলাদা রাখা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "ড্রয়ার ও প্রতিটি তাক ঝেড়ে ভেজা কাপড়ে মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "শুকিয়ে জুতা গুছিয়ে রাখা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 15,
+        "iconKey": "shelves",
+        "sortOrder": 14,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "shoe_cabinet",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/stove",
+      "data": {
+        "nameBn": "চুলা পরিষ্কার",
+        "nameEn": "Deep Clean Stoves (Gas & Induction)",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "days_of_month",
+          "days": [
+            1
+          ],
+          "monthEnd": "clamp"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- শুরুর আগে সিলিন্ডারের রেগুলেটর/মেইন লাইন বন্ধ করুন এবং চুলা ঠান্ডা হতে দিন।\n- প্যান সাপোর্ট ও বার্নার ক্যাপ কুসুম গরম পানিতে সাবান/ডিটারজেন্ট মিশিয়ে ভিজিয়ে স্পঞ্জ বা ব্রাশে পরিষ্কার করুন।\n- বার্নারের আটকে থাকা ছিদ্র টুথপিক বা চিকন পিন দিয়ে আলতো করে পরিষ্কার করুন, যাতে শিখা স্বাভাবিক থাকে।\n- চুলার কোটিং ও স্টিল বডিতে শক্ত তারের জালি বা কড়া রাসায়নিক ব্যবহার করবেন না; নরম কাপড় ও লিকুইড ক্লিনার ব্যবহার করুন।\n- ইগনিশন নব ও ইলেকট্রোডে পানি ঢালবেন না; শুকনো বা হালকা ভেজা কাপড়ে মুছুন।\n- সব পার্টস পুরোপুরি শুকিয়ে বার্নার ক্যাপ ঠিকমতো বসান। তারপর গ্যাস চালু করে শিখা দেখুন।\n- গ্যাসের গন্ধ পেলে আগুন বা বৈদ্যুতিক সুইচ চালাবেন না; রেগুলেটর বন্ধ করে জানালা খুলে দিন এবং মিস্ত্রি বা গ্যাস অফিসকে জানান।\n- ইন্ডাকশনের নিচের ভেন্ট/ছিদ্রে পানি ঢালবেন না।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "গ্যাস সিলিন্ডার/লাইন ও চাবি বন্ধ করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "প্যান সাপোর্ট ও বার্নার ক্যাপ খুলে ভিজিয়ে ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "চুলার বডি ও ড্রিপ ট্রে মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "বার্নারের ছিদ্র পরিষ্কার করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "পার্টস শুকিয়ে ঠিকমতো বসানো",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s6",
+            "title": "গ্যাস চালু করে শিখা ও লিকেজ পরীক্ষা করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s7",
+            "title": "ইন্ডাকশন: প্লাগ খুলে ঠান্ডা হলে ওপরের অংশ মোছা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 4,
+        "iconKey": "fire_safety",
+        "sortOrder": 15,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "stove",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/starterPackItems/exhaust",
+      "data": {
+        "nameBn": "এক্সহস্ট ফ্যান পরিষ্কার",
+        "nameEn": "Clean Exhaust Fan",
+        "groupId": "kitchen",
+        "recurrence": {
+          "kind": "days_of_month",
+          "days": [
+            1
+          ],
+          "monthEnd": "clamp"
+        },
+        "slots": [
+          {
+            "key": "main",
+            "labelBn": null,
+            "labelEn": null,
+            "dueMinutes": null
+          }
+        ],
+        "assignee": {
+          "strategy": "manual",
+          "fixedMemberId": null,
+          "dutyGroupId": null,
+          "rotation": null
+        },
+        "instructions": "- শুরুর আগে ফ্যানের সুইচ ও মেইন প্লাগ বন্ধ রাখুন; সম্ভব হলে মেইন সুইচও বন্ধ করুন।\n- উঁচুতে হলে মজবুত মই/চেয়ার ব্যবহার করুন এবং কাউকে ধরে রাখতে বলুন।\n- খোলা কভার ও ব্লেড কুসুম গরম পানিতে ডিশওয়াশ লিকুইড বা বেকিং সোডা মিশিয়ে ভিজিয়ে স্পঞ্জে ঘষে ধুয়ে বাতাসে শুকান।\n- মোটর বা তারে পানি লাগাবেন না; মোটরের ফ্রেম শুকনো বা সামান্য ভেজা সুতি কাপড়ে মুছুন।\n- প্লাস্টিক অংশে তারের জালি বা কড়া রাসায়নিক ব্যবহার করবেন না।\n- পুরোপুরি শুকানোর পর ব্লেড ও কভার বসিয়ে হাতে ঘুরিয়ে দেখে তারপর সংযোগ দিন।",
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "ফ্যানের সুইচ ও প্লাগ বন্ধ করা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s2",
+            "title": "সামনের কভার ও ব্লেড সাবধানে খোলা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s3",
+            "title": "কভার ও ব্লেডের তেল-চিটচিটে ময়লা ধোয়া",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s4",
+            "title": "মোটর ও বডি শুকনো/হালকা ভেজা কাপড়ে মোছা",
+            "required": false,
+            "hint": null
+          },
+          {
+            "id": "s5",
+            "title": "সব শুকিয়ে ফিট করে হাতে ঘুরিয়ে দেখা ও টেস্ট করা",
+            "required": false,
+            "hint": null
+          }
+        ],
+        "estimatedMinutes": null,
+        "difficulty": "normal",
+        "verification": "off",
+        "reminders": {
+          "enabled": false,
+          "atDue": true,
+          "offsetsMinutes": [],
+          "overdueEnabled": false,
+          "overdueAfterMinutes": 60
+        },
+        "startDate": "2000-01-01",
+        "endDate": null,
+        "active": true,
+        "archivedAt": null,
+        "colorIndex": 10,
+        "iconKey": "air",
+        "sortOrder": 16,
+        "revision": 1,
+        "builtIn": false,
+        "seedKey": "exhaust",
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1,
+        "deletedAt": null,
+        "deletedBy": null
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/activity/ev14",
+      "data": {
+        "type": "chores.settings_updated",
+        "actorId": "fixAdmin",
+        "summary": "",
+        "refType": "choreSettings",
+        "refId": "fixFam",
+        "params": {
+          "name": "starter_list"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1
+      }
+    },
+    {
+      "op": "set",
+      "path": "families/fixFam/auditLogs/ev14",
+      "data": {
+        "type": "chores.settings_updated",
+        "actorId": "fixAdmin",
+        "summary": "",
+        "refType": "choreSettings",
+        "refId": "fixFam",
+        "params": {
+          "name": "starter_list"
+        },
+        "recordedAt": {
+          "__serverTime": true
+        },
+        "createdAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "createdBy": "fixAdmin",
+        "updatedAt": {
+          "__ts": "2026-10-18T10:00:00.000Z"
+        },
+        "updatedBy": "fixAdmin",
+        "schemaVersion": 1
+      }
+    }
+  ]
+}

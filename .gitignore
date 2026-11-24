@@ -24,3 +24,5 @@ android/.kotlin/
 android/.gradle/
 .fvm/
 coverage/
+# Widget Preview related
+.widget_preview/

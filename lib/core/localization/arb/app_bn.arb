@@ -3766,6 +3766,12 @@
   "@starterListResetTitle": {},
   "starterListResetMessage": "আপনার নিজের তালিকা মুছে যাবে এবং অ্যাপের তালিকা আবার ব্যবহার হবে। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।",
   "@starterListResetMessage": {},
+  "starterListSaveFailed": "সেভ হয়নি, স্টার্টার তালিকা আগের মতোই আছে: {reason}",
+  "@starterListSaveFailed": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "starterListDeleteTitle": "তালিকা থেকে মুছবেন?",
   "@starterListDeleteTitle": {},
   "starterListDeleteMessage": "কাজটি আর স্টার্টার প্যাকে দেখানো হবে না। যে কাজগুলো আগেই তৈরি হয়েছে সেগুলো বদলাবে না।",

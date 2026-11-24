@@ -25,7 +25,10 @@ abstract interface class StarterItemRepository {
   /// Removes one item; [event] rides in the same batch.
   Future<Result<void>> delete(String familyId, String itemId, AuditEvent event);
 
-  /// Writes [items] and removes [removeIds] in ONE batch (customise / reset).
+  /// Writes [items] and removes [removeIds] (customise / reset). The Firestore
+  /// implementation commits in several small batches (the rules cannot judge
+  /// many items in one request) and undoes the items it wrote if one fails;
+  /// [event] is written last, only on success.
   Future<Result<void>> replaceAll(
     String familyId, {
     required List<ChoreTemplate> items,

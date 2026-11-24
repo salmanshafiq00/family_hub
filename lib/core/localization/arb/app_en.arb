@@ -3767,6 +3767,12 @@
   "@starterListResetTitle": {},
   "starterListResetMessage": "Your own list will be removed and the built-in list will be used again. Chores already created are not changed.",
   "@starterListResetMessage": {},
+  "starterListSaveFailed": "Not saved, the starter list is unchanged: {reason}",
+  "@starterListSaveFailed": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "starterListDeleteTitle": "Delete from the list?",
   "@starterListDeleteTitle": {},
   "starterListDeleteMessage": "This chore will no longer be offered in the starter pack. Chores already created are not changed.",
