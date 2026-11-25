@@ -77,9 +77,9 @@ final class AgendaModel {
     );
     final visible = builder.visibleByDay(items);
 
-    // A status filter lists every matching chore under its own date; the block
+    // A filter lists every matching chore under its own date; the block
     // would only repeat today's.
-    final pinOverdue = filters.statuses.isEmpty;
+    final pinOverdue = filters.isEmpty;
     final overdue = pinOverdue
         ? <ChoreItem>[
             for (final item in visible[today] ?? const <ChoreItem>[])

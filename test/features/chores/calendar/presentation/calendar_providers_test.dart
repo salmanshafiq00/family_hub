@@ -397,20 +397,23 @@ void main() {
       expect(backend.subscriptions, 2);
     });
 
-    test('an earlier overdue chore stays under its own date, not pinned', () async {
-      seed(anOccurrence(id: 'tpl_1_20260930', dateKey: DateKey(2026, 9, 30)));
-      final container = make();
-      const window = AgendaWindow(weeksBack: 4, weeksAhead: 1);
-      container.listen(agendaWindowModelProvider(window), (_, _) {});
-      await settle(container);
+    test(
+      'an earlier overdue chore stays under its own date, not pinned',
+      () async {
+        seed(anOccurrence(id: 'tpl_1_20260930', dateKey: DateKey(2026, 9, 30)));
+        final container = make();
+        const window = AgendaWindow(weeksBack: 4, weeksAhead: 1);
+        container.listen(agendaWindowModelProvider(window), (_, _) {});
+        await settle(container);
 
-      final agenda = container.read(agendaWindowModelProvider(window)).value!;
-      expect(agenda.overdue, isNull);
-      final day = agenda.entries.whereType<AgendaDay>().firstWhere(
-        (entry) => entry.dateKey == DateKey(2026, 9, 30),
-      );
-      expect(day.items.single.id, 'tpl_1_20260930');
-    });
+        final agenda = container.read(agendaWindowModelProvider(window)).value!;
+        expect(agenda.overdue, isNull);
+        final day = agenda.entries.whereType<AgendaDay>().firstWhere(
+          (entry) => entry.dateKey == DateKey(2026, 9, 30),
+        );
+        expect(day.items.single.id, 'tpl_1_20260930');
+      },
+    );
 
     test('a filter reaches four weeks back, one listener per month', () async {
       seed(

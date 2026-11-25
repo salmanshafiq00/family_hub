@@ -50,6 +50,19 @@ void main() {
     }
   }
 
+  void seedAbsence({int from = 24, int to = 29, String memberId = 'cara'}) {
+    fixture.swapWorld.absences['a_$memberId'] = MemberAvailability(
+      id: 'a_$memberId',
+      memberId: memberId,
+      startDate: DateKey(2026, 10, from),
+      endDate: DateKey(2026, 10, to),
+      typeId: ChoreSettings.defaults.absenceReasons.first.id,
+      reason: 'Fever',
+      status: AvailabilityStatus.active,
+      createdBy: memberId,
+    );
+  }
+
   void onlyAliceAvailable() {
     fixture.backend.members[familyId] = <String, Member>{
       'alice': fixture.backend.members[familyId]!['alice']!,
@@ -57,23 +70,19 @@ void main() {
     };
   }
 
-  void seedAbsence({int from = 24, int to = 29}) {
-    fixture.swapWorld.absences['a1'] = MemberAvailability(
-      id: 'a1',
-      memberId: 'cara',
-      startDate: DateKey(2026, 10, from),
-      endDate: DateKey(2026, 10, to),
-      typeId: ChoreSettings.defaults.absenceReasons.first.id,
-      reason: 'Fever',
-      status: AvailabilityStatus.active,
-      createdBy: 'cara',
-    );
+  void onlyDaveAvailable() {
+    fixture.backend.members[familyId] = <String, Member>{
+      'alice': fixture.backend.members[familyId]!['alice']!,
+      'cara': fixture.backend.members[familyId]!['cara']!,
+      'dave': fixture.backend.members[familyId]!['dave']!,
+    };
+    seedAbsence(memberId: 'alice');
   }
 
   test(
     'six chores of an absent member send ONE summary row, not six',
     () async {
-      onlyAliceAvailable();
+      onlyDaveAvailable();
       sixChores();
       seedAbsence();
 
@@ -85,12 +94,12 @@ void main() {
 
       expect(result.valueOrNull, 6);
       expect(useCases.inbox.sent, <String>[
-        'chore_assigned_summary -> alice x6',
+        'chore_assigned_summary -> dave x6',
       ]);
 
       final summary = fixture.occurrences.plans.last.inbox.single;
       expect(summary.type, 'chore_assigned');
-      expect(summary.toMemberId, 'alice');
+      expect(summary.toMemberId, 'dave');
       expect(summary.id, 'ib_as_tpl_1_20261024');
       expect(summary.refId, 'as_tpl_1_20261024');
       expect(summary.params['kind'], 'summary');
@@ -101,7 +110,7 @@ void main() {
   );
 
   test('a second run moves nothing and writes no new row', () async {
-    onlyAliceAvailable();
+    onlyDaveAvailable();
     sixChores();
     seedAbsence();
     await share(familyId: familyId, actorUid: 'alice', force: true);
@@ -122,6 +131,7 @@ void main() {
   test('two recipients get one summary row each', () async {
     sixChores();
     seedAbsence();
+    seedAbsence(memberId: 'alice');
 
     final result = await share(
       familyId: familyId,

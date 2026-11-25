@@ -437,10 +437,7 @@ void main() {
 
       await filterByStatus(tester, 'completed');
 
-      expect(
-        find.byKey(const Key('calendar_agenda_no_match')),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('calendar_agenda_no_match')), findsOneWidget);
 
       await tester.tap(find.text('Clear filters'));
       await tester.pumpAndSettle();
