@@ -34,6 +34,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get actionRetry => 'আবার চেষ্টা করুন';
 
   @override
+  String get startupFailedTitle => 'অ্যাপ চালু হতে পারেনি';
+
+  @override
+  String get startupFailedBody =>
+      'শুরুর একটি ধাপ ব্যর্থ হয়েছে। নিচের বিবরণ ডেভেলপারকে দেখান।';
+
+  @override
+  String startupStepLabel(String step) {
+    return 'ধাপ: $step';
+  }
+
+  @override
+  String get startupFirebaseHint =>
+      'Firebase-এর কী এখনো আসল নয়। firebase/README.md-এর \"Real Firebase configuration\" অংশ দেখুন।';
+
+  @override
   String get actionDelete => 'মুছুন';
 
   @override

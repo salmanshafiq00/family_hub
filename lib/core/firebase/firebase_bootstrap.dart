@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_hub/app/flavor.dart';
+import 'package:family_hub/app/startup/startup_log.dart';
 import 'package:family_hub/core/firebase/cache_wipe.dart';
 import 'package:family_hub/core/firebase/firebase_options_resolver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,10 +28,16 @@ Future<void> initializeFirebase({
   }
 
   // Configure Firestore offline persistence (enabled by default on mobile platforms,
-  // explicit settings ensure persistence is active).
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-  );
+  // explicit settings ensure persistence is active). After an activity restart in the
+  // same process the native Firestore can already be started, so this must not block
+  // startup.
+  try {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+    );
+  } on Object catch (error, stack) {
+    startupLog('firestore settings not applied', error: error, stack: stack);
+  }
 
   if (shouldEmulate) {
     final host = defaultTargetPlatform == TargetPlatform.android
@@ -42,9 +49,19 @@ Future<void> initializeFirebase({
   }
 
   if (prefs != null) {
-    await CacheWipe.wipeIfRequested(
-      prefs,
-      FirebaseFirestore.instance.clearPersistence,
-    );
+    // A failed wipe is logged and the flag stays raised, so it is retried next
+    // start. Startup must not fail because the cache is busy.
+    try {
+      await CacheWipe.wipeIfRequested(
+        prefs,
+        FirebaseFirestore.instance.clearPersistence,
+      );
+    } on Object catch (error, stack) {
+      startupLog(
+        'firestore cache wipe not completed',
+        error: error,
+        stack: stack,
+      );
+    }
   }
 }

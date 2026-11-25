@@ -1,11 +1,14 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:family_hub/app/app.dart';
 import 'package:family_hub/app/flavor.dart';
+import 'package:family_hub/app/startup/critical_startup.dart';
+import 'package:family_hub/app/startup/optional_services.dart';
+import 'package:family_hub/app/startup/startup_error_app.dart';
+import 'package:family_hub/app/startup/startup_log.dart';
+import 'package:family_hub/app/startup/startup_step.dart';
 import 'package:family_hub/app/theme/theme_controller.dart';
 import 'package:family_hub/core/firebase/cache_wipe.dart';
-import 'package:family_hub/core/firebase/firebase_bootstrap.dart';
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
 import 'package:family_hub/core/notifications/data/local_notifications_scheduler.dart';
 import 'package:family_hub/core/notifications/data/device_installation_store.dart';
@@ -81,48 +84,37 @@ import 'package:family_hub/features/settings/data/firestore_preference_sync.dart
 import 'package:family_hub/features/settings/presentation/account_providers.dart';
 import 'package:family_hub/features/onboarding/presentation/profile_providers.dart';
 import 'package:family_hub/modules/module_providers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void _logError(Object error, StackTrace? stack) {
-  developer.log(
-    'Uncaught error',
-    name: 'family_hub',
-    error: error,
-    stackTrace: stack,
-    level: 1000,
-  );
-}
-
 /// Single entry point for both flavors. Runs the app inside a ProviderScope
 /// with zone, framework and platform error handlers that log uncaught errors.
 ///
-/// [SharedPreferences] is loaded **before** [runApp] so that the theme
-/// controller can read persisted values synchronously on the first frame —
-/// no flash of the wrong theme.
+/// [SharedPreferences] and Firebase are loaded **before** [runApp] so that the
+/// theme controller can read persisted values synchronously on the first frame —
+/// no flash of the wrong theme. A failure shows [StartupErrorApp] instead of a
+/// frozen launch screen. Notification and push setup run after the first frame.
 ///
-/// Firebase is initialized with the flavor's options and Firestore offline
-/// persistence enabled. Passing `--dart-define=USE_EMULATOR=true` connects
-/// Auth and Firestore to local emulators.
+/// Passing `--dart-define=USE_EMULATOR=true` connects Auth and Firestore to
+/// local emulators.
 Future<void> bootstrap(Flavor flavor) async {
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    installGlobalErrorHooks();
 
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      _logError(details.exception, details.stack);
-    };
-    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      _logError(error, stack);
-      return true;
-    };
-
-    // Pre-load SharedPreferences so ThemeController.build() can read it
-    // synchronously — avoids a one-frame flash of the wrong theme.  It is
-    // loaded BEFORE Firebase so a pending cache wipe (H9) can run first.
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs;
+    try {
+      prefs = await runCriticalStartup(flavor);
+    } on StartupFailure catch (failure) {
+      runApp(
+        StartupErrorApp(
+          failure: failure,
+          onRetry: () => unawaited(bootstrap(flavor)),
+        ),
+      );
+      return;
+    }
 
     final notificationTapRouter = NotificationTapRouter();
     final reminderScheduler = LocalNotificationsScheduler(
@@ -131,16 +123,7 @@ Future<void> bootstrap(Flavor flavor) async {
       applicationId: flavor.applicationId,
     );
     final languageCode = prefs.getString('language_code') == 'en' ? 'en' : 'bn';
-    await reminderScheduler.initialize(
-      localizations: lookupAppLocalizations(Locale(languageCode)),
-    );
-
-    // Initialize Firebase and configure Firestore persistence + emulators;
-    // clears the previous user's cached data when a sign-out asked for it.
-    await initializeFirebase(flavor: flavor, prefs: prefs);
-
     final pushMessagingService = FirebasePushMessagingService();
-    await pushMessagingService.initialize(notificationTapRouter);
 
     // Built once and shared: the repository is stateless apart from the
     // FirebaseAuth handle, and one instance keeps the auth stream single.
@@ -290,5 +273,14 @@ Future<void> bootstrap(Flavor flavor) async {
         child: const FamilyHubApp(),
       ),
     );
-  }, _logError);
+
+    unawaited(
+      initOptionalPlatformServices(
+        notifications: () => reminderScheduler.initialize(
+          localizations: lookupAppLocalizations(Locale(languageCode)),
+        ),
+        push: () => pushMessagingService.initialize(notificationTapRouter),
+      ),
+    );
+  }, (error, stack) => startupLog('Uncaught error', error: error, stack: stack));
 }

@@ -146,6 +146,30 @@ abstract class AppLocalizations {
   /// **'আবার চেষ্টা করুন'**
   String get actionRetry;
 
+  /// No description provided for @startupFailedTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপ চালু হতে পারেনি'**
+  String get startupFailedTitle;
+
+  /// No description provided for @startupFailedBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরুর একটি ধাপ ব্যর্থ হয়েছে। নিচের বিবরণ ডেভেলপারকে দেখান।'**
+  String get startupFailedBody;
+
+  /// No description provided for @startupStepLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধাপ: {step}'**
+  String startupStepLabel(String step);
+
+  /// No description provided for @startupFirebaseHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'Firebase-এর কী এখনো আসল নয়। firebase/README.md-এর \"Real Firebase configuration\" অংশ দেখুন।'**
+  String get startupFirebaseHint;
+
   /// No description provided for @actionDelete.
   ///
   /// In bn, this message translates to:

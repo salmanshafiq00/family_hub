@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
 
@@ -34,11 +35,12 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
       const <NotificationChannelDefinition>[];
   bool _initialized = false;
   String? _lastError;
+  final Completer<void> _ready = Completer<void>();
 
   Future<void> initialize({required AppLocalizations localizations}) async {
-    ensureTimeZonesInitialized();
-    _channels = notificationChannels(localizations);
     try {
+      ensureTimeZonesInitialized();
+      _channels = notificationChannels(localizations);
       final initialized = await _driver.initialize(tapRouter.route);
       if (initialized == false) {
         throw StateError('The local notification plugin did not initialize.');
@@ -49,12 +51,14 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
       if (launch?.didLaunch == true) tapRouter.route(launch?.payload);
     } on Object catch (error, stackTrace) {
       _recordError(error, stackTrace);
+    } finally {
+      if (!_ready.isCompleted) _ready.complete();
     }
   }
 
   @override
   Future<List<PlannedNotification>> pending() async {
-    _ensureInitialized();
+    await _ensureInitialized();
     return _guard(() async {
       final requests = await _driver.pending();
       return List<PlannedNotification>.unmodifiable(
@@ -65,7 +69,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<void> schedule(PlannedNotification notification) async {
-    _ensureInitialized();
+    await _ensureInitialized();
     await _guard(() async {
       final channel = _channel(notification.channelId);
       await _metadataStore.save(notification);
@@ -83,7 +87,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<void> showNow(PlannedNotification notification) async {
-    _ensureInitialized();
+    await _ensureInitialized();
     await _guard(
       () => _driver.show(
         notification: notification,
@@ -94,7 +98,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<void> cancel(List<int> ids) async {
-    _ensureInitialized();
+    await _ensureInitialized();
     await _guard(() async {
       for (final id in ids) {
         await _driver.cancel(id);
@@ -105,7 +109,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<void> cancelAll({NotificationCategory? category}) async {
-    _ensureInitialized();
+    await _ensureInitialized();
     if (category != null) {
       final ids = (await pending())
           .where((notification) => _belongsTo(notification, category))
@@ -123,7 +127,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<NotificationPermissionState> permissions() async {
-    _ensureInitialized();
+    await _ensureInitialized();
     return _guard(
       () async => NotificationPermissionState(
         granted: await _driver.notificationsEnabled(),
@@ -134,13 +138,13 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestNotifications() async {
-    _ensureInitialized();
+    await _ensureInitialized();
     return _guard(_driver.requestNotifications);
   }
 
   @override
   Future<bool> requestExactAlarms() async {
-    _ensureInitialized();
+    await _ensureInitialized();
     return _guard(_driver.requestExactAlarms);
   }
 
@@ -158,7 +162,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
     List<PlannedNotification>? scheduled;
     int? sdkVersion;
     try {
-      _ensureInitialized();
+      await _ensureInitialized();
       permissionState = await permissions();
       scheduled = await pending();
       sdkVersion = await _guard(_driver.androidSdkVersion);
@@ -198,7 +202,9 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
       notification.channelId == NotificationChannelId.family,
   };
 
-  void _ensureInitialized() {
+  Future<void> _ensureInitialized() async {
+    // Setup now runs after the first frame; callers wait for it instead of failing.
+    await _ready.future.timeout(const Duration(seconds: 20), onTimeout: () {});
     if (!_initialized) {
       throw StateError(
         _lastError ?? 'The local notification adapter is not initialized.',

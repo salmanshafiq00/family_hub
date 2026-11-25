@@ -18,6 +18,20 @@
   "@actionCancel": {},
   "actionRetry": "Retry",
   "@actionRetry": {},
+  "startupFailedTitle": "The app could not start",
+  "@startupFailedTitle": {},
+  "startupFailedBody": "A startup step failed. Show the details below to the developer.",
+  "@startupFailedBody": {},
+  "startupStepLabel": "Step: {step}",
+  "@startupStepLabel": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "startupFirebaseHint": "The Firebase keys are still placeholders. See firebase/README.md → \"Real Firebase configuration\".",
+  "@startupFirebaseHint": {},
   "actionDelete": "Delete",
   "@actionDelete": {},
   "actionEdit": "Edit",

@@ -6,7 +6,6 @@ import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/utils/date_key.dart';
 import 'package:family_hub/features/chores/calendar/domain/agenda_model.dart';
-import 'package:family_hub/features/chores/calendar/domain/calendar_enums.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_layout.dart';
 import 'package:family_hub/features/chores/calendar/presentation/calendar_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
@@ -91,6 +90,8 @@ class _AgendaViewState extends ConsumerState<AgendaView> {
   void _toggleDay(DateKey day) => setState(() {
     if (!_toggledDays.remove(day)) _toggledDays.add(day);
   });
+
+  void _setWindow(AgendaWindow window) => setState(() => _window = window);
 
   void _jumpToToday() {
     if (!_scroll.hasClients) return;

@@ -18,6 +18,20 @@
   "@actionCancel": {},
   "actionRetry": "আবার চেষ্টা করুন",
   "@actionRetry": {},
+  "startupFailedTitle": "অ্যাপ চালু হতে পারেনি",
+  "@startupFailedTitle": {},
+  "startupFailedBody": "শুরুর একটি ধাপ ব্যর্থ হয়েছে। নিচের বিবরণ ডেভেলপারকে দেখান।",
+  "@startupFailedBody": {},
+  "startupStepLabel": "ধাপ: {step}",
+  "@startupStepLabel": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "startupFirebaseHint": "Firebase-এর কী এখনো আসল নয়। firebase/README.md-এর \"Real Firebase configuration\" অংশ দেখুন।",
+  "@startupFirebaseHint": {},
   "actionDelete": "মুছুন",
   "@actionDelete": {},
   "actionEdit": "সম্পাদনা",

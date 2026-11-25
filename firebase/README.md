@@ -47,6 +47,11 @@ placeholders to git and nothing sensitive gets committed. The `ios`/`macos`/`web
 are still placeholders — the app is Android-only, and the startup guard checks only the current
 platform.
 
+Check the four files any time with `dart run tool/check_firebase_config.dart`. Run it after every
+`git checkout`, `stash`, `reset`, `pull` or clone: it fails on placeholder keys or a
+project/package mismatch and never prints a key value. CI does not run it (CI has placeholders on
+purpose).
+
 Re-doing it (fresh clone, or the project's keys are rotated):
 
 ```bash

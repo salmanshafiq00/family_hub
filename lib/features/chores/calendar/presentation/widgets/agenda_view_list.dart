@@ -58,7 +58,7 @@ extension _AgendaViewStateList on _AgendaViewState {
         _MoreButton(
           key: const Key('calendar_load_earlier'),
           label: l10n.calendarLoadEarlier,
-          onPressed: () => setState(() => _window = window.earlier()),
+          onPressed: () => _setWindow(window.earlier()),
         ),
     ];
 
@@ -121,7 +121,7 @@ extension _AgendaViewStateList on _AgendaViewState {
               ? _MoreButton(
                   key: const Key('calendar_load_later'),
                   label: l10n.calendarLoadLater,
-                  onPressed: () => setState(() => _window = window.later()),
+                  onPressed: () => _setWindow(window.later()),
                 )
               : const SizedBox(height: 24),
         ),

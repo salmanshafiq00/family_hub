@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:family_hub/core/notifications/data/notification_platform.dart';
 import 'package:family_hub/core/notifications/domain/planned_notification.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -19,6 +21,7 @@ final class FakeLocalNotificationsDriver implements LocalNotificationsDriver {
   bool requestNotificationsResult = true;
   bool requestExactAlarmsResult = true;
   bool failInitialize = false;
+  Completer<void>? initializeGate;
   int? sdkVersion = 35;
   NotificationLaunchDetails? launch;
   void Function(String? payload)? onTap;
@@ -27,6 +30,8 @@ final class FakeLocalNotificationsDriver implements LocalNotificationsDriver {
   Future<bool?> initialize(void Function(String? payload) callback) async {
     initializeCalls++;
     onTap = callback;
+    final gate = initializeGate;
+    if (gate != null) await gate.future;
     if (failInitialize) throw StateError('plugin init failed');
     return true;
   }

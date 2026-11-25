@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:family_hub/core/localization/generated/app_localizations.dart';
 import 'package:family_hub/core/notifications/data/local_notifications_scheduler.dart';
 import 'package:family_hub/core/notifications/data/notification_platform.dart';
@@ -136,6 +138,36 @@ void main() {
       await expectLater(scheduler.pending(), throwsStateError);
     },
   );
+
+  test('calls made before initialize completes wait for it', () async {
+    final gate = Completer<void>();
+    final driver = FakeLocalNotificationsDriver()..initializeGate = gate;
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final preferences = await SharedPreferences.getInstance();
+    final scheduler = LocalNotificationsScheduler(
+      preferences: preferences,
+      tapRouter: NotificationTapRouter(),
+      applicationId: 'com.familyhub.family_hub',
+      driver: driver,
+      settingsIntents: FakeAndroidSettingsIntents(),
+    );
+
+    final initialization = scheduler.initialize(
+      localizations: lookupAppLocalizations(const Locale('en')),
+    );
+    var completed = false;
+    final pending = scheduler.pending().then((value) {
+      completed = true;
+      return value;
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(completed, isFalse);
+
+    gate.complete();
+    await initialization;
+
+    expect(await pending, isEmpty);
+  });
 
   test('routes a cold-start tap after the app router attaches', () async {
     final driver = FakeLocalNotificationsDriver()

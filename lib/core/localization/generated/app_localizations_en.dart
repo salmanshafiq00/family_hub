@@ -34,6 +34,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionRetry => 'Retry';
 
   @override
+  String get startupFailedTitle => 'The app could not start';
+
+  @override
+  String get startupFailedBody =>
+      'A startup step failed. Show the details below to the developer.';
+
+  @override
+  String startupStepLabel(String step) {
+    return 'Step: $step';
+  }
+
+  @override
+  String get startupFirebaseHint =>
+      'The Firebase keys are still placeholders. See firebase/README.md → \"Real Firebase configuration\".';
+
+  @override
   String get actionDelete => 'Delete';
 
   @override
