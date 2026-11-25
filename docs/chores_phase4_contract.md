@@ -1,6 +1,6 @@
 # Chores - what Phase 4 may rely on (written in P3-29)
 
-Phase 3 stores the data Phase 4 (reminders, badges, Hub Level, celebration, dashboard restyle) needs. This file lists it, and what Phase 3 deliberately does NOT compute. Source of truth for shapes: `docs/PHASE3_CHORES_ROADMAP.md` section 3.2.
+Phase 3 stores the data Phase 4 (reminders, badges, Hub Level, celebration, dashboard restyle) needs. This file lists it, and what Phase 3 deliberately does NOT compute. Source of truth for shapes: the occurrence and template mappers in `lib/features/chores/`, and ADRs 0009-0013.
 
 ## Data that exists
 

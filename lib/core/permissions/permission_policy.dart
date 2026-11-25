@@ -49,11 +49,11 @@ import 'package:family_hub/core/permissions/permission_settings.dart';
 /// above shows the DEFAULTS; `docs/permission_matrix.md` is generated from this
 /// class by `test/core/permissions/permission_matrix_doc_test.dart`.
 ///
-/// Roadmap 2.2 itself was not present in ROADMAP.md, so this table was derived
-/// from the rules the roadmap states elsewhere (Step 9's "admin does
-/// everything, moderator invites/approves/rejects"; Step 15's "members may edit
-/// only their own expenses, admin/moderator any"; Step 25's "reassign
-/// (admin/moderator)"; CLAUDE.md's "members see only their own contributions").
+/// The matrix was derived from the permission rules stated during the build
+/// (Step 9's "admin does everything, moderator invites/approves/rejects"; Step
+/// 15's "members may edit only their own expenses, admin/moderator any"; Step
+/// 25's "reassign (admin/moderator)"; CLAUDE.md's "members see only their own
+/// contributions").
 abstract final class PermissionPolicy {
   /// "May this person verify OTHER people's chores at all?" (B-02).
   ///

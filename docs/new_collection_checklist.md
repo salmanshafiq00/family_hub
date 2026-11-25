@@ -31,4 +31,4 @@ Every step that adds a Firestore collection does ALL of these in the same commit
 
 ## Phase 3 collections (Chores) - checked in P3-29
 
-Every item above was applied to: `settings/chores`, `settings/choreGeneration`, `settings/rotationPolicy`, `choreTemplates`, `dutyGroups`, `choreOccurrences` (+ `events`, `comments`), `memberAvailability`, `swapRequests`, and `notificationInbox`. Phase 4 adds `settings/engagement`, `memberStats`, `memberStatsPublic`, and `users/{uid}/devices`; their paths, rules, and tests are in the Phase 4 implementation. The P4-25 emulator run is still required as sign-off evidence; see `docs/phase4_acceptance.md`.
+Every item above was applied to: `settings/chores`, `settings/choreGeneration`, `settings/rotationPolicy`, `choreTemplates`, `dutyGroups`, `choreOccurrences` (+ `events`, `comments`), `memberAvailability`, `swapRequests`, and `notificationInbox`. Phase 4 adds `settings/engagement`, `memberStats`, `memberStatsPublic`, and `users/{uid}/devices`; their paths, rules, and tests are in the Phase 4 implementation. The P4-25 emulator run is still required as sign-off evidence; see `firebase/README.md` for the current rules-suite status.

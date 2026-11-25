@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 /// The bundled Bangla-first font family declared in pubspec.yaml.
 ///
-/// Chosen in Step 5 after evaluating Hind Siliguri, Noto Sans Bengali and
-/// Anek Bangla (see PROGRESS.md): Hind Siliguri has the best weight coverage
+/// Chosen after evaluating Hind Siliguri, Noto Sans Bengali and Anek Bangla:
+/// Hind Siliguri has the best weight coverage
 /// for UI (300–700), a clean humanist look that stays readable at small sizes,
 /// complete Bengali coverage, and is SIL OFL 1.1 licensed (free to bundle).
 const String kAppFontFamily = 'HindSiliguri';

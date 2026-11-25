@@ -4,7 +4,7 @@
 2026-11-06). No sender is deployed or required. Every notification type
 effectively remains Normal (ADR 0015); the client-side choice and receive path
 stay dormant until a sender is selected. Sender options and prerequisites are
-in [Appendix I of the Phase 4 roadmap](../PHASE4.1_DASHBOARD_ENGAGEMENT_ROADMAP.md#appendix-i-push-sender-options-for-a-future-decision).
+summarised below.
 This decision backs CLAUDE.md rules 74 and 75.
 
 **Context (F-6, F-21).** Receiving FCM is free, but *sending* needs a trusted
@@ -16,8 +16,6 @@ cap, whereas Spark simply stops at its quota. The family currently runs on Spark
 for everything.
 
 **Alternatives considered.**
-For the future sender alternatives and their trade-offs, see [Appendix I of the
-Phase 4 roadmap](../PHASE4.1_DASHBOARD_ENGAGEMENT_ROADMAP.md#appendix-i-push-sender-options-for-a-future-decision).
 
 1. **No push.** Spark only; a swap request or a reassigned chore is learned when
    the app opens, as in Phase 3. Free and simple, but it is the weakest part of

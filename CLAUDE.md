@@ -200,7 +200,7 @@ npx firebase emulators:exec --only firestore --project demo-family-hub \
 
 ## Phase 3 rules (Chores) - binding from P3-01
 
-Source of truth: `docs/PHASE3_CHORES_ROADMAP.md` (sections 1-3 and the step card); the decisions are restated in `docs/decisions/0009`-`0013`.
+The decisions are recorded in `docs/decisions/0009`-`0013`.
 
 34. No literal option list (group, due-time preset, absence reason, calendar view) in chores presentation code; lists come from the `settings/chores` providers (D-P3-4).
 35. Dates, assignees and statuses are derived only by the pure engines `RecurrenceEngine`, `RotationEngine`, `OccurrenceGenerator`, `effectiveStatus`, `SubtaskSync` and `CalendarMonthModel`; widgets never compute them.
@@ -234,7 +234,7 @@ Source of truth: `docs/PHASE3_CHORES_ROADMAP.md` (sections 1-3 and the step card
 
 ## Phase 4 rules (Dashboard, Notifications, Engagement) - binding from P4-01
 
-Source of truth: `docs/PHASE4_DASHBOARD_ENGAGEMENT_ROADMAP.md` (sections 1-3 and the step card); the decisions are restated in `docs/decisions/0015`-`0020`. **Numbering:** rules 56-60 already belong to Phase 3, so the roadmap's "rules 56-72" (P4-01 card, D-P4-3, P4-14, P4-15, P4-23) are CLAUDE.md rules **61-77**, in the same order (roadmap N = CLAUDE.md N + 5). Say "CLAUDE.md rule 73" in new code comments and tests; if the roadmap says "rule 68" it means rule 73 here.
+The decisions are recorded in `docs/decisions/0015`-`0020`. **Numbering:** rules 56-60 already belong to Phase 3, so the Phase 4 rules are CLAUDE.md rules **61-77**, in the same order (source N = CLAUDE.md N + 5). Say "CLAUDE.md rule 73" in new code comments and tests.
 
 61. Reminders are produced only by `ReminderPlanner` and scheduled only through `ReminderScheduler`; widgets never call a plugin.
 62. Notification text is built from ARB keys at planning time (local) or from the Cloud Function's bn/en table (push).

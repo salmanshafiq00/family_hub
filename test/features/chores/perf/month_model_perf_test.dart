@@ -7,8 +7,8 @@ import '../calendar/calendar_test_support.dart';
 /// P3-30 (acceptance 5, D-01): a month at the listener cap still builds fast.
 ///
 /// A wall-clock bound in a unit test is only a smoke check; the real budget is
-/// measured on a device in `docs/chores_read_budget.md`. The bound is generous
-/// (the roadmap target is 30 ms) so a slow CI machine does not flake.
+/// measured on a device. The bound is generous (the roadmap target is 30 ms) so
+/// a slow CI machine does not flake.
 void main() {
   final october = MonthKey(2026, 10);
 

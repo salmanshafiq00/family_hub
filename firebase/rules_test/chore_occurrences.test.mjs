@@ -862,7 +862,7 @@ describe('shape cross-checks', () => {
   });
 });
 
-// ── Wave R1 (docs/PHASE3_REVIEW_ROADMAP.md): B-05, B-06, B-04 ───────────────
+// ── Wave R1: B-05, B-06, B-04 ───────────────────────────────────────────────
 // Written without an emulator: run the suite once and adjust if a fixture helper
 // behaves differently from what these cases assume.
 describe('Wave R1: unique event ids, restore, reopen with steps', () => {
@@ -946,7 +946,7 @@ describe('Wave R1: unique event ids, restore, reopen with steps', () => {
   });
 });
 
-// ── Wave R3 (docs/PHASE3_REVIEW_ROADMAP.md §6): M-01 … M-06, M-08 ───────────
+// ── Wave R3 (§6): M-01 … M-06, M-08 ─────────────────────────────────────────
 // Written without an emulator: run `npm run test:emulator` once and adjust a
 // fixture helper if it behaves differently from what these cases assume.
 describe('Wave R3: rules parity with the roadmap', () => {

@@ -2,7 +2,7 @@
 
 Bangla-first household app: bazar / family finance + family chores.
 Flutter, Riverpod, Firebase (Spark plan). Architecture rules: `CLAUDE.md`.
-Build plan: `ROADMAP.md`; Phase 1 hardening plan: `PHASE1_HARDENING_ROADMAP.md`; status: `PROGRESS.md`.
+Docs: `docs/` for the Bazar and Chores contracts, runbooks and ADRs (`docs/decisions/`).
 
 ## Prerequisites
 | Tool | Version |
@@ -103,13 +103,9 @@ Home renders real data through role-based card policy and a per-user layout;
 local reminders are planned on the phone with a Push/Normal choice per type that
 stays effectively Normal while the family is on Spark (no sender); stats, levels,
 badges and the once-a-day celebration are private by default, with an opt-in
-points-free level card. Evidence lives in `docs/phase4_acceptance.md`, the
-measured listener inventory in `docs/phase4_read_budget.md`, the polish audit in
-`docs/phase4_polish_audit.md` and what Phase 5 may build on in
+points-free level card. What Phase 5 may build on is in
 `docs/phase5_contract.md`. The Firestore rules suite needs a JDK 21+ on PATH;
 Android Studio ships one, so on Windows
 `export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"` and
-`export PATH="$JAVA_HOME/bin:$PATH"` before running it. It ran here on
-2026-11-07: `firebase/firestore.rules` had never compiled, the fixes landed, and
-138 of 153 rules tests pass — see item 24 of
-`docs/phase4_polish_audit.md` for the 15 that still fail.
+`export PATH="$JAVA_HOME/bin:$PATH"` before running it; `firebase/README.md`
+carries the current suite status.

@@ -168,7 +168,7 @@ void main() {
 /// individual cards read today — budget, categories, fund transactions,
 /// contribution plans, availability and the member's own stats. They are one
 /// per card, never one per widget, so the number is flat in the family size,
-/// but it is still above the plan: see docs/phase4_read_budget.md.
+/// but it is still above the plan.
 const int kMaxHomeDataListeners = 13;
 
 /// One Home under one container, with a switch that mimics the shell's tabs:

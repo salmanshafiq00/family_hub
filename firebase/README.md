@@ -121,7 +121,7 @@ The combined `npm test` run currently reports 673 pass and 33 fail; occurrence
 creates pass standalone but fail when all test files are loaded, and unrelated
 denied-case tests also unexpectedly succeed. Investigate test isolation and
 rerun the complete suite before deploying. Production rules have not been
-updated. See item 24 in `docs/phase4_polish_audit.md`.
+updated.
 
 `emulators:exec` refuses to start if something already holds port 8080 (`Could not start Firestore
 Emulator, port taken`) — usually a `firebase emulators:start` left running for the app. Stop it, or

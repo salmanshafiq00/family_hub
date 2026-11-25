@@ -54,7 +54,7 @@ implementation.
   `npm test` run reports 673 passed and 33 failed; occurrence creates that pass
   alone fail when all files are loaded, alongside unrelated denied-case
   failures. Resolve test isolation and rerun the complete suite before
-  publishing rules. See item 24 of [phase4_polish_audit.md](./phase4_polish_audit.md).
+  publishing rules.
 - **`memberStats` writes are unguarded.** `MemberStatsRepository.save` is a
   plain batch `set`, so a phone that syncs from a read taken before another
   phone wrote replaces that phone's document, including its finalised month.
@@ -76,5 +76,4 @@ implementation.
   add a per-card stream to Home, and do not quote D-P4-14's seven as the current
   figure. Converging on the shared month sources is Phase 5 work.
 - **Firestore document reads are still unmeasured,** so nothing in this contract
-  is a claim about quota headroom. See
-  [phase4_read_budget.md](./phase4_read_budget.md).
+  is a claim about quota headroom. See [QUOTA_AUDIT.md](./QUOTA_AUDIT.md).

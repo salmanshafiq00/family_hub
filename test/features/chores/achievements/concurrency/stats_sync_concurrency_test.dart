@@ -23,7 +23,7 @@ import '../domain/engagement_test_support.dart';
 /// that arrives with one more chore adds exactly one, because the month is
 /// rebuilt from the occurrences instead of added to. What is still open is the
 /// interleaving in the last test, where a phone writes from a read taken before
-/// the other one wrote; `docs/phase4_polish_audit.md` carries that finding.
+/// the other one wrote; this test documents that interleaving.
 void main() {
   const familyId = 'family';
   const memberId = 'member';
@@ -122,7 +122,7 @@ void main() {
     expect(store.current, late.valueOrNull);
     // Not the behaviour we want: the stale phone re-added only what it could
     // see, so the document lost the October chore the first phone finalised.
-    // Phase 5 owes this write a guard - see docs/phase4_polish_audit.md item 22.
+    // Phase 5 owes this write a guard.
     expect(store.current?.completedTotal, 2);
   });
 }
