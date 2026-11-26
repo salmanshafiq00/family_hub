@@ -158,8 +158,9 @@ final class TemplateDraft {
 /// A stored chore template (`choreTemplates/{id}`), road map 3.2.
 ///
 /// Documents are never deleted: pause (active = false), resume, or archive
-/// (active = false + [archivedAt]). Every content edit bumps [revision], which
-/// occurrences snapshot so a later edit can tell which plan they came from.
+/// (active = false + [archivedAt]). Every write bumps [revision] by exactly one
+/// (the P3-08 rules enforce it, lifecycle changes included); occurrences
+/// snapshot [revision] so a later edit can tell which plan they came from.
 final class ChoreTemplate {
   const ChoreTemplate({
     required this.id,
@@ -175,7 +176,8 @@ final class ChoreTemplate {
   final String id;
   final TemplateDraft draft;
 
-  /// Starts at 1 and increases by one per content edit (P3-08 rule).
+  /// Starts at 1 and increases by one on every write (the P3-08 rule enforces
+  /// it; lifecycle changes such as pause/archive bump it too).
   final int revision;
 
   /// False when paused or archived; paused templates generate no occurrences.

@@ -1,10 +1,12 @@
 import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/app/theme/app_tokens.dart';
+import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/errors/result.dart';
 import 'package:family_hub/core/localization/app_formatters.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/occurrences/presentation/occurrence_providers.dart';
 import 'package:family_hub/features/chores/presentation/chores_failure_messages.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_catalog_entries.dart';
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_providers.dart';
@@ -223,7 +225,35 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
         nameSuffix: l10n.choreDuplicateSuffix,
       ),
     };
-    final failure = result.failureOrNull;
+    final actionFailure = result.failureOrNull;
+    // On success, switch the filter so the template stays visible in its new
+    // state instead of disappearing from the current tab (UX fix: a paused
+    // template moves to the Paused tab, an archived one to Archived, a resumed
+    // one back to Active).  Only switch on success; a failure leaves the user
+    // on their current tab so they can retry.
+    if (actionFailure == null && mounted) {
+      final nextFilter = switch (action) {
+        TemplateRowAction.pause => TemplateStatusFilter.paused,
+        TemplateRowAction.resume => TemplateStatusFilter.active,
+        TemplateRowAction.archive => TemplateStatusFilter.archived,
+        TemplateRowAction.duplicate => _filter,
+      };
+      if (nextFilter != _filter) {
+        setState(() => _filter = nextFilter);
+      }
+    }
+    // Pause/archive must also clear the already-planned future days, and resume
+    // must create them again. Duplicate creates a fresh template, so it has no
+    // occurrences to reconcile yet.
+    final failure =
+        actionFailure ??
+        (action == TemplateRowAction.duplicate
+            ? null
+            : await _reconcileOccurrences(
+                uid: uid,
+                familyId: familyId,
+                templateId: template.id,
+              ));
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -237,6 +267,33 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
           ),
         ),
       );
+  }
+
+  /// Brings the stored occurrences of [templateId] back in line with the
+  /// template's new state: a paused/archived template loses its unstarted
+  /// future days (soft delete, history untouched), and a resumed one gets them
+  /// back. The range matches the editor's: today .. marker (or the horizon
+  /// when the marker is behind).
+  Future<AppFailure?> _reconcileOccurrences({
+    required String uid,
+    required String familyId,
+    required String templateId,
+  }) async {
+    final today = ref.read(familyDateKeysProvider).today();
+    final marker = ref.read(generationThroughProvider);
+    final horizon = ref.read(choreSettingsProvider).generationHorizonDays;
+    final to = marker != null && !marker.isBefore(today)
+        ? marker
+        : today.addDays(horizon);
+
+    final result = await ref.read(regenerateRangeProvider)(
+      familyId: familyId,
+      actorUid: uid,
+      from: today,
+      to: to,
+      templateId: templateId,
+    );
+    return result.failureOrNull;
   }
 }
 

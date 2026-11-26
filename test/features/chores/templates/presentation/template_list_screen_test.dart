@@ -1,4 +1,6 @@
 import 'package:family_hub/core/permissions/permissions.dart';
+import 'package:family_hub/core/utils/date_key.dart';
+import 'package:family_hub/features/chores/occurrences/domain/chore_occurrence.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:family_hub/features/chores/templates/domain/usecases/create_template.dart';
 import 'package:family_hub/features/chores/templates/domain/usecases/pause_template.dart';
@@ -112,5 +114,46 @@ void main() {
       home: const TemplateListScreen(),
     );
     expect(find.byKey(const ValueKey<String>('template_new')), findsOneWidget);
+  });
+
+  testWidgets('pausing a chore removes its unstarted future days', (
+    tester,
+  ) async {
+    final fixture = ChoresFixture();
+    final create = CreateTemplate(
+      templates: fixture.chores,
+      families: fixture.families,
+      clock: fixture.clock,
+      newId: fixture.ids.call,
+    );
+    final created = await create(
+      actorUid: 'alice',
+      familyId: familyId,
+      draft: aTemplate(nameEn: 'Clean living room'),
+    );
+    final template = created.valueOrNull!;
+    final occurrence = anOccurrence(
+      id: '${template.id}_20261025',
+      templateId: template.id,
+      dateKey: DateKey(2026, 10, 25),
+      nameEn: 'Clean living room',
+    );
+
+    await pumpP3Screen(
+      tester,
+      sharedFixture: fixture,
+      occurrences: <ChoreOccurrence>[occurrence],
+      role: Role.admin,
+      uid: 'alice',
+      home: const TemplateListScreen(),
+    );
+
+    await tester.longPress(find.text('Clean living room'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('sheet_pause')));
+    await tester.pumpAndSettle();
+
+    final stored = fixture.occurrences.occurrences[familyId]![occurrence.id]!;
+    expect(stored.isDeleted, isTrue);
   });
 }

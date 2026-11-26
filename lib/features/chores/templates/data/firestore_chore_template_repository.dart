@@ -70,7 +70,15 @@ class FirestoreChoreTemplateRepository implements TemplateRepository {
     AuditEvent event,
   ) => guardWrite(() async {
     final path = FirestorePaths.choreTemplateDoc(familyId, template.id);
-    final snapshot = await _db.doc(path).get();
+    // Always read from the server so the `revision` we carry into the
+    // batch is the one the Firestore rule sees. A cached revision that
+    // is behind the server's causes a spurious PERMISSION_DENIED because
+    // the rule enforces `revision == resource.data.revision + 1`
+    // (D-P3-23). Lifecycle changes (pause/resume/archive) are especially
+    // prone to this when two devices are online at the same time.
+    final snapshot = await _db
+        .doc(path)
+        .get(const GetOptions(source: Source.server));
     final current = snapshot.exists
         ? BaseMapper.metadataFromMap(snapshot.data() ?? <String, dynamic>{})
         : BaseMapper.createMetadata(uid: event.actorId, clock: _clock);

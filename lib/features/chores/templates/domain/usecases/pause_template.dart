@@ -36,6 +36,10 @@ class PauseTemplate {
     familyId: familyId,
     templateId: templateId,
     auditType: AuditEventType.choresTemplatePaused,
-    change: (current) => current.copyWith(active: false),
+    // The P3-08 rules require `revision` to grow by exactly one on EVERY
+    // template update, including a lifecycle change (pause is not a content
+    // edit, but the document is still written).
+    change: (current) =>
+        current.copyWith(active: false, revision: current.revision + 1),
   );
 }

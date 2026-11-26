@@ -279,7 +279,8 @@ void main() {
       );
       expect(result.valueOrNull!.active, isFalse);
       expect(result.valueOrNull!.isArchived, isFalse);
-      expect(result.valueOrNull!.revision, template.revision);
+      // The P3-08 rules require +1 on every update, lifecycle included.
+      expect(result.valueOrNull!.revision, template.revision + 1);
       expect(
         fixture.chores.events.last.type,
         AuditEventType.choresTemplatePaused,
@@ -288,13 +289,18 @@ void main() {
 
     test('resume sets active = true again', () async {
       final template = await seed();
-      await pause(actorUid: 'bob', familyId: familyId, templateId: template.id);
+      final paused = await pause(
+        actorUid: 'bob',
+        familyId: familyId,
+        templateId: template.id,
+      );
       final result = await resume(
         actorUid: 'bob',
         familyId: familyId,
         templateId: template.id,
       );
       expect(result.valueOrNull!.active, isTrue);
+      expect(result.valueOrNull!.revision, paused.valueOrNull!.revision + 1);
       expect(
         fixture.chores.events.last.type,
         AuditEventType.choresTemplateResumed,
@@ -327,6 +333,7 @@ void main() {
       expect(archived.active, isFalse);
       expect(archived.archivedAt, fixture.clock.nowUtc());
       expect(archived.isGenerating, isFalse);
+      expect(archived.revision, template.revision + 1);
     });
 
     test('archiving twice keeps the first archivedAt', () async {
@@ -343,6 +350,7 @@ void main() {
         templateId: template.id,
       );
       expect(second.valueOrNull!.archivedAt, first.valueOrNull!.archivedAt);
+      expect(second.valueOrNull!.revision, first.valueOrNull!.revision + 1);
     });
 
     test('an archived template disappears from the active list', () async {

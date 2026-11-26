@@ -122,6 +122,18 @@ describe('families/{f}/choreTemplates', () => {
     );
   });
 
+  it('allows a manager to pause with a revision bump', async () => {
+    await seedTemplate();
+    await assertSucceeds(
+      updateDoc(doc(as(BOB), templatePath()), {
+        active: false,
+        revision: 2,
+        updatedAt: nowTs(),
+        updatedBy: BOB,
+      }),
+    );
+  });
+
   it('denies an update that keeps the revision', async () => {
     await seedTemplate();
     await assertFails(

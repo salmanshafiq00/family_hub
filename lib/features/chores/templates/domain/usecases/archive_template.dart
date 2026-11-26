@@ -39,9 +39,12 @@ class ArchiveTemplate {
     templateId: templateId,
     auditType: AuditEventType.choresTemplateArchived,
     // Archiving twice keeps the FIRST archivedAt: the moment the family
-    // retired the chore is history and must not move.
-    change: (current) => current.isArchived
-        ? current
-        : current.copyWith(active: false, archivedAt: _clock.nowUtc()),
+    // retired the chore is history and must not move. `revision` still grows
+    // because the P3-08 rules require +1 on every update.
+    change: (current) => current.copyWith(
+      active: false,
+      archivedAt: current.archivedAt ?? _clock.nowUtc(),
+      revision: current.revision + 1,
+    ),
   );
 }

@@ -41,8 +41,9 @@ class ResumeTemplate {
     auditType: AuditEventType.choresTemplateResumed,
     // An archived template is retired, not paused: resume refuses it (the
     // Conflict surfaces as `template_paused`-style wording in the UI).
-    change: (current) =>
-        current.isArchived ? current : current.copyWith(active: true),
+    change: (current) => current.isArchived
+        ? current
+        : current.copyWith(active: true, revision: current.revision + 1),
     params: (saved) => <String, String>{'name': saved.draft.nameBn},
     reject: (current) =>
         current.isArchived ? const Conflict(code: 'template_paused') : null,
