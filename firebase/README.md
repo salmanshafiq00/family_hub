@@ -52,6 +52,19 @@ Check the four files any time with `dart run tool/check_firebase_config.dart`. R
 project/package mismatch and never prints a key value. CI does not run it (CI has placeholders on
 purpose).
 
+**Quick restore (placeholders are back, e.g. after a clone, zip export or checkout):** download
+the real `google-services.json` for each Android app from the console (Project settings → Your
+apps), save it over `android/app/src/<flavor>/google-services.json`, then:
+
+```bash
+dart run tool/apply_google_services.dart dev     # and: prod
+dart run tool/check_firebase_config.dart
+```
+
+The first command copies apiKey, appId and messagingSenderId into the `android` block of the
+matching `firebase_options_*.dart` and refuses a file from another project or package. It never
+prints key values. Then re-apply `git update-index --skip-worktree` on the four files.
+
 Re-doing it (fresh clone, or the project's keys are rotated):
 
 ```bash

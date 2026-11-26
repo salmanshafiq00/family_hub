@@ -133,7 +133,19 @@ List<ConfigCheck> _checkGoogleServices(
       ),
     ];
   }
-  final client = clients.first;
+  // A console download lists every Android app of the project; pick the one
+  // for this flavor's package, as the Gradle google-services plugin does.
+  final dynamic client = clients.firstWhere(
+    (c) =>
+        c is Map<String, dynamic> &&
+        c['client_info'] is Map<String, dynamic> &&
+        (c['client_info'] as Map<String, dynamic>)['android_client_info']
+            is Map<String, dynamic> &&
+        ((c['client_info'] as Map<String, dynamic>)['android_client_info']
+                as Map<String, dynamic>)['package_name'] ==
+            expectedPackage,
+    orElse: () => clients.first,
+  );
   if (client is! Map<String, dynamic>) {
     return <ConfigCheck>[
       ConfigCheck(CheckStatus.fail, '$flavor google-services: client missing'),
