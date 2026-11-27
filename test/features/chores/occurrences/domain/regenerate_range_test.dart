@@ -204,6 +204,30 @@ void main() {
     },
   );
 
+  test('pause keeps today and removes only future days', () async {
+    seedTemplate(active: false);
+    for (final day in <int>[24, 25, 26]) {
+      seed(
+        anOccurrence(id: 'tpl_1_202610$day', dateKey: DateKey(2026, 10, day)),
+      );
+    }
+
+    final result = await regenerate(
+      familyId: familyId,
+      actorUid: 'bob',
+      from: DateKey(2026, 10, 24),
+      to: DateKey(2026, 10, 26),
+    );
+
+    // Firestore only allows soft-deleting a FUTURE day (ADR 0014); trying to
+    // remove today makes the whole batch PERMISSION_DENIED.
+    expect(result.valueOrNull!.removed, 2);
+    final docs = fixture.occurrences.occurrences[familyId]!;
+    expect(docs['tpl_1_20261024']!.isDeleted, isFalse);
+    expect(docs['tpl_1_20261025']!.isDeleted, isTrue);
+    expect(docs['tpl_1_20261026']!.isDeleted, isTrue);
+  });
+
   test('only the named template is regenerated', () async {
     seedTemplate();
     seedTemplate(id: 'tpl_2');

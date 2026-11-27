@@ -148,11 +148,17 @@ class RegenerateRange {
     final restoredIds = <String>{for (final draft in restores) draft.id};
     final removals = <OccurrencePatch>[];
     final at = _clock.nowUtc();
+    // The rules allow a soft delete only for a FUTURE day (ADR 0014), so today
+    // is never removed even when the caller starts its range at `today` (pause,
+    // archive and the editor all do). Without this guard the batch is refused
+    // as PERMISSION_DENIED and NONE of the future days are cleaned up.
+    final today = _dateKeys.today();
     for (final occurrence in current) {
       if (!affectedIds.contains(occurrence.templateId)) continue;
       if (occurrence.isDeleted) continue;
       if (restoredIds.contains(occurrence.id)) continue;
       if (matchingIds.contains(occurrence.id)) continue;
+      if (!occurrence.dateKey.isAfter(today)) continue;
       if (!isUnstartedOnOrAfter(occurrence, from)) continue;
       removals.add(
         OccurrencePatch(
