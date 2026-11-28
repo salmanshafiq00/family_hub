@@ -1,5 +1,8 @@
 part of 'template_list_screen.dart';
 
+/// What a manager can do to a template from the list.
+enum TemplateRowAction { pause, resume, duplicate, archive }
+
 class _GroupSection extends StatelessWidget {
   const _GroupSection({
     required this.group,

@@ -5608,6 +5608,78 @@ abstract class AppLocalizations {
   /// **'পরিবারের নিয়ম'**
   String get choresSettingsHouseRulesTitle;
 
+  /// No description provided for @choresSettingsRemindersTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিফিকেশন ও রিমাইন্ডার'**
+  String get choresSettingsRemindersTitle;
+
+  /// No description provided for @choresSettingsRemindersSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের নোটিফিকেশন, রিমাইন্ডার সময়, বাকি কাজের সতর্কতা ও সকালের সারাংশ'**
+  String get choresSettingsRemindersSubtitle;
+
+  /// No description provided for @choresSettingsDeliveryTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডেলিভারি'**
+  String get choresSettingsDeliveryTitle;
+
+  /// No description provided for @choresSettingsDeliverySubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের নোটিফিকেশন অ্যাপে নাকি পুশ নোটিফিকেশন হিসেবে আসবে তা নির্ধারণ করুন'**
+  String get choresSettingsDeliverySubtitle;
+
+  /// No description provided for @choresSettingsDeliveryAdminOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধুমাত্র পরিবারের অ্যাডমিন পুশ ডেলিভারি মোড পরিবর্তন করতে পারবেন।'**
+  String get choresSettingsDeliveryAdminOnly;
+
+  /// No description provided for @choresSettingsRemindersEnabled.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের নোটিফিকেশন ও রিমাইন্ডার চালু রাখুন'**
+  String get choresSettingsRemindersEnabled;
+
+  /// No description provided for @choresSettingsRemindersEnabledSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের দায়িত্ব, সময় ও সতর্কবার্তা সংক্রান্ত নোটিফিকেশন পান'**
+  String get choresSettingsRemindersEnabledSubtitle;
+
+  /// No description provided for @choresSettingsRemindersQuietHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'নীরব সময় ও ডিভাইস পুশ নোটিফিকেশন পরিবারের সেটিংস থেকে পরিচালিত হয়।'**
+  String get choresSettingsRemindersQuietHint;
+
+  /// No description provided for @choresSettingsRemindersOpenFamily.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারের সেটিংস খুলুন'**
+  String get choresSettingsRemindersOpenFamily;
+
+  /// No description provided for @notificationChoresSettingsLink.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের রিমাইন্ডারের সময় ও সারাংশ কাজের সেটিংসে পরিচালিত হয়'**
+  String get notificationChoresSettingsLink;
+
+  /// No description provided for @notificationOpenChoreSettings.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের সেটিংস খুলুন'**
+  String get notificationOpenChoreSettings;
+
+  /// No description provided for @notificationChoresDeliveryMoved.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাজের নোটিফিকেশন ডেলিভারি সেটিংস কাজের সেটিংসে পরিচালিত হয়'**
+  String get notificationChoresDeliveryMoved;
+
   /// No description provided for @choresSettingsDefaultView.
   ///
   /// In bn, this message translates to:

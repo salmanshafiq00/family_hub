@@ -9,34 +9,48 @@ class DeliveryTypeList extends StatelessWidget {
     required this.settings,
     required this.onChanged,
     this.pushMasterEnabled = true,
+    this.category,
+    this.categories,
+    this.enabled = true,
     super.key,
   });
 
   final NotificationDeliverySettings settings;
   final ValueChanged<NotificationDeliverySettings> onChanged;
   final bool pushMasterEnabled;
+  final NotificationCategory? category;
+  final List<NotificationCategory>? categories;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final effectiveCategories =
+        categories ??
+        (category != null
+            ? <NotificationCategory>[category!]
+            : NotificationCategory.values);
+    final showHeaders = category == null && effectiveCategories.length > 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final category in NotificationCategory.values) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 8),
-            child: Text(switch (category) {
-              NotificationCategory.chores => l10n.notificationCategoryChores,
-              NotificationCategory.bazar => l10n.notificationCategoryBazar,
-              NotificationCategory.family => l10n.notificationCategoryFamily,
-            }, style: Theme.of(context).textTheme.titleMedium),
-          ),
+        for (final cat in effectiveCategories) ...[
+          if (showHeaders)
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
+              child: Text(switch (cat) {
+                NotificationCategory.chores => l10n.notificationCategoryChores,
+                NotificationCategory.bazar => l10n.notificationCategoryBazar,
+                NotificationCategory.family => l10n.notificationCategoryFamily,
+              }, style: Theme.of(context).textTheme.titleMedium),
+            ),
           for (final type in NotificationTypes.all)
-            if (type.category == category)
+            if (type.category == cat)
               _DeliveryTypeTile(
                 type: type,
                 mode: settings.modes[type.id] ?? type.recommendedMode,
                 pushMasterEnabled: pushMasterEnabled,
+                enabled: enabled,
                 onChanged: (mode) => onChanged(
                   settings.copyWith(modes: {...settings.modes, type.id: mode}),
                 ),
@@ -53,11 +67,13 @@ class _DeliveryTypeTile extends StatelessWidget {
     required this.mode,
     required this.pushMasterEnabled,
     required this.onChanged,
+    this.enabled = true,
   });
 
   final NotificationType type;
   final DeliveryMode mode;
   final bool pushMasterEnabled;
+  final bool enabled;
   final ValueChanged<DeliveryMode> onChanged;
 
   @override
@@ -68,6 +84,7 @@ class _DeliveryTypeTile extends StatelessWidget {
         ? l10n.notificationPush
         : l10n.notificationNormal;
     return Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -91,11 +108,11 @@ class _DeliveryTypeTile extends StatelessWidget {
                 ButtonSegment(
                   value: DeliveryMode.push,
                   label: Text(l10n.notificationPush),
-                  enabled: type.pushCapable,
+                  enabled: enabled && type.pushCapable,
                 ),
               ],
               selected: {type.pushCapable ? mode : DeliveryMode.normal},
-              onSelectionChanged: type.pushCapable
+              onSelectionChanged: enabled && type.pushCapable
                   ? (selected) => onChanged(selected.first)
                   : null,
             ),

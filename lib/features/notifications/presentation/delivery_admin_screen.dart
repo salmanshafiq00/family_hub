@@ -1,7 +1,10 @@
 import 'package:family_hub/app/feature_flags.dart';
+import 'package:family_hub/app/routing/app_routes.dart';
 import 'package:family_hub/core/errors/app_failure.dart';
 import 'package:family_hub/core/localization/l10n_ext.dart';
+import 'package:family_hub/core/notifications/domain/notification_type.dart';
 import 'package:family_hub/core/permissions/permission.dart';
+import 'package:go_router/go_router.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
 import 'package:family_hub/features/notifications/domain/notification_delivery_settings.dart';
@@ -125,6 +128,7 @@ class _DeliveryAdminScreenState extends ConsumerState<DeliveryAdminScreen> {
                   const PushStatusCard(),
                   if (!FeatureFlags.pushBackend)
                     Card(
+                      margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         leading: const Icon(Icons.info_outline),
                         title: Text(l10n.notificationSenderSparkHint),
@@ -147,19 +151,48 @@ class _DeliveryAdminScreenState extends ConsumerState<DeliveryAdminScreen> {
                           )
                         : null,
                   ),
+                  const SizedBox(height: 8),
+                  if (ref.can(Permission.manageChoreTemplates))
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        leading: const Icon(Icons.cleaning_services_outlined),
+                        title: Text(l10n.notificationOpenChoreSettings),
+                        subtitle: Text(l10n.notificationChoresDeliveryMoved),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.go(AppRoutes.choresSettings),
+                      ),
+                    ),
                   DeliveryTypeList(
                     settings: settings,
+                    categories: const [
+                      NotificationCategory.bazar,
+                      NotificationCategory.family,
+                    ],
                     pushMasterEnabled:
                         FeatureFlags.pushBackend && settings.pushEnabled,
                     onChanged: (next) => setState(() => _draft = next),
                   ),
+                  const SizedBox(height: 8),
                   TextButton(
                     key: const Key('delivery_reset_recommended'),
-                    onPressed: () => setState(
-                      () => _draft = NotificationDeliverySettings.defaults(),
-                    ),
+                    onPressed: () {
+                      final nextModes = Map<String, DeliveryMode>.from(
+                        settings.modes,
+                      );
+                      for (final type in NotificationTypes.all) {
+                        if (type.category != NotificationCategory.chores &&
+                            type.pushCapable) {
+                          nextModes[type.id] = type.recommendedMode;
+                        }
+                      }
+                      setState(
+                        () => _draft = settings.copyWith(modes: nextModes),
+                      );
+                    },
                     child: Text(l10n.notificationResetRecommended),
                   ),
+                  const SizedBox(height: 8),
                   BusyButton(
                     key: const Key('delivery_save'),
                     label: l10n.actionSave,

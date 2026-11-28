@@ -24,6 +24,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:family_hub/features/notifications/domain/notification_defaults.dart';
+import 'package:family_hub/features/notifications/domain/notification_delivery_settings.dart';
+
 import '../../../support/in_memory_notification_backend.dart';
 
 import '../chores_test_helpers.dart';
@@ -48,6 +51,8 @@ Future<ChoresFixture> pumpP3Screen(
   String languageCode = 'en',
   List<ChoreOccurrence> occurrences = const <ChoreOccurrence>[],
   PermissionSettings? permissionSettings,
+  NotificationDefaultsRepository? notificationDefaultsRepository,
+  NotificationDeliveryRepository? notificationDeliveryRepository,
   List<Override> overrides = const <Override>[],
 }) async {
   tester.view
@@ -95,7 +100,10 @@ Future<ChoresFixture> pumpP3Screen(
         ),
         // No running timer in a widget test.
         nowTickProvider.overrideWith((ref) => const Stream<DateTime>.empty()),
-        ...notificationTestOverrides(),
+        ...notificationTestOverrides(
+          defaultsRepository: notificationDefaultsRepository,
+          deliveryRepository: notificationDeliveryRepository,
+        ),
         ...overrides,
       ],
       child: _app(

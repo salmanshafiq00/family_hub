@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+part 'notification_settings_screen_parts.dart';
+
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
@@ -84,6 +86,7 @@ class _NotificationSettingsScreenState
         : ref.watch(familyDefaultsProvider(familyId));
     final canManageDefaults = ref.can(Permission.manageNotificationDefaults);
     final canManageDelivery = ref.can(Permission.editFamilySettings);
+    final canManageChores = ref.can(Permission.manageChoreTemplates);
 
     return HomeFallbackBack(
       child: Scaffold(
@@ -238,6 +241,16 @@ class _NotificationSettingsScreenState
                       title: Text(l10n.notificationDeliveryTitle),
                       onTap: () => context.push(AppRoutes.notificationDelivery),
                     ),
+                  if (canManageChores)
+                    ListTile(
+                      key: const Key('notification_chores_settings_link'),
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.cleaning_services_outlined),
+                      title: Text(l10n.notificationOpenChoreSettings),
+                      subtitle: Text(l10n.notificationChoresSettingsLink),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.go(AppRoutes.choresSettings),
+                    ),
                   ListTile(
                     key: const Key('notification_help_link'),
                     contentPadding: EdgeInsets.zero,
@@ -264,33 +277,5 @@ class _NotificationSettingsScreenState
         ),
       ),
     );
-  }
-
-  bool _sameInts(List<int> left, List<int> right) =>
-      left.length == right.length &&
-      List<int>.generate(
-        left.length,
-        (index) => left[index] - right[index],
-      ).every((difference) => difference == 0);
-
-  String _effectivePushReason(
-    BuildContext context,
-    WidgetRef ref,
-    MemberNotificationPrefs member,
-  ) {
-    final l10n = context.l10n;
-    if (!member.pushEnabled) return l10n.notificationPushDisabledHere;
-    final mode = ref.watch(effectiveModeProvider('swap_request'));
-    if (!mode.hasValue) return l10n.notificationSenderChecking;
-    return switch (mode.requireValue.reason) {
-      DeliveryReason.backendUnavailable => l10n.notificationSenderSparkHint,
-      DeliveryReason.masterOff => l10n.notificationPushAdminOff,
-      DeliveryReason.noPermission => l10n.notificationPermissionDenied,
-      DeliveryReason.noToken => l10n.notificationPushTokenMissing,
-      DeliveryReason.memberOptedOut => l10n.notificationPushDisabledHere,
-      DeliveryReason.pushChosen => l10n.notificationSenderReady,
-      DeliveryReason.normalChosen ||
-      DeliveryReason.notPushCapable => l10n.notificationNormal,
-    };
   }
 }

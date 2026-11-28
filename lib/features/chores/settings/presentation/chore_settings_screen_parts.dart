@@ -1,5 +1,30 @@
 part of 'chore_settings_screen.dart';
 
+/// Keeps each tab scrollable and preserves state across tab switching.
+class _TabScroll extends StatefulWidget {
+  const _TabScroll({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_TabScroll> createState() => _TabScrollState();
+}
+
+class _TabScrollState extends State<_TabScroll>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [widget.child],
+    );
+  }
+}
+
 /// One section: its title, a "Reset section" action with a confirmation, and
 /// the section widget.
 class _SectionCard extends ConsumerWidget {

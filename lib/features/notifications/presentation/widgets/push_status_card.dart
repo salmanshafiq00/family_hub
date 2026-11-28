@@ -13,6 +13,7 @@ class PushStatusCard extends ConsumerWidget {
     final diagnostics = ref.watch(pushDiagnosticsProvider);
     if (!FeatureFlags.pushBackend) {
       return Card(
+        margin: const EdgeInsets.only(bottom: 12),
         child: ListTile(
           leading: const Icon(Icons.cloud_off_outlined),
           title: Text(l10n.notificationSenderUnavailable),
@@ -21,6 +22,7 @@ class PushStatusCard extends ConsumerWidget {
       );
     }
     return Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: diagnostics.when(
         loading: () => ListTile(
           leading: const Icon(Icons.cloud_outlined),

@@ -1,4 +1,5 @@
 import 'package:family_hub/core/errors/app_failure.dart';
+import 'package:family_hub/core/notifications/domain/notification_type.dart';
 import 'package:family_hub/core/permissions/permissions.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings.dart';
 import 'package:family_hub/features/chores/settings/domain/chore_settings_repository.dart';
@@ -7,7 +8,12 @@ import 'package:family_hub/features/chores/settings/presentation/chore_settings_
 import 'package:family_hub/features/chores/settings/presentation/chore_settings_state.dart';
 import 'package:family_hub/features/family/presentation/family_providers.dart';
 import 'package:family_hub/features/family/presentation/permission_providers.dart';
+import 'package:family_hub/features/notifications/domain/notification_defaults.dart';
+import 'package:family_hub/features/notifications/domain/notification_delivery_settings.dart';
+import 'package:family_hub/features/notifications/presentation/notification_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+part 'chore_settings_controller_parts.dart';
 
 /// The page's editor state; auto-disposed with the screen so an abandoned
 /// draft never survives a navigation.
@@ -17,14 +23,15 @@ final choreSettingsEditorProvider =
       ChoreSettingsFormState
     >(ChoreSettingsController.new);
 
-/// Holds an immutable draft of [ChoreSettings] (plus the absence policy and the
-/// admin-only "members can complete for others" switch) and saves them
-/// (P3-17).
+/// Holds an immutable draft of [ChoreSettings] (plus the absence policy, the
+/// admin-only "members can complete for others" switch, chore reminder
+/// defaults, and chore notification delivery modes) and saves them (P3-17).
 ///
-/// The three values live in three documents, so [save] writes only the ones
+/// The values live in separate documents, so [save] writes only the ones
 /// that changed, one after the other, and stops at the first failure: what was
 /// already written stays written and the page keeps the rest as unsaved.
-class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
+class ChoreSettingsController extends Notifier<ChoreSettingsFormState>
+    with ChoreSettingsResetMixin {
   @override
   ChoreSettingsFormState build() {
     final settings = ref.read(choreSettingsProvider);
@@ -32,6 +39,17 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
     final complete = ref
         .read(permissionSettingsProvider)
         .membersCanCompleteForOthers;
+    final familyId = ref.read(currentFamilyIdProvider);
+    final defaultsAsync = familyId == null
+        ? null
+        : ref.read(familyDefaultsProvider(familyId));
+    final notificationDefaults =
+        defaultsAsync?.asData?.value ?? NotificationDefaults.defaults;
+    final deliveryAsync = familyId == null
+        ? null
+        : ref.read(deliveryPolicyProvider(familyId));
+    final deliverySettings =
+        deliveryAsync?.asData?.value ?? NotificationDeliverySettings.defaults();
 
     // The first frame can carry the defaults before the listener fires. While
     // nothing is edited the page follows the server; once the user has edits,
@@ -58,6 +76,39 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
         );
       });
 
+    if (familyId != null) {
+      ref
+        ..listen<AsyncValue<NotificationDefaults>>(
+          familyDefaultsProvider(familyId),
+          (_, next) {
+            final nextDefaults = next.asData?.value;
+            if (nextDefaults != null) {
+              final dirty =
+                  state.notificationDefaults != state.savedNotificationDefaults;
+              state = state.copyWith(
+                savedNotificationDefaults: nextDefaults,
+                notificationDefaults: dirty
+                    ? state.notificationDefaults
+                    : nextDefaults,
+              );
+            }
+          },
+        )
+        ..listen<AsyncValue<NotificationDeliverySettings>>(
+          deliveryPolicyProvider(familyId),
+          (_, next) {
+            final nextDelivery = next.asData?.value;
+            if (nextDelivery != null) {
+              final dirty = state.isSectionDirty(ChoreSettingsSection.delivery);
+              state = state.copyWith(
+                savedDeliverySettings: nextDelivery,
+                deliverySettings: dirty ? state.deliverySettings : nextDelivery,
+              );
+            }
+          },
+        );
+    }
+
     return ChoreSettingsFormState(
       draft: settings,
       saved: settings,
@@ -65,6 +116,10 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
       savedPolicy: policy,
       completeForOthers: complete,
       savedCompleteForOthers: complete,
+      notificationDefaults: notificationDefaults,
+      savedNotificationDefaults: notificationDefaults,
+      deliverySettings: deliverySettings,
+      savedDeliverySettings: deliverySettings,
     );
   }
 
@@ -89,64 +144,23 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
     justSaved: false,
   );
 
-  /// Puts one section back to the built-in defaults. Nothing is written until
-  /// Save, and no template or occurrence is ever deleted by it.
-  void resetSection(ChoreSettingsSection section) {
-    const d = ChoreSettings.defaults;
-    final draft = state.draft;
-    switch (section) {
-      case ChoreSettingsSection.calendar:
-        state = state.copyWith(
-          draft: draft.copyWith(
-            weekStartDay: d.weekStartDay,
-            defaultCalendarView: d.defaultCalendarView,
-            defaultScope: d.defaultScope,
-            showProjected: d.showProjected,
-            projectedMonthsAhead: d.projectedMonthsAhead,
-          ),
-        );
-      case ChoreSettingsSection.generation:
-        state = state.copyWith(
-          draft: draft.copyWith(
-            generationHorizonDays: d.generationHorizonDays,
-            overdueGraceMinutes: d.overdueGraceMinutes,
-          ),
-        );
-      case ChoreSettingsSection.catalogs:
-        state = state.copyWith(
-          draft: draft.copyWith(
-            groups: d.groups,
-            dueTimePresets: d.dueTimePresets,
-            absenceReasons: d.absenceReasons,
-          ),
-        );
-      case ChoreSettingsSection.policies:
-        final mayEditPermissions = ref.read(
-          canProvider(const PermissionQuery(Permission.editFamilySettings)),
-        );
-        state = state.copyWith(
-          draft: draft.copyWith(
-            swapsEnabled: d.swapsEnabled,
-            swapExpiryBufferMinutes: d.swapExpiryBufferMinutes,
-            absenceNeedsApproval: d.absenceNeedsApproval,
-            workloadVisibleToMembers: d.workloadVisibleToMembers,
-          ),
-          policy: AbsencePolicy.autoAssign,
-          completeForOthers: mayEditPermissions
-              ? PermissionSettings.defaults.membersCanCompleteForOthers
-              : state.completeForOthers,
-        );
-      case ChoreSettingsSection.houseRules:
-        state = state.copyWith(draft: draft.copyWith(houseRules: ''));
-    }
-    state = state.copyWith(clearFailure: true, justSaved: false);
-  }
+  void setNotificationDefaults(NotificationDefaults value) =>
+      state = state.copyWith(
+        notificationDefaults: value,
+        clearFailure: true,
+        justSaved: false,
+      );
+
+  void setDeliverySettings(NotificationDeliverySettings value) => state = state
+      .copyWith(deliverySettings: value, clearFailure: true, justSaved: false);
 
   /// Throws the edits away and goes back to what the server has.
   void discard() => state = state.copyWith(
     draft: state.saved,
     policy: state.savedPolicy,
     completeForOthers: state.savedCompleteForOthers,
+    notificationDefaults: state.savedNotificationDefaults,
+    deliverySettings: state.savedDeliverySettings,
     clearFailure: true,
   );
 
@@ -201,6 +215,28 @@ class ChoreSettingsController extends Notifier<ChoreSettingsFormState> {
         final failure = result.failureOrNull;
         if (failure != null) return _fail(failure);
         state = state.copyWith(savedCompleteForOthers: state.completeForOthers);
+      }
+      if (state.notificationDefaults != state.savedNotificationDefaults) {
+        final result = await ref.read(updateNotificationDefaultsProvider)(
+          actorUid: uid,
+          familyId: familyId,
+          settings: state.notificationDefaults,
+        );
+        final failure = result.failureOrNull;
+        if (failure != null) return _fail(failure);
+        state = state.copyWith(
+          savedNotificationDefaults: state.notificationDefaults,
+        );
+      }
+      if (state.isSectionDirty(ChoreSettingsSection.delivery)) {
+        final result = await ref.read(updateNotificationDeliveryProvider)(
+          actorUid: uid,
+          familyId: familyId,
+          settings: state.deliverySettings,
+        );
+        final failure = result.failureOrNull;
+        if (failure != null) return _fail(failure);
+        state = state.copyWith(savedDeliverySettings: state.deliverySettings);
       }
       state = state.copyWith(saving: false, justSaved: true);
       return true;

@@ -7,7 +7,7 @@ import 'apply_google_services_lib.dart';
 ///
 /// 1. Console -> familyhub-app-ai -> Project settings -> Your apps ->
 ///    the Android app -> download google-services.json.
-/// 2. Save it over android/app/src/<flavor>/google-services.json.
+/// 2. Save it over `android/app/src/<flavor>/google-services.json`.
 /// 3. dart run tool/apply_google_services.dart dev   (or prod)
 /// 4. dart run tool/check_firebase_config.dart
 ///
@@ -39,7 +39,9 @@ Future<void> main(List<String> args) async {
     );
     final file = File(flavor.options);
     file.writeAsStringSync(patchAndroidBlock(file.readAsStringSync(), values));
-    stdout.writeln('OK ${args.first}: android block updated in ${flavor.options}');
+    stdout.writeln(
+      'OK ${args.first}: android block updated in ${flavor.options}',
+    );
     stdout.writeln('Next: dart run tool/check_firebase_config.dart');
   } on ApplyException catch (e) {
     stderr.writeln('FAIL ${args.first}: $e');

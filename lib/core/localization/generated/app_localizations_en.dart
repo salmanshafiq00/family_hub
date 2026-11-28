@@ -3230,6 +3230,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choresSettingsHouseRulesTitle => 'House rules';
 
   @override
+  String get choresSettingsRemindersTitle => 'Notifications & Reminders';
+
+  @override
+  String get choresSettingsRemindersSubtitle =>
+      'Chore notification defaults, reminder timings, overdue alerts and daily morning summary';
+
+  @override
+  String get choresSettingsDeliveryTitle => 'Delivery';
+
+  @override
+  String get choresSettingsDeliverySubtitle =>
+      'Choose whether chore alerts are delivered as standard in-app notifications or device push notifications';
+
+  @override
+  String get choresSettingsDeliveryAdminOnly =>
+      'Only family administrators can change push delivery modes.';
+
+  @override
+  String get choresSettingsRemindersEnabled =>
+      'Enable chore notifications & reminders';
+
+  @override
+  String get choresSettingsRemindersEnabledSubtitle =>
+      'Receive notifications for chore assignments, due times, and overdue alerts';
+
+  @override
+  String get choresSettingsRemindersQuietHint =>
+      'Quiet hours and device push notifications are managed in Family Settings.';
+
+  @override
+  String get choresSettingsRemindersOpenFamily => 'Open Family Settings';
+
+  @override
+  String get notificationChoresSettingsLink =>
+      'Chore reminder timings and summaries are configured in Chore Settings';
+
+  @override
+  String get notificationOpenChoreSettings => 'Open Chore Settings';
+
+  @override
+  String get notificationChoresDeliveryMoved =>
+      'Chore notification delivery settings are configured in Chore Settings';
+
+  @override
   String get choresSettingsDefaultView => 'Default calendar view';
 
   @override

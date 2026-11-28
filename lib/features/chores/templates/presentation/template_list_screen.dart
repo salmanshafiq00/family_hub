@@ -296,6 +296,3 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
     return result.failureOrNull;
   }
 }
-
-/// What a manager can do to a template from the list.
-enum TemplateRowAction { pause, resume, duplicate, archive }

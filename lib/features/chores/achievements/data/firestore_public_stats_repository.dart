@@ -16,9 +16,18 @@ final class FirestorePublicStatsRepository implements PublicStatsRepository {
   final FirebaseFirestore _db;
 
   @override
-  Stream<PublicStats?> watch(String familyId, String memberId) => watchKnownDoc(
-    _db.doc(FirestorePaths.memberStatsPublicDoc(familyId, memberId)),
-  ).map(PublicStatsMappers.fromMap).distinct();
+  Stream<PublicStats?> watch(String familyId, String memberId) =>
+      watchKnownDoc(
+        _db.doc(FirestorePaths.memberStatsPublicDoc(familyId, memberId)),
+      ).map(PublicStatsMappers.fromMap).handleError((Object error) {
+        if (error is FirebaseException && error.code == 'permission-denied') {
+          return;
+        }
+        if (error is PermissionDenied) {
+          return;
+        }
+        throw error;
+      }).distinct();
 
   @override
   Stream<Map<String, PublicStats>> watchFamily(String familyId) => _db
@@ -32,6 +41,15 @@ final class FirestorePublicStatsRepository implements PublicStatsRepository {
           if (stats != null) result[document.id] = stats;
         }
         return Map<String, PublicStats>.unmodifiable(result);
+      })
+      .handleError((Object error) {
+        if (error is FirebaseException && error.code == 'permission-denied') {
+          return;
+        }
+        if (error is PermissionDenied) {
+          return;
+        }
+        throw error;
       });
 
   @override
@@ -42,7 +60,12 @@ final class FirestorePublicStatsRepository implements PublicStatsRepository {
           .get(),
     );
     final failure = loaded.failureOrNull;
-    if (failure != null) return Failure<PublicStats?>(failure);
+    if (failure != null) {
+      if (failure is PermissionDenied) {
+        return const Success<PublicStats?>(null);
+      }
+      return Failure<PublicStats?>(failure);
+    }
     final snapshot = loaded.valueOrNull!;
     if (!snapshot.exists && snapshot.metadata.isFromCache) {
       return const Failure<PublicStats?>(Network());

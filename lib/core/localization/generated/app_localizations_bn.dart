@@ -3210,6 +3210,50 @@ class AppLocalizationsBn extends AppLocalizations {
   String get choresSettingsHouseRulesTitle => 'পরিবারের নিয়ম';
 
   @override
+  String get choresSettingsRemindersTitle => 'নোটিফিকেশন ও রিমাইন্ডার';
+
+  @override
+  String get choresSettingsRemindersSubtitle =>
+      'কাজের নোটিফিকেশন, রিমাইন্ডার সময়, বাকি কাজের সতর্কতা ও সকালের সারাংশ';
+
+  @override
+  String get choresSettingsDeliveryTitle => 'ডেলিভারি';
+
+  @override
+  String get choresSettingsDeliverySubtitle =>
+      'কাজের নোটিফিকেশন অ্যাপে নাকি পুশ নোটিফিকেশন হিসেবে আসবে তা নির্ধারণ করুন';
+
+  @override
+  String get choresSettingsDeliveryAdminOnly =>
+      'শুধুমাত্র পরিবারের অ্যাডমিন পুশ ডেলিভারি মোড পরিবর্তন করতে পারবেন।';
+
+  @override
+  String get choresSettingsRemindersEnabled =>
+      'কাজের নোটিফিকেশন ও রিমাইন্ডার চালু রাখুন';
+
+  @override
+  String get choresSettingsRemindersEnabledSubtitle =>
+      'কাজের দায়িত্ব, সময় ও সতর্কবার্তা সংক্রান্ত নোটিফিকেশন পান';
+
+  @override
+  String get choresSettingsRemindersQuietHint =>
+      'নীরব সময় ও ডিভাইস পুশ নোটিফিকেশন পরিবারের সেটিংস থেকে পরিচালিত হয়।';
+
+  @override
+  String get choresSettingsRemindersOpenFamily => 'পরিবারের সেটিংস খুলুন';
+
+  @override
+  String get notificationChoresSettingsLink =>
+      'কাজের রিমাইন্ডারের সময় ও সারাংশ কাজের সেটিংসে পরিচালিত হয়';
+
+  @override
+  String get notificationOpenChoreSettings => 'কাজের সেটিংস খুলুন';
+
+  @override
+  String get notificationChoresDeliveryMoved =>
+      'কাজের নোটিফিকেশন ডেলিভারি সেটিংস কাজের সেটিংসে পরিচালিত হয়';
+
+  @override
   String get choresSettingsDefaultView => 'ডিফল্ট ক্যালেন্ডার ভিউ';
 
   @override

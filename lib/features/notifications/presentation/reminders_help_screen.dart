@@ -38,7 +38,9 @@ class RemindersHelpScreen extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () => context.push(AppRoutes.notificationSettings),
+            onPressed: () => context.canPop()
+                ? context.pop()
+                : context.go(AppRoutes.notificationSettings),
             child: Text(l10n.notificationSettingsTitle),
           ),
         ],

@@ -102,7 +102,11 @@ String patchAndroidBlock(String source, AndroidFirebaseValues v) {
   body = _swap(body, 'apiKey', v.apiKey);
   body = _swap(body, 'appId', v.appId);
   body = _swap(body, 'messagingSenderId', v.messagingSenderId);
-  return source.replaceRange(match.start, match.end, '${match.group(1)}$body${match.group(3)}');
+  return source.replaceRange(
+    match.start,
+    match.end,
+    '${match.group(1)}$body${match.group(3)}',
+  );
 }
 
 String _swap(String body, String field, String value) {
